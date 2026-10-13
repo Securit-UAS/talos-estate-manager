@@ -1,4 +1,4 @@
-# TALOS Estate Manager — V1 development build
+# TALOS Estate Manager — V1 pilot build (connected)
 
 Target repository: https://github.com/Securit-UAS/talos-estate-manager/
 
@@ -18,10 +18,10 @@ Target repository: https://github.com/Securit-UAS/talos-estate-manager/
 - Test-mode write restriction is controlled by `testOnlySiteId` (frontend-only, NOT security).
 
 ## Configure and deploy
-1. Copy `config.example.js` to `config.js` for private internal testing. Populate `api.list`, `api.detail`, `api.update` and `auth.getSalt`, `auth.login`, `auth.validate`, `auth.changePin` with secured endpoints. Don't commit live signature-bearing values.
-2. Keep `writesEnabled: false` and `protectedByGateway: false` until a proper authorising proxy or authenticated Power Automate flow verifies the current user's identity and edit permission. A frontend login **does not** protect signed URLs.
-3. Host in a controlled static environment, or deploy GitHub Pages only after replacing HTTP trigger URLs with endpoints that enforce tenant identity and user permissions. GH Pages alone has no access controls even if its repository is private.
-4. Once the backend guards are in place set `writesEnabled: true`, `protectedByGateway: true`, and during the pilot keep `testOnlySiteId: 235` **plus a server-side allowlist**. Move to live sites only after verification.
+1. This PILOT ZIP includes a populated `config.js` with the existing signed Estate and TALOS authentication URLs. Uploading it to GitHub Pages exposes those URL signatures publicly. Use for an explicitly accepted short pilot only; rotate afterwards.
+2. This build has `writesEnabled: true`, `pilotMode: true`, `protectedByGateway: false`, and `testOnlySiteId: 235`. These are frontend controls only. They DO NOT restrict the backend signed Update URL; any holder can call it directly for other IDs.
+3. GitHub Pages is a public static host on non-Enterprise accounts; publishing the API URLs exposes them. Approval and PIN login gate the user interface only. Do not equate them with API access control.
+4. Begin UI edit testing with ID 235. Before Lee modifies any live record, enforce server-side per-user and site scope checks and replace all signature-bearing endpoints.
 5. Check cross-origin requests are permitted by your gateway. If Microsoft Power Automate browser CORS policies disallow direct calls, use an authenticated same-origin proxy.
 
 ## Critical before Lee's real-world edit pilot
@@ -37,4 +37,4 @@ Target repository: https://github.com/Securit-UAS/talos-estate-manager/
 ## Build files
 `index.html`, `styles.css`, `app.js`, `config.example.js`, `.gitignore`, `securit-logo.png`.
 
-`config.js` is included as an unconfigured local-development placeholder and intentionally ignored by Git. It is NOT a secure secret store when delivered to a browser. Implement a secure proxy for deployed environments.
+`config.js` is populated for pilot testing and included in the ZIP. Anyone visiting the published GitHub Pages site can inspect its contents and use the API signatures. It is not a secure secret store. Replace with an authenticated backend proxy for production.
