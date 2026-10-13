@@ -2,7 +2,7 @@
 // Never commit live Power Automate signature-bearing URLs to a public repository.
 // IMPORTANT: This static frontend CANNOT enforce server-side authorisation.
 window.TALOS_CONFIG = {
-  api: { list: '', detail: '', update: '' },
+  api: { list: '', detail: '', update: '', create: '' },
   auth: { getSalt: '', login: '', validate: '', changePin: '' },
   writesEnabled: false,
   // Development guard only. Must ALSO be enforced by the update flow or gateway.

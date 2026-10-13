@@ -15,13 +15,13 @@ Target repository: https://github.com/Securit-UAS/talos-estate-manager/
 - Loads SharePoint Site Detail only after selecting a site.
 - Full 24-field editor with **diff-only** update requests and explicit clear (`""`) support.
 - Uses only list ID internally; optimistic concurrency is NOT YET implemented.
-- Test-mode write restriction is controlled by `testOnlySiteId` (frontend-only, NOT security).
+- Pilot UI editing is enabled for all records returned by the Estate List API; `testOnlySiteId: null` is a frontend setting, NOT a security measure.
 
 ## Configure and deploy
 1. This PILOT ZIP includes a populated `config.js` with the existing signed Estate and TALOS authentication URLs. Uploading it to GitHub Pages exposes those URL signatures publicly. Use for an explicitly accepted short pilot only; rotate afterwards.
-2. This build has `writesEnabled: true`, `pilotMode: true`, `protectedByGateway: false`, and `testOnlySiteId: 235`. These are frontend controls only. They DO NOT restrict the backend signed Update URL; any holder can call it directly for other IDs.
+2. This build has `writesEnabled: true`, `pilotMode: true`, `protectedByGateway: false`, and `testOnlySiteId: null`. These are frontend controls only. They DO NOT restrict the backend signed Update URL; any holder can call it directly for other IDs.
 3. GitHub Pages is a public static host on non-Enterprise accounts; publishing the API URLs exposes them. Approval and PIN login gate the user interface only. Do not equate them with API access control.
-4. Begin UI edit testing with ID 235. Before Lee modifies any live record, enforce server-side per-user and site scope checks and replace all signature-bearing endpoints.
+4. Pilot UI permits editing all listed records. The signed Update flow does not yet independently enforce user permissions or site scope; apply server-side controls before wider rollout.
 5. Check cross-origin requests are permitted by your gateway. If Microsoft Power Automate browser CORS policies disallow direct calls, use an authenticated same-origin proxy.
 
 ## Critical before Lee's real-world edit pilot

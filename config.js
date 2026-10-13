@@ -14,7 +14,7 @@ window.TALOS_CONFIG = {
     "changePin": "https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/482d761e7f774b5db9bee5b81827cf51/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kkeFsWKGcfV4b2G2Br7jBNaqouapsWzGFnmVod9rwm4"
 },
   writesEnabled: true,
-  pilotMode: true, // Enables UI edit on test site only, NOT a security mechanism.
-  testOnlySiteId: 235,
+  pilotMode: true, // Enables pilot UI edits; NOT a security mechanism.
+  testOnlySiteId: null,
   protectedByGateway: false
 };
