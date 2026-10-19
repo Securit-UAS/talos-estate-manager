@@ -61,6 +61,7 @@ function latestAttempt(rows,id){const all=(rows||[]).filter(a=>clean(a.staffID)=
 const courses=["ethics","unexpected-filming","id-ooh-social","incident-reporting","health-safety","checkpoint-welfare"];
 function trainingStatus(id){let due=false;for(const c of courses){const a=latestAttempt(payload[c],id);if(!a||!a.pass)return "red";const d=trainingDate(a);if(!d)return "red";const today=dateOnly(new Date()),dueDate=addMonthsSafe(d,11),exp=addMonthsSafe(d,12);if(today>=exp)return "red";if(today>=dueDate)due=true}return due?"amber":"green"}
 function normProvider(v){return clean(v).toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g," ").split(" ").filter(Boolean).filter(x=>!["ltd","limited","plc","llp","uk","united","kingdom"].includes(x)).join(" ")}
+function excludedProvider(v){return normProvider(v)==="trevion"}
 function isSecurit(v){const n=normProvider(v);return n==="securit"||n==="secur it"||n==="securit group"}function isMcl(v){const n=key(v);return /(^|\s)mcl(\s|$)/.test(n)||n.includes("mclaren")}
 function declStatus(o,decl){if(!o.provider)return "amber";const direct=isSecurit(o.provider),required=!direct||o.sites.some(isMcl);if(!required)return "na";if(!decl)return "red";if(!direct){const a=normProvider(decl.declaredProvider),b=normProvider(o.provider);if(!a||a!==b)return "amber"}return "green"}
 function nameCanon(v){return clean(v).toLowerCase().replace(/[\u0000-\u001f\u007f]/g,"").replace(/[^a-z0-9\s'-]/g," ").replace(/\s+/g," ").trim()}
