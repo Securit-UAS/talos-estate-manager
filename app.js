@@ -27,7 +27,7 @@ async function onPinChange(e){e.preventDefault();const pin=$('newPin').value;if(
 async function initialise(){const theme=localStorage.getItem('talosEstateTheme')||'dark';setTheme(theme);if(!auth.validate||!auth.getSalt||!auth.login){$('configNotice').textContent='Authentication endpoints are not configured yet.'}const stored=localStorage.getItem(key);if(!stored)return;try{session=JSON.parse(stored);if(!session?.email||!session?.token)throw Error('Incomplete session');const valid=await post(auth.validate,{email:session.email,token:session.token});if(!valid.success)throw Error('Session expired');session.displayName=valid.displayName||session.displayName;saveSession();if(valid.mustChangePassword===true||n(valid.mustChangePassword)==='true'){showPinChange();return}showApp();await Promise.all([loadList(),loadMasters()])}catch(err){logout();$('loginMessage').textContent='Please sign in with your TALOS account.'}}
 function showApp(){$('authGate').hidden=true;$('shell').hidden=false;$('userName').textContent=session.displayName||'Authorised user';$('userEmail').textContent=session.email;$('avatar').textContent=(session.displayName||session.email||'T').slice(0,1).toUpperCase()}
 function setTheme(theme){document.body.dataset.theme=theme;localStorage.setItem('talosEstateTheme',theme);$('themeSwitch').textContent=theme==='dark'?'☀ Light mode':'☾ Dark mode';document.querySelectorAll('#moduleHost iframe').forEach(sendModuleTheme)}
-async function loadList(){if(!api.list){$('connectionBadge').textContent='List API not configured';return}try{busy=true;$('connectionBadge').textContent='Loading estate…';const rows=await post(api.list,{});const arr=Array.isArray(rows)?rows:Array.isArray(rows.value)?rows.value:Array.isArray(rows.body)?rows.body:null;if(!arr)throw Error('Unexpected estate list response');sites=arr.map(normalise).filter(allowed);$('connectionBadge').textContent=`Connected · ${sites.length} sites`;$('connectionBadge').classList.add('good');populateFilters();stats();renderList();if(selected&&!createMode)await openSite(selected)}catch(err){$('connectionBadge').textContent='Connection error';toast(`Could not load estate: ${err.message}`)}finally{busy=false}}
+async function loadList(){if(!api.list){$('connectionBadge').textContent='List API not configured';return}try{busy=true;$('connectionBadge').textContent='Loading estate…';const rows=await post(api.list,{});const arr=Array.isArray(rows)?rows:Array.isArray(rows.value)?rows.value:Array.isArray(rows.body)?rows.body:null;if(!arr)throw Error('Unexpected estate list response');sites=arr.map(normalise).filter(allowed);$('connectionBadge').textContent=`Connected · ${sites.length} sites`;$('connectionBadge').classList.add('good');populateFilters();stats();renderList();const cmsFrame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(cmsFrame)sendCmsContext(cmsFrame);if(selected&&!createMode)await openSite(selected)}catch(err){$('connectionBadge').textContent='Connection error';toast(`Could not load estate: ${err.message}`)}finally{busy=false}}
 function populateFilters(){const opts=[...new Set(sites.map(x=>x.region).filter(Boolean))].sort();$('filterRegion').innerHTML='<option value="">All regions</option>'+opts.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}
 function stats(){const guard=sites.filter(s=>active(s.active));$('kTotal').textContent=sites.length;$('kActive').textContent=guard.length;$('kOverdue').textContent=guard.filter(s=>deadline(s)==='overdue').length;$('kMissing').textContent=guard.filter(s=>deadline(s)==='missing').length}
 function getVisible(){let query=n($('search').value).replace(/\bmcl\b/g,'mclaren').replace(/\bfg\b/g,'frasers group');let terms=query.split(/\s+/).filter(Boolean);return sites.filter(s=>{if($('filterType').value&&s.type!==$('filterType').value)return false;if($('filterRegion').value&&s.region!==$('filterRegion').value)return false;if($('filterActive').value&&(active(s.active)?'Yes':'No')!==$('filterActive').value)return false;if(showReviews&&(!active(s.active)||deadline(s)==='ok'))return false;const hay=n([s.name,s.postcode,s.manager,s.projectManager,s.region,s.type].join(' '));return terms.every(t=>hay.includes(t))}).sort((a,b)=>a.name.localeCompare(b.name))}
@@ -56,7 +56,7 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // TALOS unified-module router. Independent same-origin documents preserve r29 logic,
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
-const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html'};
+const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html'};
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -66,19 +66,20 @@ function activateModule(name){
  $('connectionBadge').hidden=!isEstate;
  $('wallPresentationStart').hidden=name!=='wallboard';
  if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
- for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
- const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard'};
+ for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
+ const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=1.9.2';frame.addEventListener('load',()=>sendModuleTheme(frame));$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
 $('navCompliance').addEventListener('click',()=>activateModule('compliance'));
 $('navIncidents').addEventListener('click',()=>activateModule('incidents'));
 $('navWallboard').addEventListener('click',()=>activateModule('wallboard'));
+$('navCms').addEventListener('click',()=>activateModule('cms'));
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
@@ -105,3 +106,7 @@ document.addEventListener('fullscreenchange',()=>{
   $('wallPresentationExit').hidden=!active;
   $('wallPresentationStart').hidden=active||activeModule!=='wallboard';
 });
+
+// The CMS module gets the current TALOS session and estate reference data only on request.
+function sendCmsContext(frame){if(!session||frame.dataset.module!=='cms')return;try{frame.contentWindow.postMessage({talosCmsContext:{email:session.email,token:session.token,displayName:session.displayName||session.email,sites:sites.filter(s=>active(s.active)).map(s=>({id:s.id,name:s.name,type:s.type,region:s.region})),api:{submit:api.cmsSubmit||'',read:api.cmsRead||'',confirm:api.cmsConfirm||''}}},location.origin)}catch(_){}}
+window.addEventListener('message',event=>{if(event.origin!==location.origin)return;const frame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(!frame||event.source!==frame.contentWindow)return;if(event.data?.talosCmsRequestContext)sendCmsContext(frame)});

@@ -3,6 +3,9 @@
 // Rotate and replace with identity-checked backend URLs before wider rollout.
 window.TALOS_CONFIG = {
   api: {
+    cmsSubmit: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/3871bfb00d034d3ca033079d3bb66e7b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dv_MMduOK9VqnWAcTFHICQYNd_OmbjzrAZI8Xj19J9A', // UAT only: rotate before production
+    cmsRead: '', // TODO: return current Talos DB v2 reports
+    cmsConfirm: '', // TODO: update confirmation status
     masterRecords: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/26/workflows/c44b9854ee2d400d94a6ce5ec9e188e1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yawIce99Ztnx_V2BRsF0Hq89CFVn9RBZ9GlpchQTbhg',
     create: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/16/workflows/ac9178619cf043b7ba074c06fe2f07ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=V4QSDqUYF8pJY4xiNP5lje6Ay4-4DtPM0lzzcyU1vno',
     compliance: "https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/c839f80ae5314a8997c693dccf60fd95/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iNQpx1uQwuRAZpwRmSCHer7iGXotIeAE7wHvznvvDz4", // Add your existing Master Compliance combined API URL

@@ -3,6 +3,7 @@
 // IMPORTANT: This static frontend CANNOT enforce server-side authorisation.
 window.TALOS_CONFIG = {
   api: {
+    cmsSubmit: '', cmsRead: '', cmsConfirm: '',
     compliance: "", // Existing Master Compliance combined API endpoint
     incidents: "", // Existing Incident dashboard API endpoint list: '', detail: '', update: '', create: '' },
   auth: { getSalt: '', login: '', validate: '', changePin: '' },
