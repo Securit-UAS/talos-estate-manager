@@ -25,3 +25,12 @@ In root `config.js`, provide `api.compliance` and `api.incidents` with the exist
 4. Return Estate: edits/search/sorting intact. Return Compliance: filtering state persists and API has not refetched.
 5. Check independent Incidents/Wallboard navigation, and that Refresh targets the active module.
 6. Check sign-out and session expiry and test site updates only in authorised pilot scope.
+
+
+## V1.4 integration patch (19 October 2026)
+- Restored live Compliance and Incidents Power Automate endpoints from the provided working `SIA-main.zip` to root `config.js`.
+- Retained the Estate Manager's existing API endpoints and all shared TALOS authentication endpoints (verified identical against working Compliance config).
+- No auth flag overrides: `mustChangePassword` is controlled by the existing authentication backend.
+- Manager suggestions currently derive from names in the Estate LIST response, not a separate Managers list. Investigate missing manager fields in the list response if empty.
+- **PILOT ONLY:** The signed Power Automate URLs in `config.js` are client-visible credentials. Rotate/remove these before wider access; do not commit public repositories.
+- Live Power Automate and browser integration tests not performed.
