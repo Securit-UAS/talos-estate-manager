@@ -14,3 +14,13 @@
 body{color-scheme:dark}body[data-theme="light"]{color-scheme:light}
 select{appearance:auto;min-height:39px}select option,select optgroup{background-color:var(--field);color:var(--text)}
 select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* V1.8 mouse-first wallboard presentation */
+.wall-presentation-toolbar{display:flex;justify-content:flex-end;margin:0 0 8px}
+.wall-presentation-toolbar button{width:auto}
+.module-host:fullscreen{padding:0!important;background:#071425;width:100vw;height:100vh;min-height:0;display:block;overflow:hidden}
+.module-host:fullscreen .wall-presentation-toolbar{display:none}
+.module-host:fullscreen .module-frame[data-module="wallboard"]{width:100%;height:100vh;min-height:0;border:0;border-radius:0}
+.wall-exit{display:none;position:fixed;right:22px;top:18px;z-index:1000;background:#1d3656!important;color:#fff!important;border:1px solid #7296c5!important;box-shadow:0 5px 24px #0008;opacity:.85;padding:12px 18px;font-size:14px}
+.module-host:fullscreen .wall-exit:not([hidden]){display:block}
+.module-host:fullscreen .wall-exit:hover,.module-host:fullscreen .wall-exit:focus{opacity:1;background:#2c5382!important}

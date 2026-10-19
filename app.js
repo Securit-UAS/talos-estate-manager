@@ -53,13 +53,15 @@ function activateModule(name){
  const isEstate=name==='estate'||name==='reviews';
  $('estateContent').hidden=!isEstate;$('moduleHost').hidden=isEstate;
  $('connectionBadge').hidden=!isEstate;
+ $('wallPresentationStart').hidden=name!=='wallboard';
+ if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
  for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
  const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=1.7';frame.addEventListener('load',()=>sendModuleTheme(frame));$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=1.8';frame.addEventListener('load',()=>sendModuleTheme(frame));$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -75,3 +77,20 @@ window.addEventListener('message',event=>{
 });
 
 function sendModuleTheme(frame){try{frame.contentWindow.postMessage({talosTheme:document.body.dataset.theme||'dark'},window.location.origin)}catch(e){}}
+
+// Presentation mode is controlled by the shell: mouse access never depends on Escape.
+const wallHost=$('moduleHost');
+$('wallPresentationStart').addEventListener('click',async()=>{
+  if(activeModule!=='wallboard')return;
+  try { await wallHost.requestFullscreen(); }
+  catch(err) { toast('Browser full screen unavailable. Check browser permissions.'); }
+});
+$('wallPresentationExit').addEventListener('click',async()=>{
+  if(document.fullscreenElement)await document.exitFullscreen();
+});
+document.addEventListener('fullscreenchange',()=>{
+  const active=document.fullscreenElement===wallHost;
+  wallHost.classList.toggle('presentation-active',active);
+  $('wallPresentationExit').hidden=!active;
+  $('wallPresentationStart').hidden=active||activeModule!=='wallboard';
+});
