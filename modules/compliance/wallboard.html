@@ -24,13 +24,34 @@ html[data-talos-theme="light"] select,html[data-talos-theme="light"] select opti
 #wallboardLoading{position:fixed;inset:0;z-index:18;background:rgba(11,20,39,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:17px;color:#f4f7ff;text-align:center;padding:25px}
 #wallboardLoading[hidden]{display:none!important}.wall-spinner{width:52px;height:52px;border:5px solid #465978;border-top-color:#85baff;border-radius:50%;animation:talos-spin .85s linear infinite}@keyframes talos-spin{to{transform:rotate(360deg)}}
 #wallboardLoading strong{font-size:23px}#wallboardLoading span{color:#b8c8e2;font-size:14px}
+
+/* TALOS V1.7 theme harmonisation: inherited user choice, local module colours */
+html[data-talos-theme="dark"] {color-scheme:dark;--bg:#0a1626;--panel:#12243a;--panel2:#1b304a;--line:#30445f;--text:#eaf2fe;--muted:#aec0d7;--navy:#86a8ef;--shadow:0 8px 28px #0004}
+html[data-talos-theme="light"] {color-scheme:light;--bg:#f3f5f8;--panel:#fff;--panel2:#f6f8fc;--line:#dbe2eb;--text:#213047;--muted:#61718a;--navy:#304d98;--shadow:0 8px 24px #182b400e}
+html[data-talos-theme] body {background:var(--bg);color:var(--text)}
+html[data-talos-theme] .topnav[hidden],html[data-talos-theme] .nav button[hidden]{display:none!important}
+html[data-talos-theme="dark"] :is(input,select,textarea,button.btn.secondary,button.btn.ghost,summary) {color:var(--text);border-color:var(--line)}
+html[data-talos-theme="dark"] input,html[data-talos-theme="dark"] textarea,html[data-talos-theme="dark"] select {background:#192e47;color:#ecf4ff}
+html[data-talos-theme="dark"] select option {background:#192e47;color:#ecf4ff}
+html[data-talos-theme="dark"] .btn.secondary,html[data-talos-theme="dark"] .btn.ghost{background:#20344d;color:#ecf4ff}
+html[data-talos-theme="dark"] .card{background:var(--panel);border-color:var(--line);color:var(--text)}
+html[data-talos-theme="dark"] dialog{background:var(--panel);color:var(--text)}
+html[data-talos-theme="dark"] .loading-overlay{background:rgba(8,17,31,.95)}
+html[data-talos-theme="light"] .card{background:var(--panel);border-color:var(--line);color:var(--text)}
+
+html[data-talos-theme="light"] .wall{background:var(--bg);color:var(--text)}
+html[data-talos-theme="light"] .card{background:linear-gradient(180deg,#fff,#f9fbff);box-shadow:var(--shadow)}
+html[data-talos-theme="light"] .nav button,html[data-talos-theme="light"] .nav select{background:#fff;color:#213047;border-color:#dbe2eb}
+html[data-talos-theme="light"] .nav button.active{background:#dce7ff;color:#20396e}
+html[data-talos-theme="light"] #error{background:rgba(245,247,250,.97);color:#213047}
+
 </style>
 </head>
 <body>
 <div class="wall">
 <header class="topbar">
   <div class="brand"><img src="securit-logo.png" alt="Securit"><div><h1>TALOS Compliance Wallboard</h1><small>Operational assurance overview</small></div></div>
-  <nav class="nav"><button id="complianceBtn">Compliance</button><button id="incidentsBtn">Incidents</button><select id="scopeSelect" class="scope-select" aria-label="Pause on company"><option value="auto">Auto rotate</option></select><button class="active" id="pauseBtn">Pause rotation</button></nav>
+  <nav class="nav"><button id="complianceBtn" hidden>Compliance</button><button id="incidentsBtn" hidden>Incidents</button><select id="scopeSelect" class="scope-select" aria-label="Pause on company"><option value="auto">Auto rotate</option></select><button class="active" id="pauseBtn">Pause rotation</button></nav>
   <div class="user"><strong id="signedInName">Signed in</strong><span id="signedInEmail"></span></div>
 </header>
 <section class="view-title"><div><h2 id="scopeName">All companies</h2><p id="scopeSubtitle">Live compliance position across the active officer population</p></div><div class="timing"><strong id="nextView">Next view in 30s</strong><span id="dataTime">Loading data…</span></div></section>

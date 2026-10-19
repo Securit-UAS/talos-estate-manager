@@ -55,6 +55,32 @@ html[data-talos-theme="dark"] .searchrow input,html[data-talos-theme="dark"] .se
 html[data-talos-theme="dark"] table{background:var(--panel)}html[data-talos-theme="dark"] th{background:#22344b;color:#c4d2e6}html[data-talos-theme="dark"] tbody tr.row-green td,html[data-talos-theme="dark"] tbody tr.row-black td{background:#14243a}html[data-talos-theme="dark"] tbody tr.row-red td{background:#452633}html[data-talos-theme="dark"] tbody tr.row-amber td{background:#443723}html[data-talos-theme="dark"] tbody tr.row-blue td{background:#1b344d}html[data-talos-theme="dark"] dialog,html[data-talos-theme="dark"] .appraisal-score{background:var(--panel);color:var(--text)}html[data-talos-theme="dark"] .filterbtn.active{background:#314b6b;color:#f2f7ff}html[data-talos-theme="dark"] .loading-overlay,html[data-talos-theme="dark"] .auth-gate{background:rgba(10,21,36,.96)}html[data-talos-theme="dark"] input{color:var(--text);background:var(--panel2);border-color:var(--line)}
 html[data-talos-theme="dark"] .company-actions button{background:var(--panel2);color:var(--text)}
 html[data-talos-theme="dark"] .company-option:hover{background:#29405e}
+
+/* TALOS V1.7 theme harmonisation: inherited user choice, local module colours */
+html[data-talos-theme="dark"] {color-scheme:dark;--bg:#0a1626;--panel:#12243a;--panel2:#1b304a;--line:#30445f;--text:#eaf2fe;--muted:#aec0d7;--navy:#86a8ef;--shadow:0 8px 28px #0004}
+html[data-talos-theme="light"] {color-scheme:light;--bg:#f3f5f8;--panel:#fff;--panel2:#f6f8fc;--line:#dbe2eb;--text:#213047;--muted:#61718a;--navy:#304d98;--shadow:0 8px 24px #182b400e}
+html[data-talos-theme] body {background:var(--bg);color:var(--text)}
+html[data-talos-theme] .topnav[hidden],html[data-talos-theme] .nav button[hidden]{display:none!important}
+html[data-talos-theme="dark"] :is(input,select,textarea,button.btn.secondary,button.btn.ghost,summary) {color:var(--text);border-color:var(--line)}
+html[data-talos-theme="dark"] input,html[data-talos-theme="dark"] textarea,html[data-talos-theme="dark"] select {background:#192e47;color:#ecf4ff}
+html[data-talos-theme="dark"] select option {background:#192e47;color:#ecf4ff}
+html[data-talos-theme="dark"] .btn.secondary,html[data-talos-theme="dark"] .btn.ghost{background:#20344d;color:#ecf4ff}
+html[data-talos-theme="dark"] .card{background:var(--panel);border-color:var(--line);color:var(--text)}
+html[data-talos-theme="dark"] dialog{background:var(--panel);color:var(--text)}
+html[data-talos-theme="dark"] .loading-overlay{background:rgba(8,17,31,.95)}
+html[data-talos-theme="light"] .card{background:var(--panel);border-color:var(--line);color:var(--text)}
+
+html[data-talos-theme="dark"] table{background:var(--panel);color:var(--text)}
+html[data-talos-theme="dark"] th{background:#20354e;color:#c6d5ec}
+html[data-talos-theme="dark"] td{color:#eaf2ff;border-color:#30465f}
+html[data-talos-theme="dark"] tbody tr.row-red td{background:#472832;color:#fff0f3}
+html[data-talos-theme="dark"] tbody tr.row-amber td{background:#453723;color:#ffeac6}
+html[data-talos-theme="dark"] tbody tr.row-blue td{background:#1b374e;color:#eaf5ff}
+html[data-talos-theme="dark"] tbody tr.row-green td,html[data-talos-theme="dark"] tbody tr.row-black td{background:#13283e;color:#ecf4ff}
+html[data-talos-theme="dark"] tbody tr.sia-identity-conflict td{background:#572631!important;color:#fff5f5!important}
+html[data-talos-theme="dark"] tbody tr.sia-licence-not-found td{background:#442933!important;color:#fff0f2!important}
+html[data-talos-theme="dark"] .meta-card,html[data-talos-theme="dark"] .declaration-card,html[data-talos-theme="dark"] .photo-box{background:#20344d;color:#eaf2ff}
+
 </style>
 </head>
 <body data-build="r7-20261009">
@@ -64,7 +90,7 @@ html[data-talos-theme="dark"] .company-option:hover{background:#29405e}
 </div>
 <div class="loading-overlay hidden" id="loadingOverlay"><section class="loading-card card"><img src="securit-logo.png" alt="Securit"><h3>Loading master compliance data…</h3><p class="loading-quip" id="loadingStage">Initialising secure session</p><div class="loading-track"><div class="loading-bar" id="loadingBar"></div></div><div class="loading-meta"><span>Expected pull: about 42 seconds</span><span><span class="loading-elapsed" id="loadingElapsed">0s</span> · <span id="loadingPercent">0%</span></span></div></section></div>
 <main class="shell">
-  <header class="topbar"><div class="brand"><img src="securit-logo.png" alt="Securit"><div><h1>TALOS Master Compliance</h1></div></div><nav class="topnav" aria-label="TALOS views"><button class="btn primary" id="incidentViewBtn" type="button">Incidents</button><button class="btn secondary" id="wallViewBtn" type="button">Wall view</button></nav><div class="userbar"><div class="who"><strong id="signedInName">Signed in</strong><span id="signedInEmail"></span></div><button class="btn secondary" id="logoutBtn" type="button">Sign out</button><div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncText">Waiting for authentication…</span></div></div></header>
+  <header class="topbar"><div class="brand"><img src="securit-logo.png" alt="Securit"><div><h1>TALOS Master Compliance</h1></div></div><nav class="topnav" aria-label="TALOS views" hidden aria-hidden="true"><button class="btn primary" id="incidentViewBtn" type="button">Incidents</button><button class="btn secondary" id="wallViewBtn" type="button">Wall view</button></nav><div class="userbar"><div class="who"><strong id="signedInName">Signed in</strong><span id="signedInEmail"></span></div><button class="btn secondary" id="logoutBtn" type="button">Sign out</button><div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncText">Waiting for authentication…</span></div></div></header>
   <section class="hero"><div class="card intro"><span class="eyebrow">TALOS Compliance</span><h2>Master officer compliance position</h2><div class="legend"><span class="pill red">Critical</span><span class="pill amber">Review / ≤7 days</span><span class="pill blue">SIA expiry 8–30 days</span><span class="pill green">Compliant</span><span class="pill black">Not applicable</span></div></div><div class="card searchbox"><label for="searchInput">Search register</label><div class="searchrow"><input id="searchInput" type="search" placeholder="Name, Staff ID, provider, site or manager"><button class="btn primary" id="searchBtn" type="button">Search</button></div></div></section>
   <section class="card module-switches" aria-label="Compliance modules"><span class="switch-label">Compliance modules</span><button type="button" class="module-toggle active" data-module="sia">SIA</button><button type="button" class="module-toggle active" data-module="training">Training</button><button type="button" class="module-toggle active" data-module="declaration">Declaration</button><button type="button" class="module-toggle active" data-module="appraisal">Appraisal</button><button type="button" class="module-toggle" data-module="ppac">PPAC</button><span class="module-off-note">Disabled modules are hidden from the register and do not affect overall status or row colour.</span></section>
   <section class="stats"><div class="card stat"><span>Officers</span><strong id="statTotal">0</strong><small>Unique Staff IDs in SIA snapshot</small></div><div class="card stat"><span>Critical</span><strong id="statCritical">0</strong><small>Immediate compliance action</small></div><div class="card stat"><span>Review</span><strong id="statReview">0</strong><small>Amber compliance position</small></div><div class="card stat" id="statExpiringCard"><span>SIA 8–30 days</span><strong id="statExpiring">0</strong><small>Renewal window</small></div><div class="card stat" id="statDeclarationMissingCard"><span>Declaration missing</span><strong id="statDeclarationMissing">0</strong><small>Required declaration not found</small></div><div class="card stat" id="statAppraisalAttentionCard"><span>Appraisal attention</span><strong id="statAppraisalAttention">0</strong><small>Due, review, action or overdue</small></div></section>
