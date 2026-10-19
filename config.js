@@ -3,6 +3,8 @@
 // Rotate and replace with identity-checked backend URLs before wider rollout.
 window.TALOS_CONFIG = {
   api: {
+    compliance: "", // Add your existing Master Compliance combined API URL
+    incidents: "", // Add your existing Incident API URL
     "list": "https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/09/workflows/599f3244ed2f46ffbd9ccbb456e2431d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8bRy_shcrKLo4_HsN3rTDsgQXztwTb7jXrnROFF3Z-s",
     "detail": "https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/81724e545cf94605b4918cddfd0f741d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=WPsJbwkV1Q3Jp6LvinoZvtiaJwELe9kzdGjwOMMX5Ts",
     "update": "https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/1e60d3e73c2945f88cbca97d8a9ae6f1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=7U5LKR4072VP5e9a7hnYDJJ-NBmkDijs1RKVGAUILNY"

@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>Securit Incident Dashboard V0.4</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;--panel:#ffffff;--panel2:#f8fafc;--line:#d9e0e7;--text:#1d2733;--muted:#687687;
+      --navy:#24377a;--red:#e53234;--green:#18875a;--amber:#b87900;--danger:#c44343;--blue:#2f6fab;
+      --shadow:0 8px 24px rgba(31,45,61,.08);--radius:16px;
+    }
+    *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}
+    .hidden{display:none!important}.shell{max-width:1550px;margin:0 auto;padding:22px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin-bottom:18px}.brand{display:flex;align-items:center;gap:16px}.brand img{height:56px;width:auto}.brand h1{margin:0;font-size:1.65rem;letter-spacing:-.03em}.brand p{margin:3px 0 0;color:var(--muted);font-size:.92rem}.topnav{display:flex;align-items:center;justify-content:center;gap:9px}.userbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.userbar .who{font-size:.82rem;color:var(--muted);text-align:right}.userbar .who strong{display:block;color:var(--text)}
+    .sync{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.88rem}.sync-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px rgba(184,121,0,.10)}.sync-dot.ok{background:var(--green);box-shadow:0 0 0 4px rgba(24,135,90,.11)}.sync-dot.bad{background:var(--danger);box-shadow:0 0 0 4px rgba(196,67,67,.10)}
+    .btn{border:none;border-radius:10px;padding:10px 13px;font-weight:800}.btn.primary{background:var(--navy);color:#fff}.btn.secondary{background:#f3f6f8;color:var(--text);border:1px solid var(--line)}.btn.ghost{background:#fff;color:var(--navy);border:1px solid #cdd5e0}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}.intro,.searchbox{padding:22px}.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--navy)}.intro h2{font-size:clamp(1.4rem,3vw,2.1rem);letter-spacing:-.035em;margin:7px 0 8px}.intro p{margin:0;color:var(--muted);line-height:1.5}.searchbox label,.filter label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}.searchrow{display:flex;gap:8px;margin-top:8px}.searchrow input{flex:1;min-width:0;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;outline:none}.searchrow input:focus,.filter select:focus{border-color:#6d80bc;box-shadow:0 0 0 3px rgba(36,55,122,.08)}
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0}.stat{padding:16px}.stat span{display:block;color:var(--muted);font-size:.73rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:1.85rem;letter-spacing:-.045em;margin-top:4px}.stat small{color:var(--muted)}
+    .filters{padding:14px;margin-bottom:12px}.filtergrid{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:10px}.filter{display:flex;flex-direction:column;gap:6px}.filter select{width:100%;background:#fff;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 11px}.filter-actions{display:flex;align-items:end;gap:8px}.resultline{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px;color:var(--muted);font-size:.88rem;flex-wrap:wrap}
+    .insights{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.insight{padding:18px}.insight h3{margin:0 0 12px;font-size:1rem}.bars{display:flex;flex-direction:column;gap:9px}.barrow{display:grid;grid-template-columns:minmax(140px,1.5fr) 3fr auto;gap:10px;align-items:center;font-size:.82rem}.barlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bartrack{height:9px;border-radius:999px;background:#edf1f5;overflow:hidden}.barfill{height:100%;background:linear-gradient(90deg,var(--navy),#5168be);border-radius:999px}.barvalue{font-weight:800;color:var(--muted)}
+    .tablewrap{overflow:auto;border-radius:var(--radius)}table{border-collapse:separate;border-spacing:0;width:100%;min-width:1120px;background:#fff}th,td{padding:12px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{position:sticky;top:0;background:#f7f9fb;color:#647286;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;z-index:2}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:none}.incident-title{font-weight:850}.sub{display:block;color:var(--muted);font-size:.74rem;margin-top:3px}.statement{max-width:520px;line-height:1.45;font-size:.85rem}.typepill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;background:#eef3ff;border:1px solid #d4def8;color:var(--navy);font-weight:800;font-size:.72rem}.sitework{background:#f5f7fa;border-color:#dde3ea;color:#546170}.empty{padding:46px;text-align:center;color:var(--muted)}
+    dialog{width:min(920px,calc(100vw - 30px));padding:0;border:none;border-radius:18px;background:#fff;color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(20,31,46,.38);backdrop-filter:blur(2px)}.modalhead{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 22px;border-bottom:1px solid var(--line)}.modalhead h3{margin:3px 0 0;font-size:1.4rem}.closebtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#f5f7f9;color:var(--text);font-size:1.15rem}.modalbody{padding:22px}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.meta-card{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px}.meta-card span{display:block;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800}.meta-card strong{display:block;margin-top:4px;font-size:.92rem}.statementbox{border:1px solid var(--line);background:#fbfcfd;border-radius:12px;padding:16px;white-space:pre-wrap;line-height:1.55}.modalactions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:18px;flex-wrap:wrap}.pdf-note{font-size:.78rem;color:var(--muted);max-width:560px}
+    .auth-gate{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#eef2f7,#f8fafc);display:flex;align-items:center;justify-content:center;padding:22px}.auth-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 70px rgba(31,45,61,.16);padding:28px}.auth-logo{height:58px;width:auto;display:block;margin-bottom:22px}.auth-card h2{margin:4px 0 8px;font-size:1.65rem;letter-spacing:-.03em}.auth-card p{margin:0 0 20px;color:var(--muted);line-height:1.5}.auth-field{margin-top:14px}.auth-field label{display:block;margin-bottom:6px;font-size:.73rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}.auth-field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 13px;outline:none;background:#fff;color:var(--text)}.auth-actions{display:flex;gap:8px;align-items:center;margin-top:20px}.auth-actions .btn{flex:1}.auth-message{min-height:20px;margin-top:13px!important;font-size:.86rem}.auth-message.error{color:var(--danger)}.auth-message.ok{color:var(--green)}
+    .loading-overlay{position:fixed;inset:0;z-index:9500;background:rgba(244,246,248,.94);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:22px;transition:opacity .25s ease,visibility .25s ease}.loading-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}.loading-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 24px 70px rgba(31,45,61,.16);padding:28px 28px 24px;text-align:center}.loading-logo{height:56px;width:auto;margin:0 auto 14px;display:block}.loading-progress{height:14px;background:#edf1f6;border-radius:999px;overflow:hidden;border:1px solid #dde4ed}.loading-bar{height:100%;width:0;background:linear-gradient(90deg,var(--navy),#4b63bb,var(--red));border-radius:999px;transition:width .22s ease}.loading-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:.88rem;color:#5f6b7b}.loading-percent{font-weight:900;color:var(--navy)}
+
+    .stats{grid-template-columns:repeat(6,1fr)}
+    .test-row{background:repeating-linear-gradient(135deg,#fff8f8,#fff8f8 12px,#fff 12px,#fff 24px)!important}.test-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#fff0f0;border:1px solid #efc1c1;color:#9b3232;font-weight:900;font-size:.68rem;letter-spacing:.06em;margin-top:5px}.pdf-pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:.7rem;font-weight:850}.pdf-pill.ready{background:#e9f6ef;border:1px solid #bfe5cf;color:#12633f}.pdf-pill.none{background:#f3f5f7;border:1px solid #dde3ea;color:#687687}
+    .test-banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid #efc1c1;background:#fff4f4;color:#8b2d2d;border-radius:12px;padding:12px 14px;margin-bottom:16px}.test-banner span{color:#a14b4b;font-size:.82rem}
+    .narrative{margin-top:18px}.narrative .eyebrow{display:block;margin-bottom:7px}.overview-box .statementbox{background:#f4f7ff;border-color:#d7e0f7}.original-box .statementbox{background:#fafafa;color:#46515d}
+    .statementbox{min-height:64px}.pdf-panel{margin-top:20px;padding:16px;border:1px solid var(--line);border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:16px}.pdf-panel strong{display:block;margin-top:6px}.pdf-panel p{margin:5px 0 0}.pdf-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.refmono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:.78rem}
+
+    @media(max-width:1100px){.filtergrid{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(3,1fr)}}
+
+    .shell{max-width:1480px;padding:18px 20px 28px}
+    .topbar{margin-bottom:14px}
+    .brand{gap:14px}.brand img{height:52px}.brand h1{font-size:1.45rem}.brand p{font-size:.88rem}
+    .userbar .who strong{font-size:1rem}
+    .btn{border-radius:12px;padding:10px 14px}
+    .hero{display:none}
+    .controlbar{display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,.8fr);gap:12px;margin-bottom:12px;padding:16px 18px;align-items:end}
+    .controlcopy h2{margin:4px 0 4px;font-size:1.35rem;letter-spacing:-.03em}
+    .controlcopy p{margin:0;color:var(--muted);line-height:1.45;font-size:.92rem}
+    .searchbox{padding:0;background:transparent;border:none;box-shadow:none}
+    .searchbox label{display:block;margin-bottom:6px}
+    .searchrow{margin-top:0}
+    .searchrow input{padding:13px 14px}
+    .stats{grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 12px}
+    .stat{padding:14px 16px;box-shadow:none}
+    .stat strong{font-size:1.7rem}
+    .stat small{font-size:.8rem}
+    .filters{padding:14px 16px;margin-bottom:12px}
+    .filtergrid{grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px}
+    .resultline{margin-top:10px;font-size:.85rem}
+    .overview-toggle{margin:0 0 12px}
+    .overview-panel{overflow:hidden}
+    .overview-panel summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+    .overview-panel summary::-webkit-details-marker{display:none}
+    .overview-title{display:flex;flex-direction:column;gap:4px}.overview-title strong{font-size:1rem}.overview-title span{font-size:.84rem;color:var(--muted)}
+    .overview-chevron{color:var(--navy);font-weight:900;transition:transform .2s ease}
+    .overview-panel[open] .overview-chevron{transform:rotate(180deg)}
+    .insights{margin:0;padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .insight{padding:16px;box-shadow:none}
+    .insight h3{font-size:.98rem;margin-bottom:10px}
+    .barrow{font-size:.8rem}
+    .tablewrap{border-radius:18px}
+    table{min-width:1080px}
+    th,td{padding:10px 10px}
+    tbody tr:hover{background:#f8fafc}
+    .incident-title{font-size:1rem;line-height:1.1}
+    .sub{font-size:.72rem}
+    .statement{max-width:420px;font-size:.84rem;color:#304051}
+    .typepill{padding:4px 8px;font-size:.69rem}
+    .pdf-pill{font-size:.68rem;padding:4px 8px}
+    .detailsbtn{font-weight:800}
+    .test-row,.crime-row,.warn-row{background-clip:padding-box}
+    .test-row{background:repeating-linear-gradient(135deg,#fafafa,#fafafa 12px,#f2f4f6 12px,#f2f4f6 24px)!important}
+    .crime-row{background:repeating-linear-gradient(135deg,#fff8f8,#fff8f8 12px,#fff1f1 12px,#fff1f1 24px)!important}
+    .warn-row{background:repeating-linear-gradient(135deg,#fffdf3,#fffdf3 12px,#fff7d8 12px,#fff7d8 24px)!important}
+    .test-badge{background:#2b3138;color:#fff;border-color:#2b3138}
+    .crime-badge,.warn-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-weight:900;font-size:.68rem;letter-spacing:.06em;margin-top:5px}
+    .crime-badge{background:#fff0f0;border:1px solid #efc1c1;color:#9b3232}
+    .warn-badge{background:#fff7df;border:1px solid #efd48a;color:#8c6500}
+    .meta-grid{grid-template-columns:repeat(4,1fr)}
+
+    @media(max-width:780px){.pdf-panel{align-items:flex-start;flex-direction:column}.pdf-actions{justify-content:flex-start}.shell{padding:13px}.topbar{align-items:flex-start;flex-direction:column}.controlbar,.insights{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.filtergrid{grid-template-columns:1fr 1fr}.meta-grid{grid-template-columns:1fr}.brand img{height:48px}.userbar{justify-content:flex-start}.searchrow{flex-direction:column}.barrow{grid-template-columns:1fr auto}.bartrack{grid-column:1 / -1}.hide-mobile{display:none}}
+    @media(max-width:520px){.filtergrid,.stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="auth-gate" id="authGate">
+  <section class="auth-card" id="loginPanel"><img src="securit-logo.png" alt="Securit" class="auth-logo"><span class="eyebrow">Secure access</span><h2>Incident Dashboard Login</h2><p>Enter your authorised email address and PIN to access the live Securit incident dashboard.</p><form id="loginForm"><div class="auth-field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="username" required></div><div class="auth-field"><label for="loginPin">PIN</label><input id="loginPin" type="password" inputmode="numeric" autocomplete="current-password" required></div><div class="auth-actions"><button class="btn primary" id="loginBtn" type="submit">Sign in</button></div><p class="auth-message" id="loginMessage"></p></form></section>
+  <section class="auth-card hidden" id="changePinPanel"><img src="securit-logo.png" alt="Securit" class="auth-logo"><span class="eyebrow">First login</span><h2>Choose a new PIN</h2><p>Your temporary PIN must be changed before the dashboard can be opened.</p><form id="changePinForm"><div class="auth-field"><label for="newPin">New PIN</label><input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" minlength="4" required></div><div class="auth-field"><label for="confirmPin">Confirm new PIN</label><input id="confirmPin" type="password" inputmode="numeric" autocomplete="new-password" minlength="4" required></div><div class="auth-actions"><button class="btn primary" id="changePinBtn" type="submit">Update PIN</button></div><p class="auth-message" id="changePinMessage"></p></form></section>
+</div>
+<div class="loading-overlay hidden" id="loadingOverlay"><section class="loading-card"><img src="securit-logo.png" alt="Securit" class="loading-logo"><h2>Loading incident data…</h2><p id="loadingText" style="color:var(--muted)">Please wait while the live incident register is loaded.</p><div class="loading-progress"><div class="loading-bar" id="loadingBar"></div></div><div class="loading-meta"><span id="loadingStage">Initialising secure session</span><span class="loading-percent" id="loadingPercent">0%</span></div></section></div>
+
+<div class="shell" id="appShell">
+  <header class="topbar"><div class="brand"><img src="securit-logo.png" alt="Securit"><div><h1>Incident Dashboard</h1><p>Securit live incident intelligence · V0.4</p></div></div><nav class="topnav" aria-label="TALOS views"><button class="btn primary" id="complianceViewBtn" type="button">Compliance</button><button class="btn secondary" id="wallViewBtn" type="button">Wall view</button></nav><div class="userbar"><button class="btn ghost" id="refreshBtn" type="button">Refresh</button><div class="who"><strong id="signedInName">Signed in</strong><span id="signedInEmail"></span></div><button class="btn secondary" id="logoutBtn" type="button">Sign out</button><div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncText">Waiting for authentication…</span></div></div></header>
+
+  <section class="card controlbar">
+    <article class="controlcopy">
+      <span class="eyebrow">Operations dashboard</span>
+      <h2>Operational incident register</h2>
+      <p>Live reporting with test submissions kept visible, PDFs linked where approved, and filters focused on helping managers get to the incident list quickly.</p>
+    </article>
+    <article class="searchbox">
+      <label for="searchInput">Search incidents</label>
+      <div class="searchrow"><input id="searchInput" autocomplete="off" placeholder="Site, officer, statement or Jotform ref"><button class="btn primary" id="searchBtn">Search</button></div>
+    </article>
+  </section>
+
+  <section class="stats">
+      <article class="card stat"><span>Operational reports</span><strong id="statTotal">—</strong><small>Tests excluded</small></article>
+      <article class="card stat"><span>Last 24h</span><strong id="stat24h">—</strong><small>Operational reports</small></article>
+      <article class="card stat"><span>Sites</span><strong id="statSites">—</strong><small>Unique locations</small></article>
+      <article class="card stat"><span>PDFs available</span><strong id="statPdf">—</strong><small>Approved reports</small></article>
+    </section>
+
+  <section class="card filters"><div class="filtergrid">
+    <div class="filter"><label for="periodFilter">Period</label><select id="periodFilter"><option value="30">Last 30 days</option><option value="14">Last 14 days</option><option value="7">Last 7 days</option><option value="1">Last 24 hours</option></select></div>
+    <div class="filter"><label for="siteFilter">Site</label><select id="siteFilter"><option value="all">All sites</option></select></div>
+    <div class="filter"><label for="clientFilter">Client</label><select id="clientFilter"><option value="all">All clients</option></select></div>
+    <div class="filter"><label for="managerFilter">Manager</label><select id="managerFilter"><option value="all">All managers</option></select></div>
+    <div class="filter"><label for="typeFilter">Incident type</label><select id="typeFilter"><option value="all">All types</option></select></div>
+    <div class="filter"><label for="subTypeFilter">Subtype</label><select id="subTypeFilter"><option value="all">All subtypes</option></select></div>
+  </div><div class="resultline"><span id="resultCount"></span><button class="btn secondary" id="clearFilters" type="button">Clear filters</button></div></section>
+
+  <section class="overview-toggle">
+    <details class="card overview-panel" id="managementOverview">
+      <summary>
+        <div class="overview-title"><strong>Management overview</strong><span>Top incident types and busiest sites for the current filter selection.</span></div>
+        <span class="overview-chevron">⌄</span>
+      </summary>
+      <div class="insights"><article class="card insight"><h3>Top incident types</h3><div class="bars" id="typeBars"></div></article><article class="card insight"><h3>Top sites</h3><div class="bars" id="siteBars"></div></article></div>
+    </details>
+  </section>
+
+  <section class="card tablewrap"><table><thead><tr><th>Created</th><th>Site</th><th>Officer</th><th>Type</th><th>Subtype</th><th>Overview / Statement</th><th>Incident Ref</th><th>PDF</th><th></th></tr></thead><tbody id="incidentRows"></tbody></table><div class="empty hidden" id="emptyState">No incidents match the current filters.</div></section>
+</div>
+
+
+<dialog id="incidentDialog">
+  <div class="modalhead">
+    <div><span class="eyebrow">Incident record</span><h3 id="modalTitle">Incident</h3></div>
+    <button class="closebtn" id="closeDialog" aria-label="Close">×</button>
+  </div>
+  <div class="modalbody">
+    <div class="test-banner hidden" id="testBanner"><strong>TEST RECORD — IGNORE</strong><span>This submission remains visible for system testing but is excluded from operational statistics.</span></div>
+    <div class="test-banner hidden" id="alertBanner"><strong id="alertBannerTitle">Operational flag</strong><span id="alertBannerText">Highlighted incident category.</span></div>
+    <div class="meta-grid">
+      <div class="meta-card"><span>Incident ref</span><strong id="modalRef"></strong></div>
+      <div class="meta-card"><span>Created</span><strong id="modalCreated"></strong></div>
+      <div class="meta-card"><span>Incident time</span><strong id="modalIncidentTime"></strong></div>
+      <div class="meta-card"><span>Site</span><strong id="modalSite"></strong></div>
+      <div class="meta-card"><span>Client</span><strong id="modalClient"></strong></div>
+      <div class="meta-card"><span>Manager</span><strong id="modalManager"></strong></div>
+      <div class="meta-card"><span>Officer</span><strong id="modalOfficer"></strong></div>
+      <div class="meta-card"><span>Incident type</span><strong id="modalType"></strong></div>
+      <div class="meta-card"><span>Subtype</span><strong id="modalSubtype"></strong></div>
+    </div>
+
+    <section class="narrative overview-box">
+      <span class="eyebrow">Talos AI Overview</span>
+      <div class="statementbox" id="modalOverview"></div>
+    </section>
+
+    <section class="narrative">
+      <span class="eyebrow">Formatted Incident Statement</span>
+      <div class="statementbox" id="modalAiStatement"></div>
+    </section>
+
+    <section class="narrative original-box">
+      <span class="eyebrow">Original Officer Statement</span>
+      <div class="statementbox" id="modalOriginal"></div>
+    </section>
+
+    <div class="pdf-panel" id="pdfPanel">
+      <div>
+        <span class="eyebrow">Approved Incident PDF</span>
+        <strong id="pdfStatus">Checking PDF status…</strong>
+        <p class="pdf-note" id="pdfNote"></p>
+      </div>
+      <div class="pdf-actions">
+        <a class="btn primary hidden" id="pdfBtn" target="_blank" rel="noopener noreferrer">Open PDF</a>
+        <a class="btn secondary hidden" id="pdfDownloadBtn" target="_blank" rel="noopener noreferrer" download>Download PDF</a>
+      </div>
+    </div>
+
+    <div class="modalactions"><span></span><button class="btn secondary" id="closeDialog2" type="button">Close</button></div>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script>
+const AUTH_STORAGE_KEY="securitSiaAuthV1"; // shared TALOS dashboard session
+const SHAREPOINT_SITE_ROOT="https://securitgroup.sharepoint.com/sites/AllGuarding";
+const INCIDENT_LIST_ATTACHMENT_PATH="Lists/Static  Commercial Security Incident Log/Attachments";
+const CLIENT_RULES=[
+  [/^avant homes\b/i,"Avant Homes"],
+  [/^cable properties\b/i,"Cable Properties"],
+  [/^cleveland cables\b/i,"Cleveland Cables"],
+  [/^compass group\b/i,"Compass Group"],
+  [/^dwh\b/i,"David Wilson Homes"],
+  [/^evri\b/i,"Evri"],
+  [/^glencar\b/i,"Glencar"],
+  [/^h&mv\b/i,"H&MV Engineering"],
+  [/^thone mash hmv\b/i,"H&MV Engineering"],
+  [/^harron homes\b/i,"Harron Homes"],
+  [/^hoober urban partnership\b/i,"Hoober Urban Partnership"],
+  [/^mclaren\b/i,"McLaren"],
+  [/^mclaran\b/i,"McLaren"],
+  [/^muji\b/i,"MUJI"],
+  [/^ocs fm\b/i,"OCS"],
+  [/^ohs\b/i,"OHS"],
+  [/^omexom\b/i,"Omexom"],
+  [/^pinewood lodge\b/i,"Pinewood Lodge"],
+  [/^r blue regen\b/i,"R Blue Regen"],
+  [/^redro\b/i,"Redrow Homes"],
+  [/^redrow\b/i,"Redrow Homes"],
+  [/^stoneacre\b/i,"Stoneacre"],
+  [/^taramc\b/i,"Tarmac"],
+  [/^tramac\b/i,"Tarmac"],
+  [/^tarmac\b/i,"Tarmac"],
+  [/^taylor wimpney\b/i,"Taylor Wimpey"],
+  [/^taylor wimpey\b/i,"Taylor Wimpey"],
+  [/^thames water\b/i,"Thames Water"],
+  [/pj livesey holdings/i,"PJ Livesey Holdings Ltd"],
+  [/^four marketing\b/i,"Four Marketing"],
+  [/^bandai\b/i,"Bandai"]
+];
+const LOADING_MESSAGES=[
+  "Validating secure session","Connecting to the live incident register","Reading the last 30 days",
+  "Excluding end-of-shift reports","Loading Talos summaries","Matching site and client information",
+  "Resolving Estate DB managers","Checking approved PDF availability","Building operational statistics",
+  "Preparing incident search","Rendering management overview","Almost there…"
+];
+
+let incidents=[],selectedIncident=null,authState={email:"",token:"",displayName:""},loadingProgress=0,loadingTick=null,loadingMessageTick=null,siteManagerMap=new Map();
+const el=id=>document.getElementById(id);
+const normaliseSpace=v=>String(v??"").trim().replace(/\s+/g," ");
+const normaliseKey=v=>normaliseSpace(v).toLowerCase();
+const escapeHtml=v=>String(v??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
+const boolValue=v=>v===true||String(v).toLowerCase()==="true"||String(v).toLowerCase()==="yes";
+
+function parseDate(v){const t=Date.parse(v||"");return Number.isFinite(t)?new Date(t):null}
+function formatDateTimeUK(v){const d=parseDate(v);if(!d)return normaliseSpace(v)||"—";return new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(d)}
+function formatIncidentTime(v){const d=parseDate(v);if(!d)return normaliseSpace(v)||"—";return formatDateTimeUK(v)}
+function richTextToPlain(v){return String(v??"").replace(/<br\s*\/?>/gi,"\n").replace(/<\/p>/gi,"\n").replace(/<li>/gi,"• ").replace(/<\/li>/gi,"\n").replace(/<[^>]+>/g,"").replace(/\*\*/g,"").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/\n{3,}/g,"\n\n").trim()}
+function clientFromSite(site){const s=normaliseSpace(site);if(!s)return "";for(const [rule,name] of CLIENT_RULES){if(rule.test(s))return name}return "Other / Unmapped"}
+function isTestOfficer(name){return normaliseKey(name)==="tester mctest"}
+function isCrimeIncident(x){return normaliseKey(x.incidentType)==="crime"}
+function isWarningIncident(x){const type=normaliseKey(x.incidentType),sub=normaliseKey(x.subType);return type==="physical security issues"||sub.includes("suspicious")}
+function rowStateClass(x){if(x.isTest)return "test-row";if(isCrimeIncident(x))return "crime-row";if(isWarningIncident(x))return "warn-row";return ""}
+function rowFlagBadge(x){if(x.isTest)return '<span class="test-badge">TEST — IGNORE</span>';if(isCrimeIncident(x))return '<span class="crime-badge">CRIME</span>';if(isWarningIncident(x))return '<span class="warn-badge">CHECK</span>';return ""}
+function incidentRef(x){return x.jotformId||"Legacy — no Jotform ref"}
+function buildPdfUrl(x){
+  if(x.pdfUrl)return x.pdfUrl;
+  if(!x.hasAttachments||!x.sharepointId||!x.jotformId)return "";
+  const path=[INCIDENT_LIST_ATTACHMENT_PATH,String(x.sharepointId),`${x.jotformId}.pdf`]
+    .map(part=>part.split("/").map(encodeURIComponent).join("/")).join("/");
+  return `${SHAREPOINT_SITE_ROOT}/${path}`;
+}
+
+function titleCaseName(value){
+  return normaliseSpace(value)
+    .split(" ")
+    .filter(Boolean)
+    .map(part=>{
+      if(/^[A-Z]{2,4}$/.test(part)) return part;
+      if(/^mc[a-z]/i.test(part)) return "Mc"+part.slice(2,3).toUpperCase()+part.slice(3).toLowerCase();
+      return part.charAt(0).toUpperCase()+part.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+function managerDisplay(value){
+  const v=normaliseSpace(value);
+  if(!v)return "";
+  if(!v.includes("@"))return titleCaseName(v);
+  const local=v.split("@")[0]
+    .replace(/\+.*$/,"")
+    .replace(/[._-]+/g," ")
+    .replace(/\d+/g," ");
+  return titleCaseName(local);
+}
+function getApiRoot(payload){
+  if(payload && typeof payload==="object" && payload.body && !Array.isArray(payload.body)) return payload.body;
+  return payload ?? {};
+}
+function buildSiteManagerMap(payload){
+  siteManagerMap=new Map();
+  const root=getApiRoot(payload);
+  const siteContainer=root?.sites;
+  const sites=
+    Array.isArray(siteContainer) ? siteContainer :
+    Array.isArray(siteContainer?.body) ? siteContainer.body :
+    Array.isArray(siteContainer?.value) ? siteContainer.value :
+    [];
+  for(const s of sites){
+    const site=normaliseSpace(s.siteName??s.site??s.Title??s.name);
+    const manager=managerDisplay(s.managerName??s.manager??s.managerEmail??s.Manager);
+    if(site&&manager)siteManagerMap.set(normaliseKey(site),manager);
+  }
+}
+function getManagerForSite(site){
+  const key=normaliseKey(site);
+  if(!key)return "";
+  if(siteManagerMap.has(key))return siteManagerMap.get(key);
+
+  const compact=key.replace(/[^a-z0-9]/g,"");
+  let best="";
+  let bestScore=0;
+  for(const [cmsKey,manager] of siteManagerMap.entries()){
+    const cmsCompact=cmsKey.replace(/[^a-z0-9]/g,"");
+    if(!cmsCompact)continue;
+    if(compact===cmsCompact)return manager;
+    if(compact.includes(cmsCompact)||cmsCompact.includes(compact)){
+      const score=Math.min(compact.length,cmsCompact.length)/Math.max(compact.length,cmsCompact.length);
+      if(score>bestScore){bestScore=score;best=manager}
+    }
+  }
+  return bestScore>=0.72?best:"";
+}
+function normaliseRecord(r){
+  const site=normaliseSpace(r.site??r.field_6);
+  const manager=managerDisplay(r.manager??r.Manager??r.managerName??getManagerForSite(site)??"");
+  const jotformId=normaliseSpace(r.jotformID??r.jotformId??r.JotformID??r.submissionId??r.SubmissionID);
+  const hasAttachments=boolValue(r.hasAttachments??r.HasAttachments??r["{HasAttachments}"]);
+  return {
+    sharepointId:String(r.id??r.ID??r.ItemInternalId??""),
+    jotformId,site,
+    officer:normaliseSpace(r.officer??r.field_5),
+    incidentTime:r.incidentDateTime??r.incidentTime??r.field_7??"",
+    incidentType:normaliseSpace(r.incidentType??r.field_8),
+    subType:normaliseSpace(r.subType??r.SITEWORK??r.CRIME??r.PHYSICALSECURITYISSUES??r.WELFARE??r.ACCIDENT),
+    originalStatement:richTextToPlain(r.originalStatement??r.statement??r.field_15),
+    aiStatement:richTextToPlain(r.aiStatement??r.AIStatement??r["AI Statement"]),
+    aiOverview:richTextToPlain(r.aiOverview??r.AIOverview??r["AI Overview"]),
+    created:r.created??r.Created??"",
+    client:normaliseSpace(r.client??r.Client??r.clientName)||clientFromSite(site),
+    manager,
+    pdfUrl:normaliseSpace(r.pdfUrl??r.PDFUrl??r.jotformPdfUrl??r.JotformPDF),
+    hasAttachments,
+    date:normaliseSpace(r.date??r.Date),
+    isTest:isTestOfficer(r.officer??r.field_5)
+  };
+}
+function extractRecords(payload){
+  const root=getApiRoot(payload);
+  if(Array.isArray(root))return root;
+  if(Array.isArray(root?.incidents))return root.incidents;
+  if(Array.isArray(root?.value))return root.value;
+  if(Array.isArray(root?.body?.value))return root.body.value;
+  return [];
+}
+function uniqueSorted(values){return [...new Set(values.map(normaliseSpace).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"en-GB"))}
+function populateSelect(id,values,allLabel){const s=el(id),current=s.value;const list=uniqueSorted(values);s.innerHTML=`<option value="all">${escapeHtml(allLabel)}</option>`+list.map(v=>`<option value="${escapeHtml(normaliseKey(v))}">${escapeHtml(v)}</option>`).join("");if([...s.options].some(o=>o.value===current))s.value=current}
+function populateFilters(){populateSelect("siteFilter",incidents.map(x=>x.site),"All sites");populateSelect("clientFilter",incidents.map(x=>x.client),"All clients");populateSelect("managerFilter",incidents.map(x=>x.manager),"All managers");populateSelect("typeFilter",incidents.map(x=>x.incidentType),"All types");populateSelect("subTypeFilter",incidents.map(x=>x.subType),"All subtypes")}
+function filteredIncidents(){
+  const q=normaliseKey(el("searchInput").value),days=Number(el("periodFilter").value||30),cutoff=Date.now()-(days*86400000),
+    site=el("siteFilter").value,client=el("clientFilter").value,manager=el("managerFilter").value,type=el("typeFilter").value,sub=el("subTypeFilter").value;
+  return incidents.filter(x=>{
+    const created=parseDate(x.created)?.getTime()||0,inPeriod=days===1?created>=Date.now()-86400000:created>=cutoff;
+    const hay=normaliseKey([x.jotformId,x.site,x.officer,x.incidentType,x.subType,x.originalStatement,x.aiStatement,x.aiOverview,x.client,x.manager].join(" "));
+    return inPeriod&&(site==="all"||normaliseKey(x.site)===site)&&(client==="all"||normaliseKey(x.client)===client)&&(manager==="all"||normaliseKey(x.manager)===manager)&&(type==="all"||normaliseKey(x.incidentType)===type)&&(sub==="all"||normaliseKey(x.subType)===sub)&&(!q||hay.includes(q))
+  }).sort((a,b)=>(parseDate(b.created)?.getTime()||0)-(parseDate(a.created)?.getTime()||0));
+}
+function truncate(v,n=190){const s=richTextToPlain(v);return s.length>n?s.slice(0,n-1).trim()+"…":s}
+function rowHtml(x){
+  const typeClass=normaliseKey(x.incidentType)==="site work"?"typepill sitework":"typepill";
+  const preview=x.aiOverview||x.aiStatement||x.originalStatement||"No narrative recorded.";
+  const pdfReady=Boolean(buildPdfUrl(x));
+  return `<tr class="${rowStateClass(x)}">
+    <td>${escapeHtml(formatDateTimeUK(x.created))}</td>
+    <td><span class="incident-title">${escapeHtml(x.site||"—")}</span><span class="sub">${escapeHtml(x.client||"Other / Unmapped")}</span>${rowFlagBadge(x)}</td>
+    <td>${escapeHtml(x.officer||"—")}</td>
+    <td><span class="${typeClass}">${escapeHtml(x.incidentType||"—")}</span></td>
+    <td>${escapeHtml(x.subType||"—")}</td>
+    <td class="statement">${escapeHtml(truncate(preview,155))}</td>
+    <td class="refmono">${escapeHtml(incidentRef(x))}</td>
+    <td><span class="pdf-pill ${pdfReady?"ready":"none"}">${pdfReady?"PDF ready":"No PDF"}</span></td>
+    <td><button class="btn secondary detailsbtn" data-id="${escapeHtml(x.sharepointId)}">View</button></td>
+  </tr>`;
+}
+function animateNumber(node,target,suffix=""){const start=Number(String(node.textContent).replace(/[^0-9.-]/g,""))||0,diff=target-start,duration=450,startTime=performance.now();function step(now){const t=Math.min(1,(now-startTime)/duration),e=1-Math.pow(1-t,3),v=Math.round(start+diff*e);node.textContent=`${v.toLocaleString("en-GB")}${suffix}`;if(t<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
+function renderStats(list){
+  const operational=list.filter(x=>!x.isTest),d24=Date.now()-86400000;
+  animateNumber(el("statTotal"),operational.length);
+  animateNumber(el("stat24h"),operational.filter(x=>(parseDate(x.created)?.getTime()||0)>=d24).length);
+  animateNumber(el("statSites"),uniqueSorted(operational.map(x=>x.site)).length);
+  animateNumber(el("statPdf"),operational.filter(x=>Boolean(buildPdfUrl(x))).length);
+}
+function renderBars(id,list,keyFn){
+  const operational=list.filter(x=>!x.isTest),map=new Map();
+  for(const x of operational){const k=normaliseSpace(keyFn(x));if(k)map.set(k,(map.get(k)||0)+1)}
+  const top=[...map.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6),max=top[0]?.[1]||1;
+  el(id).innerHTML=top.length?top.map(([label,count])=>`<div class="barrow"><span class="barlabel" title="${escapeHtml(label)}">${escapeHtml(label)}</span><span class="bartrack"><span class="barfill" style="width:${Math.max(6,(count/max)*100)}%"></span></span><span class="barvalue">${count}</span></div>`).join(""):`<span class="sub">No operational data for the current filter.</span>`;
+}
+function render(){
+  const list=filteredIncidents();renderStats(list);renderBars("typeBars",list,x=>x.incidentType);renderBars("siteBars",list,x=>x.site);
+  el("incidentRows").innerHTML=list.map(rowHtml).join("");el("emptyState").classList.toggle("hidden",list.length!==0);
+  const tests=list.filter(x=>x.isTest).length;el("resultCount").textContent=`${list.length.toLocaleString("en-GB")} record${list.length===1?"":"s"} shown${tests?` · ${tests} test record${tests===1?"":"s"} excluded from stats`:""}`;
+  document.querySelectorAll(".detailsbtn").forEach(btn=>btn.addEventListener("click",()=>openIncident(btn.dataset.id)));
+}
+function openIncident(id){
+  const x=incidents.find(i=>i.sharepointId===String(id));if(!x)return;selectedIncident=x;
+  el("modalTitle").textContent=`${x.site||"Incident"} · ${x.incidentType||"Record"}`;
+  el("modalRef").textContent=incidentRef(x);el("modalCreated").textContent=formatDateTimeUK(x.created);el("modalIncidentTime").textContent=formatIncidentTime(x.incidentTime);
+  el("modalSite").textContent=x.site||"—";el("modalClient").textContent=x.client||"Other / Unmapped";el("modalManager").textContent=x.manager||"Awaiting Estate DB match";
+  el("modalOfficer").textContent=x.officer||"—";el("modalType").textContent=x.incidentType||"—";el("modalSubtype").textContent=x.subType||"—";
+  el("modalOverview").textContent=x.aiOverview||"No Talos AI overview is recorded for this incident.";
+  el("modalAiStatement").textContent=x.aiStatement||"No formatted AI statement is recorded for this incident.";
+  el("modalOriginal").textContent=x.originalStatement||"No original officer statement is recorded.";
+  el("testBanner").classList.toggle("hidden",!x.isTest);
+  const alertBanner=el("alertBanner"),alertBannerTitle=el("alertBannerTitle"),alertBannerText=el("alertBannerText");
+  if(!x.isTest && isCrimeIncident(x)){
+    alertBanner.classList.remove("hidden");alertBanner.style.background="#fff4f4";alertBanner.style.borderColor="#efc1c1";alertBanner.style.color="#8b2d2d";
+    alertBannerTitle.textContent="Crime report";alertBannerText.textContent="This incident is highlighted as a crime report for quicker review.";
+  }else if(!x.isTest && isWarningIncident(x)){
+    alertBanner.classList.remove("hidden");alertBanner.style.background="#fff9e8";alertBanner.style.borderColor="#efd48a";alertBanner.style.color="#8c6500";
+    alertBannerTitle.textContent="Security attention required";alertBannerText.textContent="This incident has been highlighted because it is suspicious activity or a physical security issue.";
+  }else{
+    alertBanner.classList.add("hidden");
+  }
+
+  const url=buildPdfUrl(x),pdf=el("pdfBtn"),download=el("pdfDownloadBtn"),status=el("pdfStatus"),note=el("pdfNote");
+  if(url){
+    pdf.href=url;download.href=url;pdf.classList.remove("hidden");download.classList.remove("hidden");
+    status.textContent="PDF generated and attached";
+    note.textContent="Open or download the approved Jotform incident report. Microsoft 365 sign-in may be requested by SharePoint.";
+  }else{
+    pdf.removeAttribute("href");download.removeAttribute("href");pdf.classList.add("hidden");download.classList.add("hidden");
+    status.textContent="No PDF has been generated";
+    note.textContent=x.jotformId?"The approved Jotform PDF is not attached to this incident yet.":"This is a legacy record without a Jotform Submission ID, so an approved PDF cannot be linked automatically.";
+  }
+  el("incidentDialog").showModal();
+}
+
+function setLoadingProgress(v,stage){loadingProgress=Math.max(0,Math.min(100,Math.round(v)));el("loadingBar").style.width=`${loadingProgress}%`;el("loadingPercent").textContent=`${loadingProgress}%`;if(stage)el("loadingStage").textContent=stage}
+function showLoading(){
+  el("loadingOverlay").classList.remove("hidden");
+  if(loadingTick)clearInterval(loadingTick);if(loadingMessageTick)clearInterval(loadingMessageTick);
+  loadingProgress=0;let messageIndex=0;const started=Date.now();setLoadingProgress(3,LOADING_MESSAGES[0]);
+  loadingMessageTick=setInterval(()=>{if(loadingProgress>=97)return;messageIndex=(messageIndex+1)%LOADING_MESSAGES.length;el("loadingStage").textContent=LOADING_MESSAGES[messageIndex]},1600);
+  loadingTick=setInterval(()=>{
+    const elapsed=(Date.now()-started)/1000;let target;
+    if(elapsed<6)target=3+(elapsed/6)*22;
+    else if(elapsed<14)target=25+((elapsed-6)/8)*35;
+    else if(elapsed<22)target=60+((elapsed-14)/8)*28;
+    else target=Math.min(97,88+((elapsed-22)/18)*9);
+    if(target>loadingProgress)setLoadingProgress(target);
+  },250);
+}
+function hideLoading(){
+  if(loadingTick){clearInterval(loadingTick);loadingTick=null}if(loadingMessageTick){clearInterval(loadingMessageTick);loadingMessageTick=null}
+  setLoadingProgress(100,"Dashboard ready");setTimeout(()=>el("loadingOverlay").classList.add("hidden"),420);
+}
+function setAuthMessage(id,message,type=""){const node=el(id);node.textContent=message||"";node.className=`auth-message${type?" "+type:""}`}
+function saveAuth(){localStorage.setItem(AUTH_STORAGE_KEY,JSON.stringify({email:authState.email,token:authState.token,displayName:authState.displayName}))}
+function clearAuth(){authState={email:"",token:"",displayName:""};localStorage.removeItem(AUTH_STORAGE_KEY)}
+function getStoredAuth(){try{const p=JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY)||"{}");if(p.email&&p.token)return p}catch(e){}return null}
+function showLogin(message=""){el("authGate").classList.remove("hidden");el("loginPanel").classList.remove("hidden");el("changePinPanel").classList.add("hidden");setAuthMessage("loginMessage",message,message?"error":"");el("loginPin").value="";hideLoading();setTimeout(()=>el("loginEmail").focus(),0)}
+function showChangePin(){el("authGate").classList.remove("hidden");el("loginPanel").classList.add("hidden");el("changePinPanel").classList.remove("hidden");el("newPin").value="";el("confirmPin").value="";setAuthMessage("changePinMessage","");hideLoading();setTimeout(()=>el("newPin").focus(),0)}
+function showApp(){el("signedInName").textContent=authState.displayName||"Signed in";el("signedInEmail").textContent=authState.email;el("authGate").classList.add("hidden")}
+async function postJson(url,body){const response=await fetch(url,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});let data={};try{data=await response.json()}catch(e){}return {response,data}}
+function base64ToBytes(value){const raw=atob(value);return Uint8Array.from(raw,c=>c.charCodeAt(0))}function bytesToBase64(bytes){let s="";bytes.forEach(b=>s+=String.fromCharCode(b));return btoa(s)}
+async function deriveVerifier(pin,saltBase64){const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(pin),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:base64ToBytes(saltBase64),iterations:210000,hash:"SHA-256"},material,256);return bytesToBase64(new Uint8Array(bits))}
+function generateSalt(){const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);return bytesToBase64(bytes)}
+async function login(email,pin){const auth=window.SECURIT_AUTH||{};if(!auth.getSalt||!auth.login)throw new Error("Authentication endpoints are not configured.");const saltResult=await postJson(auth.getSalt,{email});if(!saltResult.data?.success||!saltResult.data?.salt)throw new Error("Invalid email or PIN.");const verifier=await deriveVerifier(pin,saltResult.data.salt);const loginResult=await postJson(auth.login,{email,verifier});if(!loginResult.response.ok||!loginResult.data?.success)throw new Error(loginResult.data?.message||"Invalid email or PIN.");authState={email,token:loginResult.data.token,displayName:loginResult.data.displayName||""};saveAuth();if(boolValue(loginResult.data.mustChangePassword)){showChangePin();return false}showApp();await loadData();return true}
+async function changePin(newPin){const auth=window.SECURIT_AUTH||{};const newSalt=generateSalt(),newVerifier=await deriveVerifier(newPin,newSalt);const result=await postJson(auth.changePin,{email:authState.email,token:authState.token,newSalt,newVerifier});if(!result.response.ok||!result.data?.success)throw new Error(result.data?.message||"PIN could not be updated.");showApp();await loadData()}
+async function validateStoredSession(){const stored=getStoredAuth();if(!stored){showLogin();return}authState={email:stored.email,token:stored.token,displayName:stored.displayName||""};const auth=window.SECURIT_AUTH||{};if(!auth.validate){clearAuth();showLogin("Authentication is not configured.");return}try{const result=await postJson(auth.validate,{email:authState.email,token:authState.token});if(!result.response.ok||!result.data?.success)throw new Error("Session invalid or expired.");authState.displayName=result.data.displayName||authState.displayName;saveAuth();if(boolValue(result.data.mustChangePassword)){showChangePin();return}showApp();await loadData()}catch(err){clearAuth();showLogin("Your session has expired. Please sign in again.")}}
+async function loadData(){const dot=el("syncDot"),txt=el("syncText");showLoading();try{const url=String(window.SECURIT_INCIDENT_API_URL||"").trim();if(!url)throw new Error("Incident API URL is not configured in config.js");const response=await fetch(url,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:"{}"});if(!response.ok)throw new Error(`API returned HTTP ${response.status}`);const payload=await response.json();buildSiteManagerMap(payload);const rows=extractRecords(payload);incidents=rows.map(normaliseRecord).filter(x=>x.sharepointId||x.site||x.originalStatement);populateFilters();render();const tests=incidents.filter(x=>x.isTest).length;dot.className="sync-dot ok";txt.textContent=`Live register loaded · ${incidents.length.toLocaleString("en-GB")} records${tests?` · ${tests} test`:""}`;setLoadingProgress(100,"Dashboard ready")}catch(err){console.error(err);dot.className="sync-dot bad";txt.textContent="Live register unavailable";el("emptyState").classList.remove("hidden");el("emptyState").textContent=`Incident data could not be loaded: ${err.message}`}finally{hideLoading()}}
+["periodFilter","siteFilter","clientFilter","managerFilter","typeFilter","subTypeFilter"].forEach(id=>el(id).addEventListener("change",render));el("searchInput").addEventListener("input",render);el("searchBtn").addEventListener("click",render);el("refreshBtn").addEventListener("click",loadData);el("clearFilters").addEventListener("click",()=>{el("periodFilter").value="30";["siteFilter","clientFilter","managerFilter","typeFilter","subTypeFilter"].forEach(id=>el(id).value="all");el("searchInput").value="";render()});el("closeDialog").addEventListener("click",()=>el("incidentDialog").close());el("closeDialog2").addEventListener("click",()=>el("incidentDialog").close());el("logoutBtn").addEventListener("click",()=>{window.parent.postMessage({talosNavigate:"logout"},window.location.origin);clearAuth();incidents=[];showLogin()});
+el("loginForm").addEventListener("submit",async e=>{e.preventDefault();const email=normaliseSpace(el("loginEmail").value).toLowerCase(),pin=el("loginPin").value;if(!email||!pin)return;el("loginBtn").disabled=true;setAuthMessage("loginMessage","Signing in…");try{await login(email,pin)}catch(err){setAuthMessage("loginMessage",err.message||"Sign in failed.","error")}finally{el("loginBtn").disabled=false}});
+el("changePinForm").addEventListener("submit",async e=>{e.preventDefault();const pin=el("newPin").value,confirm=el("confirmPin").value;if(pin.length<4){setAuthMessage("changePinMessage","PIN must contain at least 4 characters.","error");return}if(pin!==confirm){setAuthMessage("changePinMessage","The PINs do not match.","error");return}el("changePinBtn").disabled=true;setAuthMessage("changePinMessage","Updating PIN…");try{await changePin(pin)}catch(err){setAuthMessage("changePinMessage",err.message||"PIN could not be updated.","error")}finally{el("changePinBtn").disabled=false}});
+el("complianceViewBtn").addEventListener("click",()=>{window.parent.postMessage({talosNavigate:"compliance"},window.location.origin)});
+el("wallViewBtn").addEventListener("click",()=>{window.parent.postMessage({talosNavigate:"wallboard"},window.location.origin)});
+validateStoredSession();
+</script>
+</body>
+</html>
