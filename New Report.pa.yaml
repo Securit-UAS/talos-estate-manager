@@ -1,0 +1,2167 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  New Report:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+    Children:
+      - BrowseGallery1_3:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver4.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =74
+            Items: |-
+              =SortByColumns(
+                  Search(
+              Filter('Talos DB v2',
+                     Created >= DateAdd(Today(), -60, TimeUnit.Days)),
+                     'Officer Name New Report'.Text,
+                     'Officer Name'),"Created",SortOrder.Descending)
+            OnSelect: =Navigate(DetailScreen1, ScreenTransition.None)
+            ShowScrollbar: =false
+            TemplateSize: =107
+            Visible: =false
+            Width: =48
+            Y: =216
+          Children:
+            - Title1_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =92
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =24
+                  Text: =ThisItem.SiteName
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =362
+                  X: =56
+            - Subtitle1_16:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =51
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =16
+                  Text: |+
+                    =ThisItem.'Officer Name'&" "&ThisItem.Issue
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =464
+                  X: =374
+            - Body1_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =23
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =13
+                  Text: =ThisItem.Created
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =304
+                  X: =12
+                  Y: =84
+            - Separator1_8:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  Fill: =RGBA(0, 18, 107, 1)
+                  Height: =1
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - 1
+            - Subtitle1_17:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =52
+                  Italic: =true
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |
+                    =ThisItem.'Reason for Issue / Operator Comments  Please note - These comments may be passed directly to the client or other 3rd parties'
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =447
+                  X: =375
+                  Y: =54
+            - Label7:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  Font: =Font.'Open Sans'
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.'External Agency'
+                  X: =40
+                  Y: =40
+      - RectQuickActionBar3_1:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(41, 45, 79, 1)
+            Height: =88
+            Width: =1136
+      - EditForm1_1:
+          Control: Form@2.4.4
+          Variant: Classic
+          Layout: Vertical
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            DataSource: =[@'Talos DB v2']
+            Fill: =RGBA(219, 219, 219, 1)
+            Height: =552
+            Item: =BrowseGallery1.Selected
+            OnSuccess: =Back()
+            Width: =1136
+            Y: =RectQuickActionBar3.Height
+          Children:
+            - Logged by_DataCard3:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, 'Logged by')
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Loggedby"
+                  Default: =ThisItem.'Logged by'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Logged by')
+                  Required: =false
+                  Update: =DataCardValue10.Selected.Value
+                  Visible: =false
+                  Width: =1136
+                  X: =0
+                  Y: =0
+                Children:
+                  - DataCardKey22:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue10:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =Parent.Default
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =[User().FullName,"Securit ARC","Securit OPS"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =60
+                  - ErrorMessage21:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue10.Y + DataCardValue10.Height
+                  - StarVisible21:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey22.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey22.Y
+            - SiteName_DataCard3:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, SiteName)
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Title"
+                  Default: =ThisItem.SiteName
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,SiteName)
+                  Height: =507
+                  Required: =false
+                  Update: =DataCardValue16.SelectedText.Value
+                  Width: =1136
+                  X: =0
+                  Y: =1
+                Children:
+                  - DataCardKey17:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =48
+                        Italic: =true
+                        Size: =25
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =29
+                        Y: =13
+                  - DataCardValue16:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: ="Select a site"
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =118
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: |+
+                          =SortByColumns(
+                              Search(
+                          Filter('SECURIT & CMS ESTATE DB',
+                          'Task Type' = "static" Or 'Task Type' = "Retail", active = "yes"),TextSearchBox1_1.Text,Title),"Title",SortOrder.Ascending)
+                        Items.Value: =Title
+                        OnSelect: =Set(var1,Label8.Text)
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Size: =30
+                        Tooltip: =Parent.DisplayName
+                        Width: =1075
+                        X: =31
+                        Y: =103
+                  - ErrorMessage9:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue16.Y + DataCardValue16.Height
+                  - StarVisible9:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey17.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey17.Y
+                  - TextSearchBox1_1:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        Align: =TextPosition.Left
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Default: =""
+                        DelayOutput: =true
+                        Font: =Font.'Open Sans'
+                        Height: =68
+                        HintText: ="Search Sites"
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        PaddingLeft: =70
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =7
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =7
+                        Reset: =Button7_1.Pressed
+                        Width: =549
+                        X: =557
+                        Y: =13
+                  - Icon1:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(149, 149, 149, 1)
+                        Icon: =Icon.Search
+                        X: =557
+                        Y: =17
+                  - TextInput1:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        Align: |
+                          =If(
+                              LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title, notes) = "" || 
+                              IsBlank(LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title, notes)), 
+                              Align.Center, 
+                              Align.Left
+                          )
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Default: |
+                          =If(
+                              IsBlank(DataCardValue16.Selected) || IsBlank(DataCardValue16.Selected.Title),
+                              "No site selected",
+                              Coalesce(
+                                  LookUp(
+                                      'SECURIT & CMS ESTATE DB', 
+                                      Title = DataCardValue16.Selected.Title, 
+                                      notes
+                                  ),
+                                  "No Notes Recorded"
+                              )
+                          )
+                        Font: =Font.'Open Sans'
+                        Height: =222
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Mode: =TextMode.MultiLine
+                        Size: |
+                          =If(
+                              LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title, notes) = "" || 
+                              IsBlank(LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title, notes)), 
+                              30, 
+                              21
+                          )
+                        Width: =1075
+                        X: =30
+                        Y: =252
+            - Officer Name_DataCard2_1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicTextualEdit
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Officer_x0020_Name"
+                  Default: =ThisItem.'Officer Name'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Officer Name')
+                  Height: =319
+                  MaxLength: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.MaxLength, 'Officer Name')
+                  Required: =true
+                  Update: ='Officer Name New Report'.Text
+                  Width: =1136
+                  X: =0
+                  Y: =2
+                Children:
+                  - DataCardKey12_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =167
+                  - Officer Name New Report:
+                      Control: Classic/TextInput@2.3.2
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        Default: |
+                          =Trim( Substitute( Substitute( Substitute( Dropdown1_1.Selected.Result, "  ", " " ), "  ", " " ), "  ", " " ) )
+                        DelayOutput: =true
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        MaxLength: =Parent.MaxLength
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Tooltip: =Parent.DisplayName
+                        Width: =1075
+                        X: =31
+                        Y: =235
+                  - ErrorMessage4_1:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: ='Officer Name New Report'.Y + 'Officer Name New Report'.Height
+                  - StarVisible4_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey12_1.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey12_1.Y
+                  - Dropdown1_1:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Lighter
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Italic: =true
+                        Items: |+
+                          =Sort(ForAll(Distinct(Filter
+                          ('Rolling Staff DB', SiteName =DataCardValue16.Selected.Title),FullName), {Result: ThisRecord.Value}),Result,SortOrder.Ascending) 
+
+
+
+                        Items.Value: =Result
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Width: =1075
+                        X: =31
+                        Y: =80
+                  - DataCardKey65_1:
+                      Control: Label@2.5.1
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Italic: =true
+                        Text: ="Suggested Officer Names"
+                        Width: =590
+                        Wrap: =false
+                        X: =30
+                        Y: =16
+                  - Label2:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(149, 149, 149, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Italic: =true
+                        Text: ="- Enter manually if not shown in the Suggested Names list"
+                        Width: =768
+                        X: =224
+                        Y: =167
+                  - Label17:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        Text: |+
+                          =LookUp(
+                              'Rolling Staff DB',
+                              FullName = Trim(
+                                  Substitute(
+                                      Substitute(
+                                          Substitute('Officer Name New Report'.Text, "  ", " "),
+                                          "  ", " "
+                                      ),
+                                      "  ", " "
+                                  )
+                              )
+                          ).StaffID
+
+                        Visible: =false
+                        Width: =486
+                        X: =605
+                        Y: =305
+            - Contractor_DataCard2:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, Contractor)
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Contractor"
+                  Default: =ThisItem.Contractor
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,Contractor)
+                  Height: =281
+                  Required: =false
+                  Update: =DataCardValue14_1.SelectedText.Value
+                  Width: =1136
+                  X: =0
+                  Y: =3
+                Children:
+                  - DataCardKey23:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Italic: =true
+                        Text: ="Suggested Company Name"
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue14:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =Parent.Default
+                        DisplayMode: =Parent.DisplayMode
+                        Fill: =RGBA(202, 202, 202, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: |-
+                          =Sort(ForAll(Distinct(Filter
+                          ('Staff Contractor List', Title =Label17.Text),Company), {Result: ThisRecord.Value}),Result,SortOrder.Ascending)
+                        Items.Value: =Result
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Visible: =false
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =73
+                  - ErrorMessage22:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue14.Y + DataCardValue14.Height
+                  - StarVisible22:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey23.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey23.Y
+                  - DataCardKey23_1:
+                      Control: Label@2.5.1
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =48
+                        Text: ="Company Name"
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =143
+                  - Label2_5:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(149, 149, 149, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Italic: =true
+                        Text: ="- Enter manually if not shown correctly"
+                        Width: =768
+                        X: =271
+                        Y: =143
+                  - DataCardValue14_1:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: |
+                          =Label13.Text
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: |
+                          =Sort(
+                              Distinct('Rolling Staff DB', Contractor),
+                              Value,
+                              SortOrder.Ascending
+                          )
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =203
+                  - Label13:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Size: =30
+                        Text: |+
+                          =LookUp(
+                              'Rolling Staff DB',
+                              Trim(Lower(FullName)) = Trim(Lower(Dropdown1_1.Selected.Result))
+                          ).Contractor
+
+                        X: =42
+                        Y: =73
+            - Time due to start shift_DataCard2_1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicTextualEdit
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Time_x0020_due_x0020_to_x0020_st"
+                  Default: =ThisItem.'Time due to start shift'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Time due to start shift')
+                  MaxLength: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.MaxLength, 'Time due to start shift')
+                  Required: =false
+                  Update: =DataCardValue12_1.Text
+                  Width: =1136
+                  X: =0
+                  Y: =4
+                Children:
+                  - DataCardKey13_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue12_1:
+                      Control: Classic/TextInput@2.3.2
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        Default: =Dropdown6.SelectedText.Value &":"&Dropdown6_1.SelectedText.Value
+                        DelayOutput: =true
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        MaxLength: =Parent.MaxLength
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Tooltip: =Parent.DisplayName
+                        Width: =750
+                        X: =356
+                        Y: =DataCardKey13_1.Y + DataCardKey13_1.Height + 5
+                  - ErrorMessage5_1:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue12_1.Y + DataCardValue12_1.Height
+                  - StarVisible5_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey13_1.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey13_1.Y
+                  - Dropdown6:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: |+
+                          =Hour(Now() )
+
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["00"," 1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Width: =104
+                        X: =30
+                        Y: =63
+                  - Dropdown6_1:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["00","15","30","45"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Width: =104
+                        X: =175
+                        Y: =63
+                  - Label6:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Text: =":"
+                        Width: =41
+                        X: =134
+                        Y: =63
+            - Issue_DataCard3:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, Issue)
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Issue"
+                  Default: =ThisItem.Issue
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,Issue)
+                  Height: =843
+                  Required: =false
+                  Update: =DataCardValue18.Selected.Value
+                  Width: =1136
+                  X: =0
+                  Y: =5
+                Children:
+                  - DataCardKey19_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue18:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =Radio1.Selected.Value
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["C247 Technical Issue","Unable to contact Officer","Will be late for shift","Unable to attend their shift","Leaving site","Unable to book on","Rota Error","Missed check call / Welfare Check","Triggered Duress Alarm","Failed to show SIA Badge when booking on","SIA Badge is Invalid","SIA Badge is Expiring","Forgot to Book on","Not Confirmed Shifts on C247","Other"]
+                        Items.Value: =Value
+                        OnSelect: |-
+                          =Set(varpopup,If(Value(Label10.Text) > 0, true)
+                          )
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Visible: =false
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =34
+                  - ErrorMessage11_1:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue18.Y + DataCardValue18.Height
+                  - StarVisible11_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey19_1.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey19_1.Y
+                  - Radio1:
+                      Control: Classic/Radio@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =760
+                        HoverColor: =RGBA(0, 18, 107, 1)
+                        Items: =["C247 Technical Issue","Unable to contact Officer","Will be late for shift","Unable to attend their shift","Leaving site","Rota Error","Missed check call / Welfare Check","Triggered Duress Alarm","Failed to show SIA Badge when booking on","SIA Badge is Invalid","SIA Badge is Expiring","Forgot to Book on","Not Confirmed Shifts on C247","Other"]
+                        Items.Value: =Value
+                        OnSelect: |-
+                          =Set(var1,Label8.Text);Set(varpopup,If(Value(Label10.Text) > 0, true)
+                          )
+                        RadioBorderColor: =RGBA(0, 18, 107, 1)
+                        RadioSelectionFill: =RGBA(0, 0, 0, 1)
+                        RadioSize: =50
+                        Size: =15
+                        Width: =1093
+                        X: =18
+                        Y: =58
+            - Has a notification already been sent out internally for this incident?_DataCard2:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, 'Has a notification already been sent out internally for this incident?')
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Has_x0020_a_x0020_notification_x"
+                  Default: =ThisItem.'Has a notification already been sent out internally for this incident?'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Has a notification already been sent out internally for this incident?')
+                  Required: =false
+                  Update: =DataCardValue23.Selected.Value
+                  Visible: =If(DataCardValue18.Selected.Value = "Unable to attend their shift",true,false)
+                  Width: =1145
+                  X: =0
+                  Y: =6
+                Children:
+                  - DataCardKey24:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =10
+                  - DataCardValue23:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =Parent.Default
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["No","Yes"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardKey24.Y + DataCardKey24.Height + 5
+                  - ErrorMessage16:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue23.Y + DataCardValue23.Height
+                  - StarVisible16:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey24.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey24.Y
+            - Notify the client and Key Stakeholders?_DataCard2_1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, 'Notify the client and Key Stakeholders?')
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Notify_x0020_the_x0020_client_x0"
+                  Default: =ThisItem.'Notify the client and Key Stakeholders?'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Notify the client and Key Stakeholders?')
+                  Required: =false
+                  Update: =DataCardValue24.Selected.Value
+                  Visible: =If(DataCardValue23.Selected.Value = "Yes",false,true)
+                  Width: =1145
+                  X: =0
+                  Y: =7
+                Children:
+                  - DataCardKey25:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =10
+                  - DataCardValue24:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =DataCardValue23.Selected.Value
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["No","Yes"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =57
+                  - ErrorMessage17:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue24.Y + DataCardValue24.Height
+                  - StarVisible17:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey25.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey25.Y
+            - Unable to book on_DataCard2_1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, 'Unable to book on')
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Unabletobookon"
+                  Default: =ThisItem.'Unable to book on'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Unable to book on')
+                  Required: =false
+                  Update: =DataCardValue25.Selected.Value
+                  Visible: =If(DataCardValue18.Selected.Value = "Unable to book on",true,false)
+                  Width: =1145
+                  X: =0
+                  Y: =8
+                Children:
+                  - DataCardKey26:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: ="Why is the Officer unable to book on?"
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue25:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =If(DataCardValue18.Selected.Value = "Unable to book on", "No Data signal"," ")
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["No data signal / credit on phone","Does not know the PIN for the C247 Account","Not got the app installed","Location error","Unable to book on due too early / late","Does not know how to use the app","Other"," "]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardKey26.Y + DataCardKey26.Height + 5
+                  - ErrorMessage18:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue25.Y + DataCardValue25.Height
+                  - StarVisible18:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey26.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey26.Y
+            - Was the call incoming to OPS / CMS or Outgoing?_DataCard3:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAllowedValuesStringEdit
+                Properties:
+                  AllowedValues: =DataSourceInfo([@'Talos DB v2'], DataSourceInfo.AllowedValues, 'Was the call incoming to OPS / CMS or Outgoing?')
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Was_x0020_the_x0020_call_x0020_i"
+                  Default: =ThisItem.'Was the call incoming to OPS / CMS or Outgoing?'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Was the call incoming to OPS / CMS or Outgoing?')
+                  Required: =false
+                  Update: =DataCardValue19_1.Selected.Value
+                  Visible: =false
+                  Width: =1136
+                  X: =0
+                  Y: =9
+                Children:
+                  - DataCardKey20_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =10
+                  - DataCardValue19_1:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: ="Outgoing"
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["Incoming","Outgoing"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =35
+                        Y: =55
+                  - ErrorMessage12_1:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue19_1.Y + DataCardValue19_1.Height
+                  - StarVisible12_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey20_1.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey20_1.Y
+            - Reason for Issue / Operator Comments  Please note - These comments may be passed directly to the client or other 3rd parties_DataCard3:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicTextualMultilineEdit
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Reason_x0020_for_x0020_Issue_x00"
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Reason for Issue / Operator Comments  Please note - These comments may be passed directly to the client or other 3rd parties')
+                  Height: |+
+                    =If(Radio1.Selected.Value = "C247 Technical Issue", 89, 351)
+
+                  Required: =true
+                  Update: =DataCardValue17.Text
+                  Width: =1136
+                  X: =0
+                  Y: =10
+                Children:
+                  - DataCardKey18:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =10
+                  - DataCardValue17:
+                      Control: Classic/TextInput@2.3.2
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        Default: |
+                          =If(
+                              Radio1.Selected.Value = "C247 Technical Issue",
+                              Dropdown7.Selected.Value & Char(10) &
+                              Dropdown7_1.Selected.Value & Char(10) &
+                              Dropdown7_2.Selected.Value & Char(10) &
+                              Dropdown7_3.Selected.Value & Char(10) &
+                              "Enter additional details here",
+                              ""
+                          )
+                        DelayOutput: =true
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =179
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Mode: =TextMode.MultiLine
+                        OnSelect: =
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: |
+                          =If(Radio1.Selected.Value <> "C247 Technical Issue", 89, 351)
+                  - ErrorMessage10:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue17.Y + DataCardValue17.Height
+                  - StarVisible10:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey18.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey18.Y
+                  - Dropdown7:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["App will not open","Login details not working","Can't Book on - Booking on Blocked (Time)","Can't Book on - Out of Range (GPS)","App fails to respond to Checkpoint Scan","Welfare Check Problem","Other"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =1076
+                        X: =30
+                        Y: =143
+                  - Dropdown7_1:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["Apple","Android"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =265
+                        X: =30
+                        Y: =257
+                  - Dropdown7_2:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["Prior User, Understands the app","Prior User, Not confident with the app &/or device","First time user - Training given","User unable to understand instruction"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =410
+                        X: =313
+                        Y: =257
+                  - Label15:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =54
+                        Italic: =true
+                        Text: ="C247 Issue"
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =1076
+                        X: =30
+                        Y: =89
+                  - Label15_1:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =44
+                        Italic: =true
+                        Text: ="Device Type"
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        X: =30
+                        Y: =213
+                  - Label15_2:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =44
+                        Italic: =true
+                        Text: ="User knowledge"
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =290
+                        X: =313
+                        Y: =213
+                  - Dropdown7_3:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["C247 still to be informed","C247 informed by Phone","C247 informed via email","C247 Not Informed (Resolved Internally)" ,"C247 Not Informed (none escalated issue)"]
+                        Items.Value: =Value
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =366
+                        X: =740
+                        Y: =257
+                  - Label15_3:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =44
+                        Italic: =true
+                        Text: ="Escaltion"
+                        Visible: =Radio1.Selected.Value = "C247 Technical Issue"
+                        Width: =290
+                        X: =740
+                        Y: =213
+            - Talos History_DataCard2:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicTextualMultilineEdit
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="TalosHistory"
+                  Default: =ThisItem.'Talos History'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Talos History')
+                  Height: =294
+                  Required: =false
+                  Update: =DataCardValue9.Text
+                  Width: =1136
+                  X: =0
+                  Y: =11
+                Children:
+                  - DataCardKey10:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue9:
+                      Control: Classic/TextInput@2.3.2
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        Default: =If(!IsBlank('Officer Name New Report'.Text),"Past " & var1)
+                        DelayOutput: =true
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        Height: =140
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Mode: =TextMode.MultiLine
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Tooltip: =Parent.DisplayName
+                        Visible: =!IsBlank(DataCardValue17.Text)
+                        Width: =540
+                        X: =30
+                        Y: =DataCardKey10.Y + DataCardKey10.Height + 5
+                  - ErrorMessage20:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue9.Y + DataCardValue9.Height
+                  - StarVisible20:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey10.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey10.Y
+                  - Button1_5:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(152, 208, 70, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =140
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        OnSelect: |
+                          =// Submit the form to the Talos DB
+                          SubmitForm(EditForm1_1); 
+
+                          // Update Notes in SECURIT & CMS ESTATE DB
+                          If(
+                              !IsBlank(DataCardValue16.Selected) && !IsBlank(DataCardValue16.Selected.Title),
+                              Patch(
+                                  'SECURIT & CMS ESTATE DB', 
+                                  LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title),
+                                  {
+                                      notes: If(
+                                          Trim(TextInput1.Text) = "No Notes Recorded", 
+                                          LookUp('SECURIT & CMS ESTATE DB', Title = DataCardValue16.Selected.Title).notes, 
+                                          Trim(TextInput1.Text) & Char(10) & Char(10) & 
+                                          "Updated by: " & User().FullName & " on " & Text(Now(), "[$-en-GB]dd/mm/yyyy HH:mm")
+                                      )
+                                  }
+                              )
+                          );
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Size: =50
+                        Text: ="SEND ALERT"
+                        Visible: =If(!IsBlank(Radio1.Selected.Value),true,false)
+                        Width: =497
+                        X: =609
+                        Y: =63
+                  - Button1_6:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(255, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =140
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        OnSelect: =
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Size: =30
+                        Text: ="Please Select An Alert Issue To Continue"
+                        Visible: =If(IsBlank(Radio1.Selected.Value),true,false)
+                        Width: =497
+                        X: =609
+                        Y: =73
+            - Completion time_DataCard2_1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicDateTimeEdit
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="Completion_x0020_time"
+                  Default: =ThisItem.'Completion time'
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,'Completion time')
+                  Required: =false
+                  Update: =DateValue1_1.SelectedDate + Time(Value(HourValue1_1.Selected.Value), Value(MinuteValue1_1.Selected.Value), 0)
+                  Visible: =false
+                  Width: =1145
+                  X: =0
+                  Y: =12
+                Children:
+                  - DataCardKey11_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DateValue1_1:
+                      Control: Classic/DatePicker@2.6.0
+                      MetadataKey: DateFieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        DisplayMode: =Parent.DisplayMode
+                        EndYear: =Year(Today())+100
+                        Font: =Font.'Open Sans'
+                        IconBackground: =RGBA(56, 96, 178, 1)
+                        IconFill: =RGBA(255, 255, 255, 1)
+                        IsEditable: =true
+                        PaddingBottom: =0
+                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                        StartYear: =1899
+                        Tooltip: =Parent.DisplayName
+                        Width: =(Parent.Width - 60) / 2
+                        X: =30
+                        Y: =DataCardKey11_1.Y + DataCardKey11_1.Height + 5
+                  - HourValue1_1:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: HourFieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: =Hour(Now() )
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        Height: =DateValue1_1.Height
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]
+                        Items.Value: =Value
+                        PaddingBottom: =5
+                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =DateValue1_1.Width / 2 - 10
+                        X: =DateValue1_1.X + DateValue1_1.Width + 10
+                        Y: =DateValue1_1.Y
+                  - Separator2_1:
+                      Control: Label@2.5.1
+                      MetadataKey: HourMinuteSeparator
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Bold
+                        Height: =HourValue1_1.Height
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Text: =":"
+                        Width: =10
+                        Wrap: =false
+                        X: =HourValue1_1.X + HourValue1_1.Width
+                        Y: =HourValue1_1.Y
+                  - MinuteValue1_1:
+                      Control: Classic/DropDown@2.3.1
+                      MetadataKey: MinuteFieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        ChevronBackground: =RGBA(56, 96, 178, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Default: |+
+                          =Minute( Now() )
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        Height: =HourValue1_1.Height
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"]
+                        Items.Value: =Value
+                        PaddingBottom: =5
+                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(56, 96, 178, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =HourValue1_1.Width
+                        X: =HourValue1_1.X + HourValue1_1.Width + Separator2_1.Width
+                        Y: =HourValue1_1.Y
+                  - ErrorMessage3_1:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =HourValue1_1.Y + HourValue1_1.Height
+                  - StarVisible3_1:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey11_1.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey11_1.Y
+            - Attachments_DataCard1:
+                Control: TypedDataCard@1.0.7
+                Variant: ClassicAttachmentsEdit
+                IsLocked: true
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  DataField: ="{Attachments}"
+                  Default: =ThisItem.Attachments
+                  DisplayName: =DataSourceInfo([@'Talos DB v2'],DataSourceInfo.DisplayName,Attachments)
+                  Required: =false
+                  Update: =DataCardValue26.Attachments
+                  Width: =1136
+                  X: =0
+                  Y: =13
+                Children:
+                  - DataCardKey29:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldName
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =48
+                        Text: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        Wrap: =false
+                        X: =30
+                        Y: =10
+                  - DataCardValue26:
+                      Control: Attachments@2.3.0
+                      MetadataKey: FieldValue
+                      Properties:
+                        BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                        DisplayMode: =Parent.DisplayMode
+                        Font: =Font.'Open Sans'
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        ItemColor: =RGBA(255, 255, 255, 1)
+                        ItemFill: =RGBA(56, 96, 178, 1)
+                        ItemHoverFill: =RGBA(186, 202, 226, 1)
+                        Items: =Parent.Default
+                        PaddingBottom: =5
+                        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(0, 18, 107, 1)
+                        Tooltip: =Parent.DisplayName
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardKey29.Y + DataCardKey29.Height + 5
+                  - ErrorMessage24:
+                      Control: Label@2.5.1
+                      MetadataKey: ErrorMessage
+                      Properties:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(168, 0, 0, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =10
+                        Live: =Live.Assertive
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =24
+                        Text: =Parent.Error
+                        Visible: =Parent.DisplayMode=DisplayMode.Edit
+                        Width: =Parent.Width - 60
+                        X: =30
+                        Y: =DataCardValue26.Y + DataCardValue26.Height
+                  - StarVisible24:
+                      Control: Label@2.5.1
+                      MetadataKey: FieldRequired
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =DataCardKey29.Height
+                        Text: ="*"
+                        Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                        Width: =30
+                        Wrap: =false
+                        Y: =DataCardKey29.Y
+      - LblAppName3_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(58, 58, 58, 0)
+            Font: =Font.'Open Sans'
+            Height: =88
+            Size: =27
+            Text: ="Talos v5"
+            Width: =
+            Wrap: =false
+            X: =80
+      - Button2:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.Lato
+            FontWeight: =FontWeight.Bold
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =15
+            Text: |-
+              ="Incidents in the last 60 days
+               No Coms - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Unable to contact Officer")))& ", Left Site - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Leaving site")))& ", Late - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Will be late for shift")))& ", SIA - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Failed to show SIA Badge when booking on")))& ", Blow Outs - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Unable to attend their shift")))
+            Visible: |+
+              =false
+            Width: =563
+            X: =247
+            Y: =9
+      - Button7_10:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(222, 71, 103, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =ResetForm(EditForm1);Back()
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="Exit"
+            Width: =224
+            X: =12
+            Y: =9
+      - Label8:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            Height: =62
+            Text: |-
+              ="Incidents in the last 60 days,
+              No Coms - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Unable to contact Officer")))& ", Left Site - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Leaving site")))& ", Late - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Will be late for shift")))& ", SIA - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Failed to show SIA Badge when booking on")))& ", Unconfirmed - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Not Confirmed Shifts on C247")))& "  , Blow Outs - " & CountRows(Filter(BrowseGallery1_3.AllItems,(Issue = "Unable to attend their shift")))
+            Visible: =false
+            Width: =208
+            X: =917
+            Y: =88
+      - Icon2:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 191, 0, 1)
+            Fill: =RGBA(151, 0, 0, 1)
+            Height: =557
+            Icon: =Icon.Warning
+            Visible: =varpopup
+            Width: =1087
+            X: =24
+            Y: =83
+      - Label10:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            Text: |+
+              =CountRows('Already Logged'.AllItems)
+            Visible: =false
+            X: =551
+      - Label11:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =476
+            Size: =50
+            Text: |-
+              ="WARNING
+              A REPORT HAS ALREADY BEEN SUBMITTED FOR THIS OFFICER TODAY
+
+              "
+            Visible: =varpopup
+            Width: =1014
+            X: =60
+            Y: =106
+      - Button3:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            Height: =67
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =Set(varpopup,false)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Click to Continue"
+            Visible: =varpopup
+            Width: =251
+            X: =840
+            Y: =550
+      - Rectangle3:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(255, 191, 0, 1)
+            Height: =510
+            Visible: =If(IsBlank(DataCardValue16.SelectedText),true,false)
+            Width: =1099
+            X: =12
+            Y: =106
+      - Label9:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =488
+            Size: =38
+            Text: |-
+              ="WARNING
+
+              We can not get any results from the Talos Database, either you are not logged in corrected or you have entered a search term with no results
+
+
+              "
+            Visible: =If(IsBlank(DataCardValue16.SelectedText),true,false)
+            Width: =1067
+            X: =24
+            Y: =117
+      - Button7:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =Launch("https://securitgroup.sharepoint.com/:l:/s/AllGuarding/FM43-0gj_-9BuA4JjjqXgEAB_dlMZQ_lBEIzsuedWDvB3A?e=KXCZcb")
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="LOG IN"
+            Visible: =If(IsBlank(DataCardValue16.SelectedText),true,false)
+            X: =161
+            Y: =512
+      - Button7_1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="Cancel Warning"
+            Visible: =If(IsBlank(DataCardValue16.SelectedText),true,false)
+            X: =649
+            Y: =512
+      - Image1_1:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =92
+            Image: ='Image 13-02-2025 at 09.18'
+            Width: =344
+            X: =791
+            Y: =2

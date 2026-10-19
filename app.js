@@ -108,5 +108,5 @@ document.addEventListener('fullscreenchange',()=>{
 });
 
 // The CMS module gets the current TALOS session and estate reference data only on request.
-function sendCmsContext(frame){if(!session||frame.dataset.module!=='cms')return;try{frame.contentWindow.postMessage({talosCmsContext:{email:session.email,token:session.token,displayName:session.displayName||session.email,sites:sites.filter(s=>active(s.active)).map(s=>({id:s.id,name:s.name,type:s.type,region:s.region})),api:{submit:api.cmsSubmit||'',read:api.cmsRead||'',confirm:api.cmsConfirm||''}}},location.origin)}catch(_){}}
+function sendCmsContext(frame){if(!session||frame.dataset.module!=='cms')return;try{frame.contentWindow.postMessage({talosCmsContext:{email:session.email,token:session.token,displayName:session.displayName||session.email,sites:sites.filter(s=>active(s.active)).map(s=>({id:s.id,name:s.name,type:s.type,region:s.region})),api:{submit:api.cmsSubmit||'',read:api.cmsRead||'',confirm:api.cmsConfirm||'',staffLookup:api.cmsStaffLookup||''}}},location.origin)}catch(_){}}
 window.addEventListener('message',event=>{if(event.origin!==location.origin)return;const frame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(!frame||event.source!==frame.contentWindow)return;if(event.data?.talosCmsRequestContext)sendCmsContext(frame)});

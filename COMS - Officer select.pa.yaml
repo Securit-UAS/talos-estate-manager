@@ -1,0 +1,273 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  COMS - Officer select:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+    Children:
+      - Rectangle5:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(202, 202, 202, 1)
+            Height: =552
+            Width: =1136
+            Y: =88
+      - RectQuickActionBar3_4:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(41, 45, 79, 1)
+            Height: =88
+            Width: =1136
+      - Button7_12:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(222, 71, 103, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =ResetForm(EditForm1);Back()
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="Exit"
+            Width: =224
+            X: =12
+            Y: =9
+      - Icon2_1:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 191, 0, 1)
+            Fill: =RGBA(151, 0, 0, 1)
+            Height: =557
+            Icon: =Icon.Warning
+            Visible: =varpopup
+            Width: =1087
+            X: =24
+            Y: =83
+      - Label10_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            Text: |+
+              =CountRows('Already Logged'.AllItems)
+            Visible: =false
+            X: =551
+      - Image1_2:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =92
+            Image: ='Image 13-02-2025 at 09.18'
+            Width: =344
+            X: =791
+            Y: =2
+      - gal_Stafflist:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =511
+            Items: |+
+              =SortByColumns('Rolling Staff DB',Radio3.Selected.Value,SortOrder.Ascending)
+
+
+            OnSelect: =i
+            TemplateSize: =119
+            Width: =678
+            X: =31
+            Y: =106
+          Children:
+            - Title4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(71, 69, 64, 1)
+                  DisabledColor: =RGBA(186, 186, 186, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =20
+                  Text: =ThisItem.FullName&" - "&ThisItem.LastName
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =592
+                  X: =4
+            - Subtitle1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(71, 69, 64, 1)
+                  DisabledColor: =RGBA(186, 186, 186, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =Self.Size * 1.8
+                  Italic: =true
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =18
+                  Text: =ThisItem.Contractor
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title4.Width
+                  X: =Title4.X
+                  Y: =Title4.Y + Title4.Height
+            - NextArrow1:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(166, 166, 166, 1)
+                  DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                  DisabledColor: =RGBA(119, 119, 119, 1)
+                  Height: =50
+                  Icon: =Icon.ChevronRight
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="View item details"
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator5:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 255, 1)
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =8
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Rectangle2:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  Fill: =RGBA(0, 18, 107, 1)
+                  Height: =Parent.TemplateHeight - Separator5.Height
+                  OnSelect: =Select(Parent)
+                  Visible: =ThisItem.IsSelected
+                  Width: =4
+            - Checkbox1:
+                Control: Classic/CheckBox@2.1.0
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  CheckboxBorderColor: =RGBA(0, 18, 107, 1)
+                  CheckmarkFill: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  HoverColor: =RGBA(0, 18, 107, 1)
+                  OnCheck: =Collect(col_SelectedStaff, ThisItem)
+                  OnSelect: =Select(Parent)
+                  OnUncheck: =Remove(col_SelectedStaff, ThisItem)
+                  Text: =
+                  Width: =79
+                  X: =596
+                  Y: =3
+            - Subtitle1_27:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(71, 69, 64, 1)
+                  DisabledColor: =RGBA(186, 186, 186, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =18
+                  Text: =ThisItem.SiteName
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title4.Width
+                  X: =4
+                  Y: =79
+      - Button7_13:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 191, 0, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =Clear(col_SelectedStaff)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Clear Selected Staff"
+            Width: =224
+            X: =252
+            Y: =9
+      - Label19:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            Height: =406
+            Text: |
+              =Concat(col_SelectedStaff, FullName & Char(10))
+            Width: =416
+            X: =709
+            Y: =234
+      - Radio3:
+          Control: Classic/Radio@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Default: ="SiteName"
+            Font: =Font.'Open Sans'
+            Height: =86
+            HoverColor: =RGBA(0, 18, 107, 1)
+            Items: =["FullName","SiteName"]
+            Items.Value: =Value
+            RadioBorderColor: =RGBA(0, 18, 107, 1)
+            RadioSelectionFill: =RGBA(0, 0, 0, 1)
+            RadioSize: =30
+            Width: =218
+            X: =917
+            Y: =88
+      - Button7_14:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(54, 176, 75, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: =Navigate('COMS - Message select')
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: |-
+              ="Select
+              Message"
+            Width: =224
+            X: =485
+            Y: =9
