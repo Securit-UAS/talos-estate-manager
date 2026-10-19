@@ -86,7 +86,17 @@
 
     @media(max-width:780px){.pdf-panel{align-items:flex-start;flex-direction:column}.pdf-actions{justify-content:flex-start}.shell{padding:13px}.topbar{align-items:flex-start;flex-direction:column}.controlbar,.insights{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.filtergrid{grid-template-columns:1fr 1fr}.meta-grid{grid-template-columns:1fr}.brand img{height:48px}.userbar{justify-content:flex-start}.searchrow{flex-direction:column}.barrow{grid-template-columns:1fr auto}.bartrack{grid-column:1 / -1}.hide-mobile{display:none}}
     @media(max-width:520px){.filtergrid,.stats{grid-template-columns:1fr}}
-  </style>
+  
+/* TALOS parent theme integration — V1.6 */
+html{color-scheme:dark}html[data-talos-theme="light"]{color-scheme:light}
+html[data-talos-theme="dark"]{--bg:#0b1626;--panel:#14243a;--panel2:#1b2c44;--line:#31445f;--text:#edf4ff;--muted:#abbdd4;--shadow:0 9px 26px #0004}
+html[data-talos-theme="dark"] select,html[data-talos-theme="dark"] select option,html[data-talos-theme="dark"] select optgroup{color:#edf4ff!important;background:#172b43!important}
+html[data-talos-theme="light"] select,html[data-talos-theme="light"] select option{color:#202c3e!important;background:#fff!important}
+
+html[data-talos-theme="dark"] .searchrow input,html[data-talos-theme="dark"] .selectbox select,html[data-talos-theme="dark"] .company-picker summary,html[data-talos-theme="dark"] .company-popover,html[data-talos-theme="dark"] .filterbtn,html[data-talos-theme="dark"] .btn.secondary{background:var(--panel2);color:var(--text);border-color:var(--line)}
+html[data-talos-theme="dark"] .company-actions button{background:var(--panel2);color:var(--text)}
+html[data-talos-theme="dark"] .company-option:hover{background:#29405e}
+</style>
 </head>
 <body>
 <div class="auth-gate" id="authGate">
@@ -476,6 +486,10 @@ el("changePinForm").addEventListener("submit",async e=>{e.preventDefault();const
 el("complianceViewBtn").addEventListener("click",()=>{window.parent.postMessage({talosNavigate:"compliance"},window.location.origin)});
 el("wallViewBtn").addEventListener("click",()=>{window.parent.postMessage({talosNavigate:"wallboard"},window.location.origin)});
 validateStoredSession();
+
+/* Shared shell theme: keep independently loaded modules in sync. */
+window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme=event.data.talosTheme});
+document.documentElement.dataset.talosTheme=localStorage.getItem('talosEstateTheme')||'dark';
 </script>
 </body>
 </html>

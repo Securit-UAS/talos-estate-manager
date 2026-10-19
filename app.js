@@ -26,7 +26,7 @@ function showPinChange(){$('loginForm').hidden=true;$('changePinForm').hidden=fa
 async function onPinChange(e){e.preventDefault();const pin=$('newPin').value;if(pin.length<4||pin!==$('confirmPin').value){$('changePinMessage').textContent='PINs must match and contain at least four characters.';return}try{const salt=b64(crypto.getRandomValues(new Uint8Array(16)));const r=await post(auth.changePin,{email:session.email,token:session.token,newSalt:salt,newVerifier:await verifier(pin,salt)});if(!r.success)throw new Error(r.message||'PIN update failed');showApp();await loadList()}catch(err){$('changePinMessage').textContent=err.message}}
 async function initialise(){const theme=localStorage.getItem('talosEstateTheme')||'dark';setTheme(theme);if(!auth.validate||!auth.getSalt||!auth.login){$('configNotice').textContent='Authentication endpoints are not configured yet.'}const stored=localStorage.getItem(key);if(!stored)return;try{session=JSON.parse(stored);if(!session?.email||!session?.token)throw Error('Incomplete session');const valid=await post(auth.validate,{email:session.email,token:session.token});if(!valid.success)throw Error('Session expired');session.displayName=valid.displayName||session.displayName;saveSession();if(valid.mustChangePassword===true||n(valid.mustChangePassword)==='true'){showPinChange();return}showApp();await loadList()}catch(err){logout();$('loginMessage').textContent='Please sign in with your TALOS account.'}}
 function showApp(){$('authGate').hidden=true;$('shell').hidden=false;$('userName').textContent=session.displayName||'Authorised user';$('userEmail').textContent=session.email;$('avatar').textContent=(session.displayName||session.email||'T').slice(0,1).toUpperCase()}
-function setTheme(theme){document.body.dataset.theme=theme;localStorage.setItem('talosEstateTheme',theme);$('themeSwitch').textContent=theme==='dark'?'☀ Light mode':'☾ Dark mode'}
+function setTheme(theme){document.body.dataset.theme=theme;localStorage.setItem('talosEstateTheme',theme);$('themeSwitch').textContent=theme==='dark'?'☀ Light mode':'☾ Dark mode';document.querySelectorAll('#moduleHost iframe').forEach(sendModuleTheme)}
 async function loadList(){if(!api.list){$('connectionBadge').textContent='List API not configured';return}try{busy=true;$('connectionBadge').textContent='Loading estate…';const rows=await post(api.list,{});const arr=Array.isArray(rows)?rows:Array.isArray(rows.value)?rows.value:Array.isArray(rows.body)?rows.body:null;if(!arr)throw Error('Unexpected estate list response');sites=arr.map(normalise).filter(allowed);$('connectionBadge').textContent=`Connected · ${sites.length} sites`;$('connectionBadge').classList.add('good');populateFilters();stats();renderList();if(selected&&!createMode)await openSite(selected)}catch(err){$('connectionBadge').textContent='Connection error';toast(`Could not load estate: ${err.message}`)}finally{busy=false}}
 function populateFilters(){const opts=[...new Set(sites.map(x=>x.region).filter(Boolean))].sort();$('filterRegion').innerHTML='<option value="">All regions</option>'+opts.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}
 function stats(){const guard=sites.filter(s=>active(s.active));$('kTotal').textContent=sites.length;$('kActive').textContent=guard.length;$('kOverdue').textContent=guard.filter(s=>deadline(s)==='overdue').length;$('kMissing').textContent=guard.filter(s=>deadline(s)==='missing').length}
@@ -59,7 +59,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name];$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=1.6';frame.addEventListener('load',()=>sendModuleTheme(frame));$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -73,3 +73,5 @@ window.addEventListener('message',event=>{
  if(to==='logout'){logout();return;}
  if(Object.hasOwn(moduleRoutes,to))activateModule(to);
 });
+
+function sendModuleTheme(frame){try{frame.contentWindow.postMessage({talosTheme:document.body.dataset.theme||'dark'},window.location.origin)}catch(e){}}

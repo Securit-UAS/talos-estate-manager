@@ -9,3 +9,8 @@
 .module-frame{width:100%;height:calc(100vh - 154px);min-height:680px;border:1px solid var(--line);border-radius:13px;background:var(--panel);display:block}
 .module-placeholder{padding:32px;text-align:center;color:var(--muted)}
 @media(max-width:800px){.module-host{padding:0 8px 8px}.module-frame{height:calc(100vh - 190px);min-height:620px}}
+
+/* V1.6: native dropdown menus match surrounding theme, including popup options */
+body{color-scheme:dark}body[data-theme="light"]{color-scheme:light}
+select{appearance:auto;min-height:39px}select option,select optgroup{background-color:var(--field);color:var(--text)}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
