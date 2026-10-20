@@ -4,7 +4,7 @@
 window.TALOS_CONFIG = {
   api: {
     cmsSubmit: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/3871bfb00d034d3ca033079d3bb66e7b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dv_MMduOK9VqnWAcTFHICQYNd_OmbjzrAZI8Xj19J9A', // UAT only: rotate before production
-    cmsStaffLookup: '', // Connect read-only Rolling Staff DB lookup endpoint
+    cmsStaffLookup: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/36895625a7d34ed0815a389718bc7960/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Lk6ie_3CwzjdI-gNnlXCxBCmiildCXxW-4TfUE6KEoE', // UAT-only signed staff lookup API
     cmsRead: '', // TODO: return current Talos DB v2 reports
     cmsConfirm: '', // TODO: update confirmation status
     masterRecords: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/26/workflows/c44b9854ee2d400d94a6ce5ec9e188e1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=yawIce99Ztnx_V2BRsF0Hq89CFVn9RBZ9GlpchQTbhg',
