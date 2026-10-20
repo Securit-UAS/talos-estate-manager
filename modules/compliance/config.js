@@ -3,3 +3,5 @@ const shared = window.parent !== window && window.parent.TALOS_CONFIG ? window.p
 window.SECURIT_AUTH = shared?.auth || {};
 window.SECURIT_SIA_API_URL = shared?.api?.compliance || "";
 window.SECURIT_INCIDENT_API_URL = shared?.api?.incidents || "";
+
+window.SECURIT_SIA_DIRECT_URL = shared?.api?.siaDirect || "";
