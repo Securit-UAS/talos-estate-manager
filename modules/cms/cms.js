@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const issues=['C247 Technical Issue','Unable to contact Officer','Will be late for shift','Unable to attend their shift','Leaving site','Unable to book on','Rota Error','Missed check call / Welfare Check','Triggered Duress Alarm','Failed to show SIA Badge when booking on','SIA Badge is Invalid','SIA Badge is Expiring','Forgot to Book on','Not Confirmed Shifts on C247','Other'];
 const c247=['App will not open','Login details not working',"Can't Book on - Booking on Blocked (Time)","Can't Book on - Out of Range (GPS)",'App fails to respond to Checkpoint Scan','Welfare Check Problem','Other'];
 const booking=['No data signal / credit on phone','Does not know the PIN for the C247 Account','Not got the app installed','Location error','Unable to book on due too early / late','Other'];
-let context=null,live=[],recent=[],liveReady=false,working=false,staffRecords=[],staffLookupSerial=0,staffLookupTimer=null,loadedStaffSite="";
+let context=null,live=[],recent=[],liveReady=false,working=false,staffRecords=[],staffLookupSerial=0,staffLookupTimer=null,loadedStaffSite="",providerDirectory=["SecurIT"],providerLookupSerial=0;
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function options(arr,label){return `<option value="">${label}</option>`+arr.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('')}
 function field(id,name,arr){return `<label>${name}<select id="${id}">${options(arr,'Choose…')}</select></label>`}
@@ -15,12 +15,12 @@ function details(r){$('detailBody').innerHTML='<dl>'+[['Site',r.site],['Officer'
 function getRecords(data){if(Array.isArray(data))return data;for(const key of ['value','reports','body'])if(Array.isArray(data?.[key]))return data[key];throw Error('Unexpected reporting API format')}
 async function refresh(){if(!context?.api.read){$('dataStatus').textContent='Live Read API not connected · recent submissions shown for this browser session only';render();return}if(working)return;working=true;$('dataStatus').textContent='Loading reports…';try{const result=await fetch(context.api.read,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({email:context.email,token:context.token})});if(!result.ok)throw Error(`HTTP ${result.status}`);live=getRecords(await result.json()).map(norm);liveReady=true;const ids=new Set(live.map(r=>String(r.id)));recent=recent.filter(r=>!ids.has(String(r.id)));$('dataStatus').textContent=`Live register refreshed ${new Date().toLocaleTimeString('en-GB')}`;}catch(e){$('dataStatus').textContent='Read API failed: '+e.message}finally{working=false;render()}}
 function setMessage(text,bad=false){$('submitStatus').textContent=text;$('submitStatus').className='status'+(bad?' error':' success')}
-async function submit(e){e.preventDefault();if(!context?.api.submit){setMessage('Submit API not configured.',true);return}let site=$('site').value.trim(),officer=$('officer').value.trim(),issue=$('issue').value,notes=$('comments').value.trim();if(!site||!officer||!issue||!notes){setMessage('Complete the required fields.',true);return}if(!context.sites.some(s=>s.name.toLowerCase()===site.toLowerCase())&&!confirm('Site is not in active Estate records. Continue with manually entered site?'))return;const extras=[...$('conditional').querySelectorAll('select')].filter(el=>el.value).map(el=>`${el.closest('label').firstChild.textContent.trim()}: ${el.value}`);const payload={email:context.email,token:context.token,siteName:site,officerName:officer,shiftStart:$('shift').value,issue,operatorComments:[...extras,notes].join('\n'),notifyClient:'No',notificationSent:$('internalNotice')?.value||'No',contractor:$('contractor').value.trim(),loggedBy:context.displayName,talosHistory:''};if(!confirm(`Submit ${issue} for ${officer} at ${site}? This writes a real Talos DB v2 record and may trigger internal alerts.`))return;$('submit').disabled=true;setMessage('Submitting…');try{const r=await fetch(context.api.submit,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify(payload)});const out=await r.json().catch(()=>({}));if(!r.ok||out.success!==true)throw Error(out.message||`HTTP ${r.status}`);recent.unshift(norm({...payload,reportId:out.reportId||out.id||'',created:new Date().toISOString(),confirmed:'No'}));setMessage(`CMS report created${out.reportId?' · #'+out.reportId:''}. Check any internal alerts.`);$('reportForm').reset();$('shift').value=new Date().toTimeString().slice(0,5);conditional();scheduleStaffLookup();render();}catch(error){setMessage('Submission failed: '+error.message,true)}finally{$('submit').disabled=false}}
+async function submit(e){e.preventDefault();if(!context?.api.submit){setMessage('Submit API not configured.',true);return}let site=$('site').value.trim(),officer=$('officer').value.trim(),issue=$('issue').value,notes=$('comments').value.trim();if(!site||!officer||!issue||!notes){setMessage('Complete the required fields.',true);return}if(!context.sites.some(s=>s.name.toLowerCase()===site.toLowerCase())&&!confirm('Site is not in active Estate records. Continue with manually entered site?'))return;const extras=[...$('conditional').querySelectorAll('select')].filter(el=>el.value).map(el=>`${el.closest('label').firstChild.textContent.trim()}: ${el.value}`);const payload={email:context.email,token:context.token,siteName:site,officerName:officer,shiftStart:$('shift').value,issue,operatorComments:[...extras,notes].join('\n'),notifyClient:'No',notificationSent:$('internalNotice')?.value||'No',contractor:$('contractor').value.trim()||'SecurIT',loggedBy:context.displayName,talosHistory:''};if(!confirm(`Submit ${issue} for ${officer} at ${site}? This writes a real Talos DB v2 record and may trigger internal alerts.`))return;$('submit').disabled=true;setMessage('Submitting…');try{const r=await fetch(context.api.submit,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify(payload)});const out=await r.json().catch(()=>({}));if(!r.ok||out.success!==true)throw Error(out.message||`HTTP ${r.status}`);recent.unshift(norm({...payload,reportId:out.reportId||out.id||'',created:new Date().toISOString(),confirmed:'No'}));setMessage(`CMS report created${out.reportId?' · #'+out.reportId:''}. Check any internal alerts.`);$('reportForm').reset();$('shift').value=new Date().toTimeString().slice(0,5);conditional();scheduleStaffLookup();render();}catch(error){setMessage('Submission failed: '+error.message,true)}finally{$('submit').disabled=false}}
 
 function staffRows(data){
  const rows=Array.isArray(data)?data:(Array.isArray(data?.value)?data.value:Array.isArray(data?.staff)?data.staff:Array.isArray(data?.body?.value)?data.body.value:null);
  if(!rows)throw Error('Staff API must return an array or {value:[…]}');
- return rows.map(x=>({site:String(x.SiteName??x.siteName??x.site??'').trim(),name:String(x.FullName??x.fullName??x.officerName??x.Title??x.name??'').trim(),provider:String(x.Contractor??x.contractor??x.labourProvider??x.Company??x.company??'').trim(),staffId:String(x.StaffID??x.staffId??'')})).filter(x=>x.name);
+ return rows.map(x=>({site:String(x.SiteName??x.siteName??x.site??'').trim(),name:String(x.FullName??x.fullName??x.officerName??x.Title??x.name??'').trim(),provider:String(x.Contractor??x.contractor??x.labourProvider??x.Company??x.company??'').trim()||'SecurIT',staffId:String(x.StaffID??x.staffId??'')})).filter(x=>x.name);
 }
 function unique(arr){return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'en-GB'))}
 function displayStaff(){
@@ -28,7 +28,7 @@ function displayStaff(){
  const known=context?.sites?.some(x=>x.name.toLowerCase()===site);
  const matches=known?staffRecords.filter(r=>r.site.toLowerCase()===site):[];
  $('officers').innerHTML=unique(matches.map(r=>r.name)).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
- $('contractors').innerHTML=unique(staffRecords.map(r=>r.provider)).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+ $('contractors').innerHTML=unique([...providerDirectory,...staffRecords.map(r=>r.provider)]).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
  $('officerHint').textContent=!known?'Unlisted site — enter the officer name manually.':!context?.api?.staffLookup?'Officer directory API not connected — enter the name manually.':matches.length?`${unique(matches.map(r=>r.name)).length} scheduled officer(s) for this site; manual entry is available.`:'No current officer records matched this site; enter the name manually.';
  syncProvider();
 }
@@ -38,7 +38,28 @@ function syncProvider(){
  const providers=unique(matches.map(r=>r.provider));
  if(providers.length===1){$('contractor').value=providers[0];$('contractorHint').textContent='Auto-filled from the selected officer in Rolling Staff DB. You can override it.'}
  else if(providers.length>1){$('contractorHint').textContent='Multiple providers found for this officer. Select or enter the correct one.'}
- else {$('contractorHint').textContent='No matching officer/provider record; select a provider or enter one manually.'}
+ else {$('contractorHint').textContent='Select any known Labour Provider or enter one manually. Blank contractor records default to SecurIT.'}
+}
+function providerRows(data){
+ const rows=Array.isArray(data)?data:(Array.isArray(data?.value)?data.value:Array.isArray(data?.providers)?data.providers:Array.isArray(data?.body)?data.body:null);
+ if(!rows)throw Error('Provider API must return an array');
+ return unique(['SecurIT',...rows.map(x=>String(typeof x==='string'?x:(x?.contractor??x?.Contractor??'')).trim()||'SecurIT')]);
+}
+async function loadProviders(){
+ const serial=++providerLookupSerial;
+ if(!context?.api?.providerLookup){providerDirectory=['SecurIT'];displayStaff();return;}
+ try{
+  const r=await fetch(context.api.providerLookup,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({email:context.email,token:context.token,siteName:''})});
+  if(!r.ok)throw Error('HTTP '+r.status);
+  const providers=providerRows(await r.json());
+  if(serial!==providerLookupSerial)return;
+  providerDirectory=providers;
+  displayStaff();
+ }catch(e){
+  if(serial!==providerLookupSerial)return;
+  providerDirectory=['SecurIT'];displayStaff();
+  $('contractorHint').textContent='Provider directory unavailable ('+e.message+'). Enter a provider manually; blank defaults to SecurIT.';
+ }
 }
 function scheduleStaffLookup(){
  clearTimeout(staffLookupTimer);
@@ -69,6 +90,6 @@ async function loadStaff(siteName){
  }
 }
 
-function setContext(data){context=data;$('operator').textContent=data.displayName||data.email;const current=$('site').value;$('sites').innerHTML=(data.sites||[]).slice().sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<option value="${escapeHtml(s.name)}"></option>`).join('');$('site').value=current;$('sync').textContent=`${data.sites.length} active sites loaded`;$('submit').disabled=!data.api.submit;scheduleStaffLookup();refresh()}
+function setContext(data){context=data;$('operator').textContent=data.displayName||data.email;const current=$('site').value;$('sites').innerHTML=(data.sites||[]).slice().sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<option value="${escapeHtml(s.name)}"></option>`).join('');$('site').value=current;$('sync').textContent=`${data.sites.length} active sites loaded`;$('submit').disabled=!data.api.submit;scheduleStaffLookup();loadProviders();refresh()}
 window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==window.parent)return;if(e.data?.talosTheme)document.body.dataset.theme=e.data.talosTheme;if(e.data?.talosCmsContext)setContext(e.data.talosCmsContext)});
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$('newFromDashboard').onclick=()=>tab('new');$('refresh').onclick=refresh;$('issue').innerHTML=options(issues,'Choose issue…');$('issueFilter').innerHTML=options(issues,'All issues');$('issue').onchange=conditional;$('site').addEventListener('input',()=>{ $('officer').value='';$('contractor').value='';scheduleStaffLookup() });$('officer').addEventListener('input',syncProvider);$('reportForm').onsubmit=submit;['search','issueFilter','statusFilter'].forEach(id=>$(id).addEventListener('input',render));$('closeDetail').onclick=()=>$('detailOverlay').hidden=true;$('clear').onclick=()=>{if(confirm('Reset the report form?')){$('reportForm').reset();conditional();scheduleStaffLookup();setMessage('')}};$('clientDisabled').onclick=()=>alert('Not available for this client. External client/SOC notifications are disabled. Internal TALOS alerts continue normally.');$('shift').value=new Date().toTimeString().slice(0,5);window.parent.postMessage({talosCmsRequestContext:true},location.origin);
