@@ -53,3 +53,10 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .jotform-status[data-status=failed]{border-color:#d93f49}
 .jotform-status[data-status=failed] .jotform-dot{background:#e34850;box-shadow:0 0 0 2px #e3485033}
 #jotformOpen[hidden]{display:none!important}
+
+/* V2.0.13 SharePoint pre-login diagnostic */
+#sharepointGate[hidden],#authGate[hidden]{display:none!important}
+.sp-gate-button{display:block;text-align:center;background:var(--accent);color:var(--accentfg);padding:12px 10px;border-radius:9px;text-decoration:none;font-weight:700;margin:14px 0}
+#sharepointGateActions .subtle{font-size:12px;line-height:1.5}
+#sharepointStatus[data-status=failed]{border-color:#d93f49}
+#sharepointStatus[data-status=failed] .jotform-dot{background:#e34850;box-shadow:0 0 0 2px #e3485033}
