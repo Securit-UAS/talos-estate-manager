@@ -72,7 +72,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.18';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.19';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -91,7 +91,14 @@ window.addEventListener('message',event=>{
 
 // C247-to-compliance routing. Forward only messages from the trusted C247 module iframe.
 let requestedComplianceStaffId=null;
-window.addEventListener('message',event=>{const frame=document.querySelector('#moduleHost iframe[data-module="c247"]');if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow)return;const id=String(event.data?.talosOpenOfficerStaffId||'');if(!/^\d+$/.test(id)||!session)return;requestedComplianceStaffId=id;activateModule('compliance');const comp=document.querySelector('#moduleHost iframe[data-module="compliance"]');if(comp?.dataset.talosLoaded==='yes'){comp.contentWindow.postMessage({talosOpenOfficerStaffId:id},location.origin);requestedComplianceStaffId=null}});
+window.addEventListener('message',event=>{const frame=document.querySelector('#moduleHost iframe[data-module="c247"]');if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow)return;const id=String(event.data?.talosOpenOfficerStaffId||'');if(!/^\d+$/.test(id)||!session)return;openReportingOfficerPopup(id)});
+// Embedded compliance card opened over the C247 page — never navigate modules.
+let officerPopupFrame=null, officerPopupPending=null;
+function closeReportingOfficerPopup(){const cover=document.getElementById('talosOfficerCover');if(cover)cover.hidden=true;officerPopupPending=null}
+function openReportingOfficerPopup(id){let cover=document.getElementById('talosOfficerCover');if(!cover){cover=document.createElement('div');cover.id='talosOfficerCover';cover.className='talos-officer-cover';cover.innerHTML='<div class="talos-officer-toolbar"><strong>Officer compliance</strong><button type="button" class="quiet" id="talosOfficerClose">✕ Close</button></div>';document.body.appendChild(cover);document.getElementById('talosOfficerClose').onclick=closeReportingOfficerPopup;officerPopupFrame=document.createElement('iframe');officerPopupFrame.className='talos-officer-popup-frame';officerPopupFrame.title='Officer compliance popup';officerPopupFrame.src='modules/compliance/index.html?build=2.0.19&officerPopup=1';officerPopupFrame.addEventListener('load',()=>{officerPopupFrame.contentWindow.postMessage({talosTheme:document.body.dataset.theme||'dark'},location.origin);if(officerPopupPending)officerPopupFrame.contentWindow.postMessage({talosOpenOfficerStaffId:officerPopupPending},location.origin)});cover.appendChild(officerPopupFrame)}officerPopupPending=id;cover.hidden=false;if(officerPopupFrame?.contentDocument?.readyState==='complete')officerPopupFrame.contentWindow.postMessage({talosOpenOfficerStaffId:id},location.origin)}
+window.addEventListener('message',event=>{if(event.origin===location.origin&&officerPopupFrame&&event.source===officerPopupFrame.contentWindow&&event.data?.talosOfficerPopupClosed)closeReportingOfficerPopup()});
+Object.defineProperty(window,'talosCmsReadContext',{get(){return session?{email:session.email,token:session.token}:null}});
+
 function sendModuleTheme(frame){try{frame.contentWindow.postMessage({talosTheme:document.body.dataset.theme||'dark'},window.location.origin)}catch(e){}}
 
 // Presentation mode is controlled by the shell: mouse access never depends on Escape.
