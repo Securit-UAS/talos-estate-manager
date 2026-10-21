@@ -72,7 +72,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.10';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.11';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -124,3 +124,33 @@ $('quickLogEvent').addEventListener('click',()=>{
  frame.addEventListener('load',send,{once:true});
  if(frame.contentDocument?.readyState==='complete')send();
 });
+
+
+// TALOS V2.0.11 — Browser-side Jotform Image Access diagnostic (not an auth check).
+// A cross-origin image may fail to decode because of login redirection, attachment
+// handling, browser protection, or networking. Never treat onerror as proof of logout.
+const jotformTestImage='https://eu.jotform.com/uploads/Wilkinson_John/261453363287057/6557672476117213831/29D7E76B-2DE4-4092-AD51-0072954272DA_4_5005_c.jpeg';
+let jotformCheckId=0,jotformLastImage=null;
+function jotformRender(status,message,detail){
+ const node=$('jotformStatus'),label=$('jotformStatusText');
+ if(!node||!label)return;
+ node.dataset.status=status;label.textContent='Jotform Image Access · '+message;
+ node.title=detail||message;
+ $('jotformRecheck').disabled=status==='checking';
+}
+function checkJotformImage(){
+ const id=++jotformCheckId;
+ if(jotformLastImage){jotformLastImage.onload=null;jotformLastImage.onerror=null;jotformLastImage=null;}
+ jotformRender('checking','Checking…','Attempting to load a fresh copy of the harmless Jotform test image');
+ const img=new Image();jotformLastImage=img;
+ let done=false;
+ const finish=(status,message,detail)=>{if(done||id!==jotformCheckId)return;done=true;clearTimeout(timer);img.onload=null;img.onerror=null;jotformLastImage=null;jotformRender(status,message,detail)};
+ const timer=setTimeout(()=>finish('unknown','Inconclusive','The check timed out. Open test to confirm access manually.'),12000);
+ img.onload=()=>{if(img.naturalWidth>0&&img.naturalHeight>0)finish('accessible','Accessible','The browser successfully decoded the Jotform test image. This is not a general Jotform service check.');else finish('unknown','Inconclusive','Image loaded without usable dimensions. Open test to confirm.')};
+ img.onerror=()=>finish('unknown','Check login','The browser could not decode the test image. This may indicate a login redirect, an attachment download or another browser/network restriction; click Open test to confirm.');
+ try{const url=new URL(jotformTestImage);url.searchParams.set('talos_probe',String(Date.now()));img.src=url.href;}catch(_){finish('unknown','Inconclusive','The diagnostic could not construct the image URL.')}
+}
+$('jotformRecheck').addEventListener('click',checkJotformImage);
+const previousShowApp=showApp;
+// Run once on successful TALOS sign-in. Recheck manually to avoid spurious background failures.
+showApp=function(){previousShowApp();checkJotformImage()};

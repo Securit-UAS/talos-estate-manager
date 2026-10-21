@@ -1,0 +1,5 @@
+# TALOS Unified V2.0.11 — Jotform Image Access diagnostic
+
+Based on tested V2.0.10. Adds a browser-side Jotform test-image check in the TALOS header, present across modules. Successful image decoding is **Accessible** (green). Failed decoding / timeout is **Inconclusive / Check login** (blue) because cross-origin redirects, attachment handling and browser protections cannot reliably distinguish logged-out from other failures. Includes Recheck and Open test controls; the latter permits the operator to directly verify Jotform redirects to sign-in. Uses a harmless test-upload Fiat 500 image. A cache-busting query parameter reduces stale caching. The image is not displayed or saved by TALOS. There is no SharePoint or C247 health probe in this release.
+
+UAT: while logged into Jotform verify indicator and Open test, then in a logged-out/incognito window check indicator and manual Open test. If the image is served only as a download, image decoding may remain inconclusive even when logged in; in that case the diagnostic will need a different transport/probe. No credential tokens are extracted from Jotform.
