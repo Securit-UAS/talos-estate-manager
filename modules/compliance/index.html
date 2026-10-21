@@ -89,6 +89,18 @@ html[data-talos-theme="dark"] :is(.meta-card,.detail-card,.info-card,.booking-ca
 html[data-talos-theme="dark"] :is(.modal,.modal-content,dialog) :is(.field,.field-box,.fact,.fact-card,.detail-item,.summary-item,.info-tile){background:#21354d!important;color:#ecf4ff!important;border-color:#3a536e!important}
 html[data-talos-theme="dark"] :is(.modal,.modal-content,dialog) :is(.field,.field-box,.fact,.fact-card,.detail-item,.summary-item,.info-tile) :is(strong,span,p,div){color:inherit}
 
+
+/* V2.0.10: Independent SIA outcome is visible on the WHOLE dialog, including dark mode. */
+@keyframes siaBorderPulse {0%,100% {box-shadow:0 0 0 2px var(--sia-tone),0 0 14px var(--sia-glow)} 50% {box-shadow:0 0 0 5px var(--sia-tone),0 0 30px var(--sia-glow)}}
+#siaDirectDialog.sia-verification{box-sizing:border-box;border:6px solid var(--sia-tone,#398acb)!important;outline:2px solid var(--sia-tone,#398acb);outline-offset:0;border-radius:20px;animation:siaBorderPulse 1.65s ease-in-out infinite;max-height:calc(100dvh - 40px);overflow:auto;--sia-tone:#398acb;--sia-glow:rgba(57,138,203,.5)}
+#siaDirectDialog.state-verified{--sia-tone:#18bb68;--sia-glow:rgba(24,187,104,.55)}
+#siaDirectDialog.state-review{--sia-tone:#ffad22;--sia-glow:rgba(255,173,34,.5)}
+#siaDirectDialog.state-failed{--sia-tone:#ff3447;--sia-glow:rgba(255,52,71,.62)}
+#siaDirectDialog.state-unavailable,#siaDirectDialog.state-checking{--sia-tone:#398cfa;--sia-glow:rgba(57,140,250,.50)}
+#siaDirectDialog .sia-verification-outcome{display:block!important;font-size:1.25rem!important;font-weight:900!important;line-height:1.35!important;color:var(--sia-tone)!important;border-left:6px solid var(--sia-tone);padding:10px 14px;margin:2px 0 12px;background:color-mix(in srgb,var(--sia-tone) 13%,transparent);border-radius:7px;letter-spacing:.025em}
+#siaDirectDialog.state-failed .sia-verification-outcome{font-size:1.4rem!important}
+#siaDirectDialog .modalhead .eyebrow{color:var(--sia-tone)!important}
+@media (prefers-reduced-motion:reduce){#siaDirectDialog.sia-verification{animation:none;box-shadow:0 0 0 2px var(--sia-tone)}}
 </style>
 </head>
 <body data-build="r7-20261009">
@@ -420,8 +432,8 @@ async function runSiaDirectCheck(){
    if(!data||typeof data.result!=='string')throw Error('Unexpected SIA verification response.');
    const record=data.siaRecord||{},statusMap={IDENTITY_AND_ROLE_MATCH:'Identity and guarding role match',IDENTITY_REVIEW_REQUIRED:'Identity mismatch — review required',NO_ELIGIBLE_ROLE:'No eligible guarding licence found'};
    const valid=data.result==='IDENTITY_AND_ROLE_MATCH'&&data.eligible===true;
-   const state=valid?'verified':data.result==='IDENTITY_REVIEW_REQUIRED'?'review':data.result==='NO_ELIGIBLE_ROLE'?'failed':'unavailable';
-   const heading=state==='verified'?'VERIFIED — LICENCE ACCEPTED':state==='review'?'MANUAL REVIEW — IDENTITY MISMATCH':state==='failed'?'FAILED — NO ELIGIBLE GUARDING LICENCE':'UNABLE TO VERIFY — CHECK REQUIRED';
+   const state=valid?'verified':data.result==='IDENTITY_REVIEW_REQUIRED'?'failed':data.result==='NO_ELIGIBLE_ROLE'?'failed':'unavailable';
+   const heading=state==='verified'?'VERIFIED — LICENCE ACCEPTED':data.result==='IDENTITY_REVIEW_REQUIRED'?'CRITICAL — SIA IDENTITY MISMATCH':state==='review'?'MANUAL REVIEW REQUIRED':state==='failed'?'FAILED — NO ELIGIBLE GUARDING LICENCE':'UNABLE TO VERIFY — CHECK REQUIRED';
    setSiaVerificationState(state,heading);
    el('siaDirectMessage').textContent=`${valid?'Verified independently':'No automatic clearance'}: ${statusMap[data.result]||'Unrecognised response — review required'}. ${valid?'This does not alter the C247 compliance status.':'Do not suppress the existing alert.'}`;
    el('siaDirectFacts').innerHTML=[['Staff ID',staffId],['Expected C247 name',officerName],['Official SIA name',normaliseSpace(`${record.FirstName||''} ${record.Surname||''}`)],['Licence',record.LicenceNumber||licence],['Status',record.Status],['SIA sector',record.LicenceSector],['Role',record.Role],['Expiry',record.ExpiryDate?formatDateUK(record.ExpiryDate):'—'],['Checked',data.checkedAt?formatDateTimeUK(data.checkedAt):'—']].map(([a,b])=>siaDirectCard(a,b)).join('');

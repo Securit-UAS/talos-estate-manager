@@ -72,7 +72,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.9';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.10';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -114,4 +114,13 @@ window.addEventListener('message',event=>{if(event.origin!==location.origin)retu
 // Role-specific landing is only a presentation preference, never an access control.
 // Server-authorised agent roles should be returned by the auth API in a future release.
 function isCmsAgent(s){const explicit=Array.isArray(cfg.cmsAgentEmails)?cfg.cmsAgentEmails:[];const email=String(s?.email||'').toLowerCase();return explicit.some(x=>String(x).toLowerCase()===email)||/^agent[._-][^@]+@/i.test(email)}
-$('quickLogEvent').addEventListener('click',()=>{activateModule('cms');const frame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(!frame)return;const send=()=>{try{frame.contentWindow.postMessage({talosCmsOpenNew:true},location.origin)}catch(_){}};if(frame.contentDocument?.readyState==='complete')send();else frame.addEventListener('load',send,{once:true});});
+$('quickLogEvent').addEventListener('click',()=>{
+ activateModule('cms');
+ const frame=document.querySelector('#moduleHost iframe[data-module="cms"]');
+ if(!frame)return;
+ const send=()=>{try{frame.contentWindow.postMessage({talosCmsOpenNew:true},location.origin)}catch(_){}};
+ // iframe load always fires on first visit; cached modules receive an immediate message.
+ // The load listener must be registered even if the current readyState is transient.
+ frame.addEventListener('load',send,{once:true});
+ if(frame.contentDocument?.readyState==='complete')send();
+});
