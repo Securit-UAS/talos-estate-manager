@@ -3,6 +3,9 @@
 // Rotate and replace with identity-checked backend URLs before wider rollout.
 window.TALOS_CONFIG = {
   api: {
+    // UAT-only signed Power Automate endpoints. Browser-visible; rotate before production.
+    c247Roster: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/20/workflows/9e54a910638147819ba198435f166360/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FXrZ9PLvi48QBwty-5OjoeXUsZJ4qup-akczdrpMtus',
+    c247Filters: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/01/workflows/204b552b3fd74c988ae37a3a0677d16e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SW2SoVqX2VZdjzXp3zi5OWyZ97ntX2o1AH5kM_zpNaQ',
     cmsSubmit: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/3871bfb00d034d3ca033079d3bb66e7b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dv_MMduOK9VqnWAcTFHICQYNd_OmbjzrAZI8Xj19J9A', // UAT only: rotate before production
     cmsStaffLookup: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/36895625a7d34ed0815a389718bc7960/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Lk6ie_3CwzjdI-gNnlXCxBCmiildCXxW-4TfUE6KEoE', // UAT-only signed staff lookup API
     cmsProviderLookup: 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/10/workflows/7ce811299aa843fab2ec41381812b860/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=L5ax2s8cn1w3y4Uipr_L7zc9kBE9LSZVIO0kP9lLrQ0', // UAT provider directory

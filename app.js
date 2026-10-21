@@ -56,7 +56,7 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // TALOS unified-module router. Independent same-origin documents preserve r29 logic,
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
-const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html'};
+const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html'};
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -66,13 +66,13 @@ function activateModule(name){
  $('connectionBadge').hidden=!isEstate;
  $('wallPresentationStart').hidden=name!=='wallboard';
  if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
- for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
- const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting'};
+ for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
+ const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.15';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.17';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -80,6 +80,7 @@ $('navCompliance').addEventListener('click',()=>activateModule('compliance'));
 $('navIncidents').addEventListener('click',()=>activateModule('incidents'));
 $('navWallboard').addEventListener('click',()=>activateModule('wallboard'));
 $('navCms').addEventListener('click',()=>activateModule('cms'));
+$('navC247').addEventListener('click',()=>activateModule('c247'));
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
