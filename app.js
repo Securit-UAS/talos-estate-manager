@@ -134,7 +134,8 @@ let jotformCheckId=0,jotformLastImage=null;
 function jotformRender(status,message,detail){
  const node=$('jotformStatus'),label=$('jotformStatusText');
  if(!node||!label)return;
- node.dataset.status=status;label.textContent='Jotform Image Access · '+message;
+ node.dataset.status=(status==='accessible'||status==='checking')?status:'failed';label.textContent='Jotform Image Access · '+message;
+ const checkLink=$('jotformOpen');if(checkLink)checkLink.hidden=status==='accessible'||status==='checking';
  node.title=detail||message;
  $('jotformRecheck').disabled=status==='checking';
 }
@@ -145,9 +146,9 @@ function checkJotformImage(){
  const img=new Image();jotformLastImage=img;
  let done=false;
  const finish=(status,message,detail)=>{if(done||id!==jotformCheckId)return;done=true;clearTimeout(timer);img.onload=null;img.onerror=null;jotformLastImage=null;jotformRender(status,message,detail)};
- const timer=setTimeout(()=>finish('unknown','Inconclusive','The check timed out. Open test to confirm access manually.'),12000);
- img.onload=()=>{if(img.naturalWidth>0&&img.naturalHeight>0)finish('accessible','Accessible','The browser successfully decoded the Jotform test image. This is not a general Jotform service check.');else finish('unknown','Inconclusive','Image loaded without usable dimensions. Open test to confirm.')};
- img.onerror=()=>finish('unknown','Check login','The browser could not decode the test image. This may indicate a login redirect, an attachment download or another browser/network restriction; click Open test to confirm.');
+ const timer=setTimeout(()=>finish('unknown','Inconclusive','The check timed out. Use Check to open Jotform and investigate.'),12000);
+ img.onload=()=>{if(img.naturalWidth>0&&img.naturalHeight>0)finish('accessible','Accessible','The browser successfully decoded the Jotform test image. This is not a general Jotform service check.');else finish('unknown','Inconclusive','Image loaded without usable dimensions. Use Check to investigate.')};
+ img.onerror=()=>finish('unknown','Check login','The browser could not decode the test image. This may indicate a login redirect, an attachment download or another browser/network restriction; use Check to open Jotform and confirm.');
  try{const url=new URL(jotformTestImage);url.searchParams.set('talos_probe',String(Date.now()));img.src=url.href;}catch(_){finish('unknown','Inconclusive','The diagnostic could not construct the image URL.')}
 }
 $('jotformRecheck').addEventListener('click',checkJotformImage);

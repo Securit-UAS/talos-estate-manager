@@ -48,3 +48,8 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 @media(max-width:1200px){.topactions{flex-wrap:wrap;justify-content:flex-end}.jotform-status{order:0}}
 @media(max-width:800px){.topactions{justify-content:flex-start}.jotform-status{flex-wrap:wrap;white-space:normal}}
 @media(prefers-reduced-motion:reduce){.jotform-status .jotform-dot{animation:none!important}}
+
+/* V2.0.12: red when photograph access cannot be established, with contextual Check action. */
+.jotform-status[data-status=failed]{border-color:#d93f49}
+.jotform-status[data-status=failed] .jotform-dot{background:#e34850;box-shadow:0 0 0 2px #e3485033}
+#jotformOpen[hidden]{display:none!important}
