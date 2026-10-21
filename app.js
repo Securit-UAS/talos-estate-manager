@@ -72,7 +72,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.17';frame.addEventListener('load',()=>{sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame)});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.18';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -89,6 +89,9 @@ window.addEventListener('message',event=>{
  if(Object.hasOwn(moduleRoutes,to))activateModule(to);
 });
 
+// C247-to-compliance routing. Forward only messages from the trusted C247 module iframe.
+let requestedComplianceStaffId=null;
+window.addEventListener('message',event=>{const frame=document.querySelector('#moduleHost iframe[data-module="c247"]');if(event.origin!==location.origin||!frame||event.source!==frame.contentWindow)return;const id=String(event.data?.talosOpenOfficerStaffId||'');if(!/^\d+$/.test(id)||!session)return;requestedComplianceStaffId=id;activateModule('compliance');const comp=document.querySelector('#moduleHost iframe[data-module="compliance"]');if(comp?.dataset.talosLoaded==='yes'){comp.contentWindow.postMessage({talosOpenOfficerStaffId:id},location.origin);requestedComplianceStaffId=null}});
 function sendModuleTheme(frame){try{frame.contentWindow.postMessage({talosTheme:document.body.dataset.theme||'dark'},window.location.origin)}catch(e){}}
 
 // Presentation mode is controlled by the shell: mouse access never depends on Escape.
