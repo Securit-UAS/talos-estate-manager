@@ -60,3 +60,12 @@ select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #sharepointGateActions .subtle{font-size:12px;line-height:1.5}
 #sharepointStatus[data-status=failed]{border-color:#d93f49}
 #sharepointStatus[data-status=failed] .jotform-dot{background:#e34850;box-shadow:0 0 0 2px #e3485033}
+
+/* V2.0.15: TALOS-wide theme comfort and clear accessible controls */
+body[data-theme="light"]{--bg:#e7ecf2;--side:#f2f5f9;--panel:#f7f9fc;--panel2:#e9eef5;--field:#f4f7fa;--line:#cbd5e1;--text:#1d293b;--muted:#53657d;--shadow:0 8px 24px #172a4014}
+body[data-theme="light"] .login-card{background:#f7f9fc}
+body[data-theme="light"] .kpi,body[data-theme="light"] .panel,body[data-theme="light"] .jotform-status{background:var(--panel)}
+body[data-theme="dark"]{--muted:#b8c9df;--line:#405470}
+body[data-theme="dark"] .subtle,body[data-theme="dark"] .hint,body[data-theme="dark"] .identity small{color:#bacbe1}
+.login-card{position:relative}.login-theme-switch{position:absolute;right:17px;top:17px;padding:7px 10px;font-size:11px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px}
+.login-theme-switch:hover,.login-theme-switch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
