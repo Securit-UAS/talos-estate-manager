@@ -56,7 +56,7 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // TALOS unified-module router. Independent same-origin documents preserve r29 logic,
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
-const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html'};
+const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html'};
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -66,13 +66,13 @@ function activateModule(name){
  $('connectionBadge').hidden=!isEstate;
  $('wallPresentationStart').hidden=name!=='wallboard';
  if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
- for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
- const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting'};
+ for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247','navHandovers'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
+ const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting',handovers:'Shift Handovers'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.19';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.20';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -81,6 +81,7 @@ $('navIncidents').addEventListener('click',()=>activateModule('incidents'));
 $('navWallboard').addEventListener('click',()=>activateModule('wallboard'));
 $('navCms').addEventListener('click',()=>activateModule('cms'));
 $('navC247').addEventListener('click',()=>activateModule('c247'));
+$('navHandovers').addEventListener('click',()=>activateModule('handovers'));
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
@@ -214,4 +215,16 @@ queueMicrotask(()=>{
   $('sharepointGateMessage').textContent='Unable to complete the Microsoft 365 access check. Use Check to verify your account, then Recheck Access. If this persists, contact TALOS support.';
   $('sharepointGateActions').hidden=false;
  });
+});
+
+// TALOS V2.0.20 — Handovers read-only module context. Endpoint must authorise every request.
+function sendHandoversContext(frame){
+ if(!session||frame.dataset.module!=='handovers')return;
+ try{frame.contentWindow.postMessage({talosHandoversContext:{email:session.email,token:session.token,apiRead:api.handoverRead||''}},location.origin)}catch(_){}
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin)return;
+ const frame=document.querySelector('#moduleHost iframe[data-module="handovers"]');
+ if(!frame||event.source!==frame.contentWindow)return;
+ if(event.data?.talosHandoversRequestContext)sendHandoversContext(frame);
 });

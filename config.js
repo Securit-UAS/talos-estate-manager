@@ -31,3 +31,6 @@ window.TALOS_CONFIG = {
   testOnlySiteId: null,
   protectedByGateway: false
 };
+
+// V2.0.20: Paste the authorised Power Automate handover read endpoint below when available.
+window.TALOS_CONFIG.api.handoverRead = window.TALOS_CONFIG.api.handoverRead || "";

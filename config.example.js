@@ -12,3 +12,5 @@ window.TALOS_CONFIG = {
   testOnlySiteId: 235,
   protectedByGateway: false
 };
+
+// Set TALOS_CONFIG.api.handoverRead to the authorised handover read-flow URL.
