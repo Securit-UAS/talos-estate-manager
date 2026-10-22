@@ -1,5 +1,5 @@
 'use strict';
-// TALOS Shift Handovers V2.0.20 — read-only; uses an authorised Power Automate read endpoint.
+// TALOS Shift Handovers V2.0.21 — read-only; uses an authorised Power Automate read endpoint.
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const text=x=>String(x??'').trim();
