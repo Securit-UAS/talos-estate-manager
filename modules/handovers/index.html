@@ -1,9 +1,22 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TALOS · Shift Handovers</title><link rel="stylesheet" href="handovers.css"></head><body data-theme="dark"><main>
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TALOS · Shift Handovers</title><link rel="stylesheet" href="handovers.css?v=2.0.23"></head><body data-theme="dark"><main>
 <header class="intro"><div><div class="eyebrow">OPERATIONS / REPORTING / SHIFT HANDOVERS</div><h1>Shift handovers</h1><p>Outgoing declarations and incoming confirmations, joined by the master handover reference.</p></div><div class="actions"><span id="sourceStatus" class="source">Not connected</span><button type="button" id="reload" class="secondary">↻ Refresh</button></div></header>
 <div class="notice" id="notice" role="status">Connecting to the TALOS handover records…</div>
 <section class="stats"><div><span>Handovers loaded</span><strong id="statTotal">—</strong></div><div><span>Awaiting confirmation</span><strong class="red" id="statAwaiting">—</strong></div><div><span>Confirmed</span><strong class="green" id="statConfirmed">—</strong></div><div><span>No recipient / review</span><strong class="yellow" id="statReview">—</strong></div><div><span>GPS off site</span><strong class="red" id="statOffsite">—</strong></div></section>
 <section class="panel"><div class="toolbar"><label>Search <input type="search" id="search" placeholder="Site, officer, reference…"></label><label>Handover <select id="handoverFilter"><option value="">All handovers</option><option value="confirmed">Confirmed</option><option value="awaiting">Awaiting</option><option value="review">No recipient / review</option><option value="exception">Exceptions</option></select></label><label>GPS <select id="gpsFilter"><option value="">All GPS</option><option value="good">Within range</option><option value="offsite">Outside range</option><option value="review">Review</option><option value="missing">No GPS</option></select></label><span class="count" id="resultsCount">—</span></div>
 <div class="tablewrap"><table><thead><tr><th>Shift end</th><th>Site / reference</th><th>Outgoing officer</th><th>Recipient</th><th>Handover</th><th>GPS</th><th>Incoming officer</th><th>Last updated</th><th></th></tr></thead><tbody id="rows"><tr><td colspan="9" class="empty">Waiting for records…</td></tr></tbody></table></div></section>
-<section class="panel detail" id="detailPanel" hidden><div class="detailhead"><div><div class="eyebrow">HANDOVER AUDIT</div><h2 id="detailTitle">Record details</h2><p id="detailSubtitle"></p></div><button type="button" id="closeDetail" class="secondary">✕ Close</button></div><div id="detailBody"></div></section>
+<div class="handover-overlay" id="handoverOverlay" hidden>
+  <div class="handover-backdrop" id="handoverBackdrop"></div>
+  <section class="handover-dialog" role="dialog" aria-modal="true" aria-labelledby="reportTitle" aria-describedby="reportSummary" tabindex="-1">
+    <div class="dialog-toolbar"><span>SHIFT HANDOVER · RECORD VIEW</span><button type="button" id="closeDetail" class="dialog-close" aria-label="Close handover report">✕ <span>Close</span></button></div>
+    <div class="dialog-scroll" id="dialogScroll">
+      <article class="handover-report">
+        <header class="report-hero"><img src="../../securit-logo.png" alt="Securit Group" class="report-logo"><div class="report-eyebrow">TALOS | OPERATIONAL REPORTING</div><h2 id="reportTitle">Shift Handover Report</h2><p id="reportSummary">Combined outgoing and incoming officer declarations</p></header>
+        <div class="report-red-rule"></div>
+        <div class="report-content" id="detailBody"></div>
+        <footer class="report-footer"><strong>Securit | TALOS</strong><span>Operational Risk &amp; Compliance<br>Shift handover record · Internal operational use only</span></footer>
+      </article>
+    </div>
+  </section>
+</div>
 <p class="foot">Handover and GPS indicators are independent. A completed declaration does not prove an incoming handover was received. GPS status uses the stored TALOS location assessment, not a new browser geolocation check.</p>
-</main><script src="../../config.js"></script><script src="handovers.js"></script></body></html>
+</main><script src="../../config.js?v=2.0.23"></script><script src="handovers.js?v=2.0.23"></script></body></html>

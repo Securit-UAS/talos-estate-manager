@@ -32,5 +32,6 @@ window.TALOS_CONFIG = {
   protectedByGateway: false
 };
 
-// V2.0.20: Paste the authorised Power Automate handover read endpoint below when available.
-window.TALOS_CONFIG.api.handoverRead = window.TALOS_CONFIG.api.handoverRead || "";
+// V2.0.21 UAT — Handover API validates the TALOS session server-side before reading SharePoint.
+// Browser-visible signed URL: rotate it and review access permissions before production.
+window.TALOS_CONFIG.api.handoverRead = 'https://default83caf35c4b184a57820900e447faa7.10.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/13/workflows/b5b8abd38a4844778cbb8be5f9b2690a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RDzj6zBN_BOSDpXlywZL8XwJSAyFMZkjFCNPXVhu3Ug';

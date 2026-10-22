@@ -1,5 +1,5 @@
 'use strict';
-// TALOS Shift Handovers V2.0.20 — read-only; uses an authorised Power Automate read endpoint.
+// TALOS Shift Handovers V2.0.23 — read-only; uses an authorised Power Automate read endpoint.
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const text=x=>String(x??'').trim();
@@ -57,20 +57,71 @@ function render(){
   return `<tr><td>${esc(stamp(f(r,6)||f(r,4)))}</td><td><strong>${esc(f(r,2)||'Site not recorded')}</strong><small>Ref ${esc(ref)}</small></td><td>${esc(f(r,5)||'—')}</td><td>${esc(f(r,9)||f(r,10)||'—')}<small>${esc(f(r,11)||'')}</small></td><td>${state(hs)}<small>${esc(f(r,25)||'')}</small></td><td>${state(gs)}</td><td>${esc(f(r,29)||'—')}</td><td>${esc(stamp(f(r,63)))}</td><td><button type="button" class="open" data-id="${esc(key)}">View →</button></td></tr>`;
  }).join('');
 }
-const sections=[
- ['Outgoing declaration',[[1,'Handover reference'],[2,'Site'],[3,'Postcode'],[4,'Shift end date'],[5,'Outgoing officer'],[6,'Shift finish'],[7,'Submitted at'],[8,'Outgoing submission ID'],[9,'Recipient type'],[10,'Handover to'],[11,'Recipient recorded'],[12,'Verbal handover completed'],[13,'No handover reason']]],
- ['Outgoing observations',[[14,'Ongoing issues'],[15,'Issue details'],[16,'Instruction changes'],[17,'Instruction details'],[18,'Maintenance issues'],[19,'Maintenance details'],[20,'Handover instructions']]],
- ['Incoming officer confirmation',[[25,'Handover status'],[26,'Officer confirmed'],[29,'Incoming officer'],[30,'Incoming shift start'],[31,'Incoming submitted at'],[32,'Incoming submission ID'],[33,'Handover received'],[34,'Handover provider'],[35,'Information received'],[36,'No handover reason'],[37,'ARC / Ops informed'],[38,'Aware of issues'],[39,'Issue details'],[40,'Discrepancies'],[41,'Discrepancy details'],[42,'Initial patrol'],[43,'Patrol notes']]],
- ['Client / management',[[27,'Client confirmed'],[28,'Management acknowledged'],[44,'Client representative'],[45,'Client handover completed'],[46,'Client aware of issues'],[47,'Client comments'],[48,'Client submitted at'],[58,'Management acknowledged by'],[59,'Management acknowledged at']]],
- ['GPS evidence',[[23,'Outgoing GPS status'],[24,'Outgoing distance (m)'],[21,'Outgoing latitude'],[22,'Outgoing longitude'],[52,'Incoming GPS status'],[53,'Incoming distance (m)'],[50,'Incoming latitude'],[51,'Incoming longitude'],[56,'Client GPS status'],[57,'Client distance (m)'],[54,'Client latitude'],[55,'Client longitude']]],
- ['Audit / exceptions',[[61,'Exception flag'],[62,'Exception reason'],[63,'Last updated at']]]
-];
+// Report presentation mirrors TALOS_Shift_Handover_Email_v4.html while keeping the data read-only.
 const dateFields=new Set([6,7,30,31,48,59,63]);
+const details={
+ outgoing:[
+  [5,'Outgoing officer'],[6,'Shift finish'],[7,'Declaration submitted'],[9,'Recipient type'],[10,'Handover to'],[11,'Recipient recorded'],[12,'Verbal handover completed?'],[13,'Reason handover not completed']
+ ],
+ observations:[
+  [14,'Ongoing issues / concerns'],[15,'Details of ongoing issues'],[16,'Instruction changes'],[17,'Instruction details'],[18,'Maintenance / equipment issues'],[19,'Maintenance details'],[20,'Handover instructions']
+ ],
+ incoming:[
+  [29,'Incoming officer'],[30,'Shift start'],[31,'Confirmation submitted'],[33,'Handover received?'],[34,'Handover provided by'],[35,'Information passed to incoming officer'],[36,'Reason no handover was received'],[37,'ARC / Operations informed?'],[38,'Aware of outstanding issues?'],[39,'Details and instructions received'],[40,'Discrepancies identified?'],[41,'Discrepancy details / action taken'],[42,'Initial site patrol completed?'],[43,'Initial patrol notes']
+ ],
+ client:[
+  [44,'Client representative'],[45,'Client handover completed?'],[46,'Client aware of issues?'],[47,'Client comments'],[48,'Client confirmation submitted']
+ ],
+ management:[
+  [28,'Management acknowledged?'],[58,'Acknowledged by'],[59,'Acknowledged at']
+ ],
+ audit:[
+  [1,'Handover reference'],[8,'Outgoing submission ID'],[32,'Incoming submission ID'],[49,'Client submission ID'],[60,'Management acknowledgement ID'],[61,'Exception flag'],[62,'Exception reason'],[63,'Last updated']
+ ]
+};
+function value(r,n){return dateFields.has(n)?stamp(f(r,n)):text(f(r,n));}
+function fieldRows(r,fields){return fields.filter(([n])=>text(f(r,n))).map(([n,label])=>`<div class="report-field"><div class="report-field-label">${esc(label)}</div><div class="report-field-value">${esc(value(r,n))}</div></div>`).join('');}
+function reportSection(r,title,fields,number){const rows=fieldRows(r,fields);if(!rows)return '';return `<section class="report-section"><h3><span class="section-number">${esc(number)}</span>${esc(title)}</h3><div class="report-fields">${rows}</div></section>`;}
+function distance(r,n){const raw=text(f(r,n));if(!raw)return '';const x=Number(raw);return Number.isFinite(x)?(x<1000?`${Math.round(x)} m from postcode reference`:`${(x/1000).toFixed(2)} km from postcode reference`):raw;}
+function gpsMapLink(r,a,b){const lat=Number(f(r,a)),lon=Number(f(r,b));if(!text(f(r,a))||!text(f(r,b))||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180)return '';const q=encodeURIComponent(`${lat},${lon}`);return `<a class="gps-map" href="https://www.google.com/maps?q=${q}" target="_blank" rel="noopener noreferrer">View location on Google Maps ↗</a>`;}
+function gpsCard(r,heading,nameField,statusField,distanceField,latField,lonField){
+ const st=gpsIndividual(f(r,statusField),f(r,latField),f(r,lonField));
+ const hasAny=text(f(r,nameField))||text(f(r,statusField))||text(f(r,latField))||text(f(r,lonField));
+ if(!hasAny)return '';
+ return `<div class="report-gps-card"><div class="report-field-label">${esc(heading)}</div><div class="report-gps-name">${esc(f(r,nameField)||'Not recorded')}</div><div class="report-gps-status">${state(st)}</div><div class="report-gps-distance">${esc(distance(r,distanceField)||'Distance unavailable')}</div>${gpsMapLink(r,latField,lonField)}</div>`;
+}
+function gpsSection(r){
+ const cards=[gpsCard(r,'OUTGOING OFFICER',5,23,24,21,22),gpsCard(r,'INCOMING OFFICER',29,52,53,50,51),gpsCard(r,'CLIENT REPRESENTATIVE',44,56,57,54,55)].filter(Boolean);
+ if(!cards.length)return '';
+ return `<section class="report-section"><h3>GPS Location Assessment</h3><div class="report-gps-grid">${cards.join('')}</div><div class="report-gps-note">Approximate straight-line distance from the registered site postcode reference, not a surveyed site boundary. Within range: 0–250 m; review: over 250–500 m; outside range: over 500 m. A GPS warning is not proof of absence.</div></section>`;
+}
+let previousFocus=null;
 function openDetail(id){
  const r=records.find(x=>String(x.ID??(text(f(x,1))||x.Title))===id);if(!r)return;
- $('detailPanel').hidden=false;$('detailTitle').textContent=text(f(r,2))||'Handover record';$('detailSubtitle').textContent='Reference '+text(f(r,1))+' · '+text(f(r,25));
- $('detailBody').innerHTML='<div class="detailgrid">'+sections.map(([name,fields])=>'<section class="detailgroup"><h3>'+esc(name)+'</h3>'+fields.map(([n,label])=>'<div class="detailfield"><span>'+esc(label)+'</span><b>'+esc(dateFields.has(n)?stamp(f(r,n)):text(f(r,n))||'—')+'</b></div>').join('')+'</section>').join('')+'</div>';
- $('detailPanel').scrollIntoView({behavior:'smooth',block:'start'});
+ previousFocus=document.activeElement;
+ const hs=handover(r),gs=gps(r);
+ const heading=esc(f(r,2)||'Site not recorded');
+ const exception=text(f(r,62));
+ $('reportSummary').textContent='Combined outgoing and incoming officer declarations · '+(text(f(r,1))||'No reference');
+ $('detailBody').innerHTML=`
+  <div class="report-kicker">SITE DETAILS</div>
+  <h2 class="report-site">${heading}</h2>
+  <div class="report-site-meta"><span><b>Registered postcode:</b> ${esc(f(r,3)||'Not recorded')}</span><span><b>Shift end:</b> ${esc(stamp(f(r,6)||f(r,4)))}</span><span><b>Incoming shift start:</b> ${esc(stamp(f(r,30)))}</span></div>
+  <div class="report-status-grid"><div><span>HANDOVER STATUS</span>${state(hs)}<small>${esc(f(r,25)||'No status recorded')}</small></div><div><span>OVERALL GPS ASSESSMENT</span>${state(gs)}<small>Based on the stored TALOS location results</small></div></div>
+  ${exception?`<div class="report-alert"><b>Recorded exception</b><p>${esc(exception)}</p></div>`:''}
+  ${gpsSection(r)}
+  ${reportSection(r,'Outgoing Officer Declaration',details.outgoing,'01')}
+  ${reportSection(r,'Outgoing Observations & Instructions',details.observations,'02')}
+  ${reportSection(r,'Incoming Officer Declaration',details.incoming,'03')}
+  ${reportSection(r,'Client Confirmation',details.client,'04')}
+  ${reportSection(r,'Management Acknowledgement',details.management,'05')}
+  ${reportSection(r,'Audit References',details.audit,'06')}`;
+ const overlay=$('handoverOverlay');overlay.hidden=false;document.body.classList.add('modal-open');$('dialogScroll').scrollTop=0;
+ $('closeDetail').focus();
+}
+function closeDetail(){
+ $('handoverOverlay').hidden=true;document.body.classList.remove('modal-open');
+ if(previousFocus?.isConnected)previousFocus.focus();previousFocus=null;
 }
 function updateStats(){
  stat('statTotal',records.length);stat('statAwaiting',records.filter(r=>handover(r).key==='awaiting').length);stat('statConfirmed',records.filter(r=>handover(r).key==='confirmed').length);stat('statReview',records.filter(r=>handover(r).key==='review').length);stat('statOffsite',records.filter(r=>gps(r).key==='offsite').length);
@@ -91,6 +142,8 @@ async function load(){
 ['search','handoverFilter','gpsFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
 $('reload').addEventListener('click',load);
 $('rows').addEventListener('click',e=>{const btn=e.target.closest('button[data-id]');if(btn)openDetail(btn.dataset.id)});
-$('closeDetail').addEventListener('click',()=>{$('detailPanel').hidden=true});
-window.addEventListener('message',e=>{if(e.origin!==location.origin)return;if(e.data?.talosTheme)document.body.dataset.theme=e.data.talosTheme;if(e.source===window.parent&&e.data?.talosHandoversContext){context=e.data.talosHandoversContext;load();}});
+$('closeDetail').addEventListener('click',closeDetail);
+$('handoverBackdrop').addEventListener('click',closeDetail);
+document.addEventListener('keydown',e=>{if($('handoverOverlay').hidden)return;if(e.key==='Escape'){e.preventDefault();closeDetail()}else if(e.key==='Tab'){const dialog=document.querySelector('.handover-dialog');const items=[...dialog.querySelectorAll('button:not([disabled]),a[href],input:not([disabled])')].filter(x=>x.getClientRects().length);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+window.addEventListener('message',e=>{if(e.origin!==location.origin)return;if(e.data?.talosTheme)document.body.dataset.theme=e.data.talosTheme;if(e.source===window.parent&&e.data?.talosHandoversContext){context={...e.data.talosHandoversContext,apiRead:e.data.talosHandoversContext.apiRead||window.TALOS_CONFIG?.api?.handoverRead||''};load();}});
 window.parent.postMessage({talosHandoversRequestContext:true},location.origin);
