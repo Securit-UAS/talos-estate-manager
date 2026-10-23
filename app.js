@@ -228,14 +228,15 @@ $('sharepointGateRetry').addEventListener('click',startSharePointGate);
 $('sharepointRecheck').addEventListener('click',sharepointProbe);
 // Start after all module-level configuration has initialised.
 // Report unexpected errors rather than leaving an indefinite Checking screen.
+// V2.0.25 temporary operational workaround: the cross-site SharePoint image
+// probe is diagnostic only and must not prevent TALOS sign-in.
+// Existing TALOS PIN login, session validation and backend authorisation remain.
 queueMicrotask(()=>{
- Promise.resolve().then(startSharePointGate).catch(error=>{
-  console.error('TALOS SharePoint pre-login check failed:',error);
-  $('sharepointGate').hidden=false;
-  $('authGate').hidden=true;
-  $('shell').hidden=true;
-  $('sharepointGateMessage').textContent='Unable to complete the Microsoft 365 access check. Use Check to verify your account, then Recheck Access. If this persists, contact TALOS support.';
-  $('sharepointGateActions').hidden=false;
+ $('sharepointGate').hidden=true;
+ $('authGate').hidden=false;
+ Promise.resolve().then(initialise).catch(error=>{
+  console.error('TALOS initialisation failed:',error);
+  $('loginMessage').textContent='Unable to initialise TALOS. Contact support.';
  });
 });
 
