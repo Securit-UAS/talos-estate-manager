@@ -72,3 +72,29 @@ body[data-theme="dark"] .subtle,body[data-theme="dark"] .hint,body[data-theme="d
 
 /* V2.0.19 in-place compliance card */
 .talos-officer-cover[hidden]{display:none!important}.talos-officer-cover{position:fixed;inset:0;background:rgba(7,17,30,.78);z-index:20000;display:flex;flex-direction:column;padding:10px 18px 18px;backdrop-filter:blur(3px)}.talos-officer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#fff;max-width:1120px;width:100%;margin:0 auto 6px}.talos-officer-popup-frame{width:100%;max-width:1120px;min-height:0;flex:1;border:0;background:transparent;margin:auto;border-radius:12px}
+
+/* V2.0.26: structured navigation, accessible button states and upcoming module previews */
+.sidebar{padding-left:13px;padding-right:13px}
+.talos-navigation{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 4px 12px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.nav-group{margin:6px 0 18px}
+.nav-group+.nav-group{border-top:1px solid var(--line);padding-top:13px}
+.nav-group .sidesection{display:flex;align-items:center;gap:9px;padding:8px 8px 11px;font-size:10px;font-weight:850;letter-spacing:1.4px;color:var(--muted);line-height:1.35}
+.nav-heading-mark{display:block;flex:none;width:4px;height:15px;border-radius:3px;background:var(--accent)}
+.talos-navigation .sideitem{display:flex;align-items:center;gap:10px;width:100%;margin:3px 0;padding:12px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-weight:650;font-size:13px;line-height:1.25;white-space:normal;min-height:46px;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s}
+.talos-navigation .sideitem>span:nth-child(2){flex:1;text-align:left}
+.talos-navigation .nav-icon{display:grid;place-items:center;flex:none;width:23px;height:23px;border-radius:6px;background:var(--panel2);color:var(--muted);font-size:15px}
+.talos-navigation .sideitem:hover{background:var(--panel2);border-color:var(--accent);transform:translateX(2px)}
+.talos-navigation .sideitem:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.talos-navigation .sideitem.selected{background:var(--accent);border-color:var(--accent);color:var(--accentfg);box-shadow:0 4px 13px #0002}
+.talos-navigation .sideitem.selected .nav-icon{background:#ffffff2e;color:inherit}
+.nav-soon{font-size:9px;letter-spacing:.4px;font-weight:800;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:3px 4px}
+.nav-upcoming .sideitem{border-style:dashed}
+.sidebarbottom{flex:none;border-top:1px solid var(--line);padding-top:14px}
+.talos-restricted-backdrop[hidden]{display:none!important}
+.talos-restricted-backdrop{position:fixed;inset:0;z-index:30000;display:grid;place-items:center;padding:20px;background:rgba(5,13,26,.75);backdrop-filter:blur(4px)}
+.talos-restricted-dialog{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:18px;box-shadow:0 20px 60px #0005;padding:32px 28px;text-align:center;width:min(100%,430px)}
+.talos-restricted-dialog .restricted-symbol{font-size:29px;margin-bottom:12px}
+.talos-restricted-dialog h2{font-size:26px;margin:12px 0 10px}
+.talos-restricted-dialog p{color:var(--muted);line-height:1.6;margin:0 0 24px}
+.talos-restricted-dialog button{min-width:145px}
+@media(max-width:800px){.talos-navigation .sideitem{padding:10px 8px;font-size:12px}.nav-soon{font-size:8px}.nav-group .sidesection{font-size:9px;letter-spacing:1px}}

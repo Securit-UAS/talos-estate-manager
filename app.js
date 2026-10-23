@@ -251,3 +251,18 @@ window.addEventListener('message',event=>{
  if(!frame||event.source!==frame.contentWindow)return;
  if(event.data?.talosHandoversRequestContext)sendHandoversContext(frame);
 });
+
+// V2.0.26: preview-only navigation. No module data is loaded or permissions altered.
+(()=>{
+ const cover=document.getElementById('talosRestrictedBackdrop');
+ const description=document.getElementById('talosRestrictedDescription');
+ const close=document.getElementById('talosRestrictedClose');
+ let previousFocus=null;
+ function dismiss(){cover.hidden=true;previousFocus?.focus?.()}
+ function open(moduleName){previousFocus=document.activeElement;description.textContent=moduleName+' is being prepared for a future TALOS release. Access Restricted.';cover.hidden=false;close.focus()}
+ document.getElementById('navGpsLogs').addEventListener('click',()=>open('GPS Logs & Checkpoint'));
+ document.getElementById('navSiteVisits').addEventListener('click',()=>open('Site Visits'));
+ close.addEventListener('click',dismiss);
+ cover.addEventListener('click',event=>{if(event.target===cover)dismiss()});
+ document.addEventListener('keydown',event=>{if(cover.hidden)return;if(event.key==='Escape'){event.preventDefault();dismiss()}else if(event.key==='Tab'){event.preventDefault();close.focus()}});
+})();
