@@ -184,21 +184,43 @@ function sharepointSet(status,message,details){
 function sharepointProbe(){
  const run=++sharepointProbeSerial;
  if(sharepointProbeImage){sharepointProbeImage.onload=null;sharepointProbeImage.onerror=null;}
- sharepointSet('checking','Checking…','Loading protected SharePoint image in the current browser');
+ sharepointSet('checking','Checking…','Testing the protected SharePoint image without altering its URL');
+ // Start with the exact URL used by the manual Check link. SharePoint's
+ // authentication/preview routing can behave differently with arbitrary query strings.
+ // A second attempt uses the original cache-busted form for compatibility.
  return new Promise(resolve=>{
-  const im=new Image();sharepointProbeImage=im;let finished=false;
-  const finish=(good,why)=>{if(finished||run!==sharepointProbeSerial)return;finished=true;clearTimeout(timeout);im.onload=im.onerror=null;sharepointProbeImage=null;sharepointSet(good?'accessible':'failed',good?'Accessible':'Check access',why);resolve(good)};
-  const timeout=setTimeout(()=>finish(false,'Image check timed out. This is not proof of a SharePoint outage.'),12000);
-  im.onload=()=>finish(im.naturalWidth>0&&im.naturalHeight>0,'Browser image load '+(im.naturalWidth>0?'succeeded':'returned no image dimensions'));
-  im.onerror=()=>finish(false,'Browser cannot decode protected file. Sign-in, redirects, download behaviour or cross-origin restrictions may be responsible.');
-  try{const u=new URL(sharepointTestImage);u.searchParams.set('talos_probe',Date.now().toString());im.src=u.href}catch(_){finish(false,'Invalid SharePoint image URL')}
+  const attempts=[sharepointTestImage,sharepointTestImage+(sharepointTestImage.includes('?')?'&':'?')+'talos_probe='+Date.now()];
+  let attempt=0,finished=false,timeout=null;
+  const finish=(good,why)=>{
+   if(finished||run!==sharepointProbeSerial)return;
+   finished=true;clearTimeout(timeout);
+   if(sharepointProbeImage){sharepointProbeImage.onload=null;sharepointProbeImage.onerror=null;}
+   sharepointProbeImage=null;
+   sharepointSet(good?'accessible':'failed',good?'Accessible':'Check access',why);
+   resolve(good);
+  };
+  const tryNext=reason=>{
+   if(finished||run!==sharepointProbeSerial)return;
+   clearTimeout(timeout);
+   if(attempt>=attempts.length){finish(false,'Both background image requests failed ('+reason+'). Opening the file directly does not guarantee cross-site image access; browser cookie restrictions or SharePoint response behaviour may be responsible.');return;}
+   const url=attempts[attempt++];
+   const im=new Image();sharepointProbeImage=im;
+   im.onload=()=>{
+    if(im.naturalWidth>0&&im.naturalHeight>0)finish(true,'Protected image decoded successfully (attempt '+attempt+').');
+    else tryNext('image had no dimensions');
+   };
+   im.onerror=()=>tryNext('image load error');
+   timeout=setTimeout(()=>tryNext('image load timed out'),12000);
+   im.src=url;
+  };
+  tryNext('not started');
  });
 }
 async function startSharePointGate(){
  $('sharepointGate').hidden=false;$('authGate').hidden=true;$('shell').hidden=true;
  $('sharepointGateMessage').textContent='Checking Microsoft 365 image access…';$('sharepointGateActions').hidden=true;
  const good=await sharepointProbe();sharepointGatePassed=good;
- if(!good){$('sharepointGateMessage').textContent='SecurIT Microsoft 365 image access could not be confirmed. Sign in to your approved SecurIT account and recheck. If access still fails, contact support.';$('sharepointGateActions').hidden=false;return;}
+ if(!good){$('sharepointGateMessage').textContent='TALOS could not load the protected SharePoint image in the background. If you can open it using Check but this screen remains, the browser may be blocking cross-site Microsoft 365 cookies. Contact TALOS support; your SharePoint permissions may be correct.';$('sharepointGateActions').hidden=false;return;}
  $('sharepointGate').hidden=true;$('authGate').hidden=false;
  await initialise();
 }
