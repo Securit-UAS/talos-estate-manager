@@ -1,0 +1,1 @@
+V2.0.30 GPS UAT: Import now reports recognised/unique rows, supports manual multi-file CSVs, and has coordinate plot fallback if external Leaflet fails. Fallback is NOT satellite imagery. Retains existing TALOS modules.
