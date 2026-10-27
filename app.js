@@ -72,7 +72,7 @@ function activateModule(name){
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.23';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.29';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
