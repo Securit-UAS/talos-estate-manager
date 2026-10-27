@@ -56,7 +56,7 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // TALOS unified-module router. Independent same-origin documents preserve r29 logic,
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
-const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html'};
+const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html',gps:'modules/gps/index.html'};
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -66,8 +66,8 @@ function activateModule(name){
  $('connectionBadge').hidden=!isEstate;
  $('wallPresentationStart').hidden=name!=='wallboard';
  if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
- for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247','navHandovers'])$(id).classList.toggle('selected',id==='nav'+name[0].toUpperCase()+name.slice(1));
- const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting',handovers:'Shift Handovers'};
+ for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247','navHandovers','navGpsLogs'])$(id).classList.toggle('selected',id===(name==='gps'?'navGpsLogs':'nav'+name[0].toUpperCase()+name.slice(1)));
+ const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting',handovers:'Shift Handovers',gps:'GPS Logs & Checkpoint'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
@@ -82,6 +82,7 @@ $('navWallboard').addEventListener('click',()=>activateModule('wallboard'));
 $('navCms').addEventListener('click',()=>activateModule('cms'));
 $('navC247').addEventListener('click',()=>activateModule('c247'));
 $('navHandovers').addEventListener('click',()=>activateModule('handovers'));
+$('navGpsLogs').addEventListener('click',()=>activateModule('gps'));
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
@@ -260,7 +261,7 @@ window.addEventListener('message',event=>{
  let previousFocus=null;
  function dismiss(){cover.hidden=true;previousFocus?.focus?.()}
  function open(moduleName){previousFocus=document.activeElement;description.textContent=moduleName+' is being prepared for a future TALOS release. Access Restricted.';cover.hidden=false;close.focus()}
- document.getElementById('navGpsLogs').addEventListener('click',()=>open('GPS Logs & Checkpoint'));
+ 
  document.getElementById('navSiteVisits').addEventListener('click',()=>open('Site Visits'));
  close.addEventListener('click',dismiss);
  cover.addEventListener('click',event=>{if(event.target===cover)dismiss()});
