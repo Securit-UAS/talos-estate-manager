@@ -1,0 +1,1 @@
+TALOS V2.0.34 GPS UAT: fixes SharePoint folder button theme colour; supports 14 selected traces; defaults shift filter to Both; caps initial map zoom at 16; adds map zoom slider; standalone evidence packs use online Esri imagery via Leaflet with offline coordinate fallback. External imagery is not embedded in ZIP. Test in deployment before production.
