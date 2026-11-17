@@ -1,11 +1,7 @@
 'use strict';
 // TALOS Geo Intelligence proof-of-concept. Never connects to C247 or writes site records.
 const $=id=>document.getElementById(id);
-const mockSites=[
-{id:'demo-1',name:'Demo logistics estate · Midlands',latitude:52.7584,longitude:-1.4718,source:'mock'},
-{id:'demo-2',name:'Demo industrial site · Yorkshire',latitude:53.6912,longitude:-1.4203,source:'mock'},
-{id:'demo-3',name:'Demo retail estate · Bristol',latitude:51.4545,longitude:-2.5879,source:'mock'}];
-let sites=mockSites.slice(),viewer=null,focused=null,gpsRecords=[],gpsReceived=false;
+let sites=[],viewer=null,focused=null,gpsRecords=[],gpsReceived=false,estateReceived=false;
 const layers={sites:[],checkpoints:[],patrols:[]};
 const numeric=v=>v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v))?Number(v):null;
 function cleanSites(input){
@@ -25,7 +21,7 @@ function draw(){
  if(gpsReceived){
   const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const matched=focused&&base?gpsRecords.filter(r=>norm(r.site)===norm(base.name)):gpsRecords;
-  const recent=matched.filter(r=>Number.isFinite(r.lat)&&Number.isFinite(r.lon)).slice(-4000);
+  const recent=matched.filter(r=>Number.isFinite(r.lat)&&Number.isFinite(r.lon)).sort((a,b)=>a.ms-b.ms).slice(-4000);
   const unique=new Map();
   recent.filter(r=>r.type==='checkpoint').forEach(r=>{const key=norm(r.site)+'|'+norm(r.event);const old=unique.get(key);if(!old||r.ms>old.ms)unique.set(key,r)});
   if(drawPoints)for(const r of [...unique.values()].slice(0,900))put('checkpoints',{name:r.event+' · '+r.site,position:point(r.lat,r.lon),point:{pixelSize:7,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.BLACK,outlineWidth:1},description:'Latest recorded checkpoint scan position. This is not a surveyed checkpoint location.'});
@@ -34,16 +30,15 @@ function draw(){
    for(const r of recent.filter(r=>r.type==='gps')){const key=r.site+'|'+r.shift;if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(r)}
    for(const group of [...grouped.values()].slice(-15)){const sorted=group.sort((a,b)=>a.ms-b.ms);if(sorted.length>1)put('patrols',{name:'Historical GPS trace · '+sorted[0].site,polyline:{positions:sorted.slice(-700).map(r=>point(r.lat,r.lon)),width:2,material:Cesium.Color.ORANGE},description:'Historical recorded GPS data, not a live position.'})}
   }
-  $('summary').textContent=sites.length+' mapped estate sites · '+unique.size+' checkpoint locations (latest recorded scans) · '+recent.length+' GPS/checkpoint records in scope';
+  $('summary').textContent=sites.length+' TALOS estate sites with coordinates · '+unique.size+' distinct checkpoint scan locations · '+recent.length+' historical records in scope';
   return;
  }
- if(base){
-  // Synthetic offsets; not surveyed coordinates and never sent to an API.
-  const c=[[.0018,-.0021],[-.0012,-.0016],[.0011,.0014],[-.0016,.0018]];
-  if(drawPoints)c.forEach((p,i)=>put('checkpoints',{name:'DEMO checkpoint '+(i+1),position:point(base.latitude+p[0],base.longitude+p[1]),point:{pixelSize:9,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.BLACK,outlineWidth:1},description:'Simulated checkpoint. Not linked to C247.'}));
-  if(drawPatrols)put('patrols',{name:'Simulated patrol route',polyline:{positions:c.map(p=>point(base.latitude+p[0],base.longitude+p[1])),width:4,material:Cesium.Color.ORANGE},description:'Illustrative synthetic patrol path.'});
- }
- $('summary').textContent=sites.length+' mapped sites · '+(drawPoints&&base?'4 demo checkpoints':'0 checkpoints')+' · '+(drawPatrols&&base?'1 demo route':'0 routes');
+ const statusParts=[sites.length+' estate sites with coordinates'];
+ if(!estateReceived)statusParts.push('estate data pending');
+ if(!gpsReceived)statusParts.push('GPS/checkpoint data pending');
+ else statusParts.push(gpsRecords.length+' attributed GPS/checkpoint records');
+ $('summary').textContent=statusParts.join(' · ');
+
 }
 function focusSite(s){focused=s.id;viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(s.longitude,s.latitude,5500),duration:1.4});draw();renderSites()}
 function renderSites(){
@@ -52,9 +47,9 @@ function renderSites(){
 }
 function updateSiteData(data){
  const valid=cleanSites(data);
- sites=valid.length?valid:mockSites.slice();
+ sites=valid;estateReceived=true;
  focused=null;renderSites();draw();
- $('status').textContent=valid.length?'Estate coordinates received from TALOS · checkpoint data loads from existing GPS module':'Using wholly simulated estate data (no valid TALOS coordinates available)';
+ $('status').textContent=valid.length?'Estate coordinates received from TALOS · checkpoint data loads from existing GPS module':'No estate locations with valid coordinates returned by TALOS';
 }
 function init(){
  if(typeof Cesium==='undefined'){ $('loading').textContent='Cesium script unavailable. Check internet access / CSP settings.';return }
