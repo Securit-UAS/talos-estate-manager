@@ -85,7 +85,7 @@ function rebuild(){records=dedupeRows([...INITIAL_DATA,...imported]);rebuildRefe
 // Read-only geo viewer bridge. Shares already-attributed GPS/checkpoint records with the TALOS shell only.
 function sendGeoCheckpointData(){
  if(window.parent===window)return;
- const safe=records.filter(e=>e.lat!==null&&e.lon!==null).slice(-25000).map(e=>({site:e.site,type:e.type,event:e.event,lat:e.lat,lon:e.lon,ms:e.ms,shift:e.shift,officer:e.officer,id:e.id}));
+ const safe=records.filter(e=>e.lat!==null&&e.lon!==null).slice(-25000).map(e=>({site:e.site,type:e.type,event:e.event,lat:e.lat,lon:e.lon,ms:e.ms,shift:e.shift}));
  window.parent.postMessage({talosGpsGeoData:safe},location.origin);
 }
 window.addEventListener('message',event=>{
