@@ -22,8 +22,8 @@ function renderSites(){
  const host=$('sites');host.replaceChildren();
  if(!state.estateLoaded){host.textContent='Waiting for Estate Manager list…';return}
  if(!state.sites.length){host.textContent='No estates with usable coordinates. Check the Estate Manager Latitude/Longitude fields.';return}
- const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;draw();renderSites();home()};host.appendChild(all);
- for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name;button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1})};host.appendChild(button)}
+ const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];draw();renderSites();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
+ for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name;button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
 }
 function draw(){
  if(!state.viewer)return;
