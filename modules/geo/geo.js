@@ -11,6 +11,47 @@ const at = (lat,lon) => Cesium.Cartesian3.fromDegrees(lon,lat);
 const safe = text => String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function clear(key){for(const entity of entities[key])state.viewer.entities.remove(entity);entities[key]=[]}
 function add(key,definition){entities[key].push(state.viewer.entities.add(definition))}
+const filterIds=['geoSearch','geoStatus','geoClient','geoType','geoRegion'];
+function siteStatus(value){
+ const s=String(value??'').trim().toLowerCase();
+ if(['yes','true','1','active'].includes(s))return 'active';
+ if(['no','false','0','inactive','non-active','not active'].includes(s))return 'inactive';
+ return 'unknown';
+}
+function filtersApplied(){return filterIds.some(id=>String($(id).value||'').trim()!=='')}
+function filteredSites(){
+ const query=String($('geoSearch').value||'').trim().toLowerCase().replace(/\bmcl\b/g,'mclaren');
+ const terms=query.split(/\s+/).filter(Boolean);
+ return state.sites.filter(s=>{
+  if($('geoStatus').value&&siteStatus(s.active)!==$('geoStatus').value)return false;
+  if($('geoClient').value&&s.client!==$('geoClient').value)return false;
+  if($('geoType').value&&s.type!==$('geoType').value)return false;
+  if($('geoRegion').value&&s.region!==$('geoRegion').value)return false;
+  const hay=[s.name,s.client,s.postcode,s.type,s.region].join(' ').toLowerCase();
+  return terms.every(term=>hay.includes(term));
+ }).sort((a,b)=>a.name.localeCompare(b.name));
+}
+function refillSelect(id,values,defaultLabel){
+ const el=$(id),previous=el.value;
+ const unique=[...new Set(values.map(s=>String(s||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ el.replaceChildren(new Option(defaultLabel,''));
+ for(const value of unique)el.add(new Option(value,value));
+ if(unique.includes(previous))el.value=previous;
+}
+function refreshFilterChoices(){
+ refillSelect('geoClient',state.estateRaw.map(s=>s.client),'All clients');
+ refillSelect('geoType',state.estateRaw.map(s=>s.type),'All types');
+ refillSelect('geoRegion',state.estateRaw.map(s=>s.region),'All regions');
+ const count=state.estateRaw.filter(s=>s.client).length;
+ $('geoClient').disabled=count===0;
+ $('geoClientHint').textContent=count?'Client options reflect '+count+' estate records containing client values.':'No dedicated client field was provided by the current Estate List response; search can match site names.';
+}
+function refreshFilters(){
+ const shown=filteredSites();
+ $('geoFilterCount').textContent=shown.length+' shown / '+state.sites.length+' mapped';
+ if(state.selected&&!shown.some(s=>s.id===state.selected))state.selected=null;
+ renderSites();draw();
+}
 function status(){
  $('summary').textContent = [
   state.estateLoaded?(state.sites.length+' mapped / '+state.estateRaw.length+' TALOS estates ('+state.sites.filter(s=>s.sourceLabel.startsWith('Estate')).length+' exact, '+state.sites.filter(s=>s.sourceLabel.startsWith('NEW START')).length+' from NEW START, '+state.sites.filter(s=>s.sourceLabel.startsWith('Postcode')).length+' postcode)'):'Loading TALOS estate records…',
@@ -20,18 +61,22 @@ function status(){
 }
 function renderSites(){
  const host=$('sites');host.replaceChildren();
+ const visible=filteredSites();
  if(!state.estateLoaded){host.textContent='Waiting for Estate Manager list…';return}
  if(!state.sites.length){host.textContent='No locations resolved yet. Checking estate coordinates, NEW START scans and postcodes.';return}
+ if(!visible.length){host.textContent='No mapped estates match these filters.';return}
  const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];draw();renderSites();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
- for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name+' · '+(site.sourceLabel.startsWith('Estate')?'Coordinates':site.sourceLabel.startsWith('NEW START')?'NEW START average':'Postcode approximate');button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
+ for(const site of visible){const button=document.createElement('button');button.type='button';button.textContent=site.name+' · '+(site.sourceLabel.startsWith('Estate')?'Coordinates':site.sourceLabel.startsWith('NEW START')?'NEW START average':'Postcode approximate');button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
 }
 function draw(){
  if(!state.viewer)return;
  Object.keys(entities).forEach(clear);
- const {sites,gps,selected}=state;
+ const {gps,selected}=state;
+ const sites=filteredSites();
  if($('layerSites').checked)for(const s of sites)add('sites',{name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
  const focus=sites.find(s=>s.id===selected);
- const relevant=focus?gps.filter(r=>norm(r.site)===norm(focus.name)):gps;
+ const selectedNames=new Set(sites.map(s=>norm(s.name)));
+ const relevant=focus?gps.filter(r=>norm(r.site)===norm(focus.name)):(filtersApplied()?gps.filter(r=>selectedNames.has(norm(r.site))):gps);
  if($('layerCheckpoints').checked){
   const latest=new Map();
   for(const r of relevant.filter(r=>r.type==='checkpoint')){const key=norm(r.site)+'|'+norm(r.event);const prev=latest.get(key);if(!prev||r.ms>prev.ms)latest.set(key,r)}
@@ -134,6 +179,7 @@ function rebuildEstateLocations(){
   if(loc)mapped.push({...record,...loc});
  }
  state.sites=mapped;
+ $('geoFilterCount').textContent=filteredSites().length+' shown / '+mapped.length+' mapped';
  if(state.selected&&!mapped.some(s=>s.id===state.selected))state.selected=null;
  renderSites();draw();
 }
@@ -178,8 +224,10 @@ function receiveEstates(rows){
  state.estateRaw=(Array.isArray(rows)?rows:[]).map(r=>({
   id:String(r.id??''),name:String(r.name??'Unnamed').slice(0,110),
   postcode:String(r.postcode||'').trim().toUpperCase(),
+  active:r.active??'',type:String(r.type||''),region:String(r.region||''),client:String(r.client||''),
   latitude:r.latitude,longitude:r.longitude
  })).filter(r=>r.id);
+ refreshFilterChoices();
  rebuildEstateLocations();
  resolvePostcodes();
  if($('layerAircraft').checked)refreshAircraft();
@@ -268,6 +316,8 @@ function init(){
   ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
    draw();if(id==='layerQuakes'&&$(id).checked)refreshEarthquakes();if(id==='layerEonet'&&$(id).checked)refreshEonet();if(id==='layerAircraft'){if($(id).checked)refreshAircraft();else{state.aircraftRequest++;state.aircraft=[];state.feedStatus.aircraft='Off';draw()}}
   }));
+  for(const id of filterIds)$(id).addEventListener(id==='geoSearch'?'input':'change',refreshFilters);
+  $('geoClearFilters').onclick=()=>{for(const id of filterIds)$(id).value='';refreshFilters()};
   $('home').onclick=home;
   $('resetUK2D').onclick=resetUK2D;
   $('zoomIn').onclick=()=>zoomMap(true);
