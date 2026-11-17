@@ -4,8 +4,8 @@
 const $ = id => document.getElementById(id);
 const num = value => value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
 const norm = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const state = {viewer:null,sites:[],estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],feedStatus:{quakes:'Off',eonet:'Off'},lastFeedRefresh:0};
-const entities = {sites:[],checkpoints:[],patrols:[],quakes:[],eonet:[]};
+const state = {viewer:null,sites:[],estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],aircraft:[],aircraftRequest:0,aircraftLoading:false,feedStatus:{quakes:'Off',eonet:'Off',aircraft:'Off'},lastFeedRefresh:0};
+const entities = {sites:[],checkpoints:[],patrols:[],quakes:[],eonet:[],aircraft:[]};
 const ukView = () => Cesium.Cartesian3.fromDegrees(-2.65,54.1,1450000);
 const at = (lat,lon) => Cesium.Cartesian3.fromDegrees(lon,lat);
 const safe = text => String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -16,7 +16,7 @@ function status(){
   state.estateLoaded?state.sites.length+' mapped TALOS estates':'Loading TALOS estate records…',
   state.gpsLoaded?state.gps.length+' attributed historical GPS/checkpoint records':'Loading GPS/checkpoint records…'
  ].join(' · ');
- $('feedStatus').textContent='USGS earthquakes: '+state.feedStatus.quakes+' | NASA EONET: '+state.feedStatus.eonet;
+ $('feedStatus').textContent='USGS earthquakes: '+state.feedStatus.quakes+' | NASA EONET: '+state.feedStatus.eonet+' | ADS-B aircraft: '+state.feedStatus.aircraft;
 }
 function renderSites(){
  const host=$('sites');host.replaceChildren();
@@ -42,6 +42,7 @@ function draw(){
   for(const r of relevant.filter(r=>r.type==='gps')){const key=r.site+'|'+r.shift;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}
   for(const [key,items] of groups){const sorted=items.sort((a,b)=>a.ms-b.ms);if(sorted.length>1)add('patrols',{name:key,polyline:{positions:sorted.map(r=>at(r.lat,r.lon)),width:2,material:Cesium.Color.ORANGE},description:'Historical GPS trace from TALOS; not a live officer location.'})}
  }
+ if($('layerAircraft').checked)for(const a of state.aircraft)add('aircraft',{name:a.flight||a.hex,position:Cesium.Cartesian3.fromDegrees(a.lon,a.lat,a.altFt===null?0:a.altFt*0.3048),point:{pixelSize:9,color:Cesium.Color.LIME,outlineColor:Cesium.Color.BLACK,outlineWidth:1,heightReference:a.altFt===null?Cesium.HeightReference.CLAMP_TO_GROUND:Cesium.HeightReference.NONE},label:{text:a.flight||a.hex,font:'11px sans-serif',pixelOffset:new Cesium.Cartesian2(0,-17),fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#0b1829').withAlpha(.75),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,180000)},description:'SecurIT Radar ADS-B feed (Airplanes.live via original Worker). Flight: '+safe(a.flight||'Unlisted')+' · ICAO: '+safe(a.hex)+' · altitude: '+(a.altFt===null?'unknown':a.altFt+' ft')+' · speed: '+(a.speed===null?'unknown':a.speed+' kt')+' · heading: '+(a.heading===null?'unknown':a.heading+'°')+' · position age: '+(a.seen===null?'unknown':a.seen+' s')+'. Informational only; not aviation separation data.'});
  if($('layerQuakes').checked)for(const q of state.quakes)add('quakes',{name:'USGS earthquake M'+q.mag,position:at(q.lat,q.lon),point:{pixelSize:Math.max(5,Math.min(17,q.mag*2.8)),color:Cesium.Color.fromCssColorString(q.depth<70?'#f26d5b':q.depth<300?'#e6a448':'#daca5c'),outlineColor:Cesium.Color.WHITE,outlineWidth:1},description:'USGS earthquake: M'+q.mag+' · '+safe(q.place)+' · '+new Date(q.ms).toLocaleString('en-GB')+' · depth '+q.depth+' km. Source: USGS.'});
  if($('layerEonet').checked)for(const e of state.eonet)add('eonet',{name:e.title,position:at(e.lat,e.lon),point:{pixelSize:9,color:Cesium.Color.MAGENTA,outlineColor:Cesium.Color.WHITE,outlineWidth:1},description:'NASA EONET natural event · '+safe(e.category)+' · '+safe(e.title)+'. Source: NASA EONET.'});
  status();
@@ -51,7 +52,7 @@ function receiveEstates(rows){
  state.estateLoaded=true;
  state.sites=(Array.isArray(rows)?rows:[]).map(r=>({id:String(r.id??''),name:String(r.name??'Unnamed').slice(0,110),latitude:num(r.latitude),longitude:num(r.longitude)})).filter(r=>r.id&&r.latitude!==null&&r.longitude!==null&&Math.abs(r.latitude)<=90&&Math.abs(r.longitude)<=180);
  if(state.selected&&!state.sites.some(r=>r.id===state.selected))state.selected=null;
- renderSites();draw();
+ renderSites();draw();if($('layerAircraft').checked)refreshAircraft();
 }
 function receiveGps(rows){
  state.gpsLoaded=true;
@@ -90,6 +91,41 @@ async function refreshEonet(){
  }catch(err){state.eonet=[];state.feedStatus.eonet='Unavailable: '+err.message}
  draw();
 }
+// Reuses Securit-UAS/Radar: Cloudflare Worker /point with Airplanes.live ADS-B fields.
+// Opt-in, 30 second refresh, no fallback aircraft or direct provider bypass.
+const RADAR_WORKER='https://raspy-breeze-3e34.j-wilkinson.workers.dev';
+const RADAR_SEARCH_KM=100;
+const RADAR_STALE_SEC=30;
+const RADAR_ALT_CEILING_FT=30000;
+function radarCentre(){
+ const selected=state.sites.find(s=>s.id===state.selected);
+ // Use the selected estate, otherwise the original Radar head-office centre.
+ return selected?{lat:selected.latitude,lon:selected.longitude}:{lat:53.10643205468523,lon:-1.3190169903418059};
+}
+async function refreshAircraft(){
+ if(!$('layerAircraft').checked)return;
+ if(state.aircraftLoading)return;
+ state.aircraftLoading=true;
+ const request=++state.aircraftRequest;
+ state.feedStatus.aircraft='Loading';status();
+ try{
+  const centre=radarCentre(),radiusNm=(RADAR_SEARCH_KM/1.852).toFixed(2);
+  const url=RADAR_WORKER+'/point?lat='+encodeURIComponent(centre.lat)+'&lon='+encodeURIComponent(centre.lon)+'&radiusNm='+encodeURIComponent(radiusNm);
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok)throw Error('Radar Worker HTTP '+response.status);
+  const payload=await response.json();
+  if(!Array.isArray(payload.ac))throw Error('Unexpected Radar response');
+  if(!$('layerAircraft').checked||request!==state.aircraftRequest)return;
+  state.aircraft=payload.ac.map(r=>{
+   const lat=num(r.lat),lon=num(r.lon),alt=num(r.alt_baro)??num(r.alt_geom),seen=num(r.seen_pos);
+   if(lat===null||lon===null||Math.abs(lat)>90||Math.abs(lon)>180||!r.hex||alt!==null&&alt>RADAR_ALT_CEILING_FT||seen!==null&&seen>RADAR_STALE_SEC)return null;
+   return {lat,lon,hex:String(r.hex),flight:String(r.flight||'').trim(),altFt:alt,speed:num(r.gs),heading:num(r.true_heading)??num(r.track),seen};
+  }).filter(Boolean);
+  state.feedStatus.aircraft=state.aircraft.length+' reports · '+new Date().toLocaleTimeString('en-GB',{hour12:false});
+ }catch(error){
+  if(request===state.aircraftRequest){state.aircraft=[];state.feedStatus.aircraft='Unavailable: '+error.message}
+ }finally{state.aircraftLoading=false;draw()}
+}
 function init(){
  if(typeof Cesium==='undefined'){$('loading').textContent='Cesium did not load. Check browser/network restrictions.';return}
  try{
@@ -98,15 +134,16 @@ function init(){
   state.viewer=new Cesium.Viewer('map',{baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:true,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
   state.viewer.camera.setView({destination:ukView()});
   $('loading').hidden=true;
-  ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet'].forEach(id=>$(id).addEventListener('change',()=>{
-   draw();if(id==='layerQuakes'&&$(id).checked)refreshEarthquakes();if(id==='layerEonet'&&$(id).checked)refreshEonet();
+  ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
+   draw();if(id==='layerQuakes'&&$(id).checked)refreshEarthquakes();if(id==='layerEonet'&&$(id).checked)refreshEonet();if(id==='layerAircraft'){if($(id).checked)refreshAircraft();else{state.aircraftRequest++;state.aircraft=[];state.feedStatus.aircraft='Off';draw()}}
   }));
   $('home').onclick=home;
-  $('refreshFeeds').onclick=()=>{refreshEarthquakes();refreshEonet()};
+  $('refreshFeeds').onclick=()=>{refreshEarthquakes();refreshEonet();refreshAircraft()};
   renderSites();draw();
   window.parent.postMessage({talosGeoReady:true},location.origin);
   // Public-source refreshes only while enabled; never fabricate unavailable points.
   setInterval(()=>{if(document.visibilityState==='visible'){if($('layerQuakes').checked)refreshEarthquakes();if($('layerEonet').checked)refreshEonet()}},300000);
+  setInterval(()=>{if(document.visibilityState==='visible'&&$('layerAircraft').checked)refreshAircraft()},30000);
  }catch(error){$('loading').textContent='Map failed: '+error.message}
 }
 window.addEventListener('message',event=>{
