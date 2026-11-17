@@ -46,3 +46,10 @@ For each TALOS Estate Manager record, the map resolves the site without modifyin
 Only if all three fail is the estate left off the map. Estate name and officer/GPS history are not sent to Postcodes.io; the third party receives the postcode string for unresolved sites. The browser caches successful postcode lookups for the current session. Sources are indicated on map-marker detail and estate selection list. The site panel shows counts by coordinate source.
 
 No SharePoint writes, no GPS record edits, no mock locations. Postcode-derived points are approximate and should not be used for precise checkpoint or drone launch positioning.
+
+## Geo 1.6 — Estate filters and collapsible checkpoint player
+- Geo sidebar filters: site/client search, active/inactive/unspecified, client (only when an explicit client field is returned), site type and region. These apply to mapped estate markers and site selections, not SharePoint records. Client dropdown remains disabled if the existing Estate List API supplies no separate client values.
+- Checkpoint Replay floats over the map as a collapsible panel. It reads the already-normalised historical GPS/Checkpoint bridge rows and offers site, shift date, day/night shift, speed, play/pause, start/end and timeline scrubbing.
+- The Geo bridge excludes officer identities, so this playback is a **combined chronological site/shift event projection**, not an individual officer trace. Use the existing GPS Logs & Checkpoint viewer for officer-specific and evidential playback, including its trace selection and tidying.
+- No synthetic records, new APIs, or write operations. Site-name matching applies when Geo estate filters are active. All control code is isolated in `modules/geo/replay.js` so the original GPS viewer is unchanged.
+- Browser testing and production suitability remain unverified.
