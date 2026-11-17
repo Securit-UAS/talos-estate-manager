@@ -14,7 +14,7 @@ const columns=[
 const prop={name:'Title',type:'Task_x0020_Type',active:'active',region:'Task_x0020_Group',postcode:'Postcode',manager:'OPS_x0020_Manager',manager2:'OPS_x0020_Manager2',manager3:'OPS_x0020_Manager_x0020_3',projectManager:'Project_x0020_Manager',director:'OData__x0043_C2',cc1:'OData__x0043_C1',cc3:'OData__x0043_C3',opsContact:'OData__x0043_C4',reviewDate:'reviewdate',poc1:'OData__x0050_OC1',poc1Phone:'POC1Phone',poc2:'OData__x0050_OC2',poc2Phone:'POC2Phone',coverInstructions:'CoverInstructions',siteNotes:'Sitenotes',siteVisitNotifications:'SiteVisitnotifications',latitude:'Latitude',longitude:'Longitude',osRef:'OS_x0020_REF'};
 function clean(s){return String(s??'').trim()===';'?'':String(s??'')}function n(s){return String(s||'').trim().toLowerCase()}function active(s){return ['yes','true','1'].includes(n(s))}function allowed(s){return ['static','retail'].includes(n(s.type))}
 function dateStr(s){return s?String(s).slice(0,10):''}function deadline(s){const d=dateStr(s.reviewDate||s.reviewdate||s.review);if(!d)return 'missing';const stamp=Date.parse(d+'T00:00:00');if(!Number.isFinite(stamp))return 'missing';const now=new Date();now.setHours(0,0,0,0);const days=Math.round((stamp-now.getTime())/86400000);return days<0?'overdue':days<=31?'soon':'ok'}
-function normalise(s){const r={...s};r.id=Number(s.id??s.ID);r.name=String(s.name??s.Title??'Unnamed site');r.type=String(s.type??s.Task_x0020_Type??'');r.region=String(s.region??s.Task_x0020_Group??'');r.active=String(s.active??'');r.postcode=String(s.postcode??s.Postcode??'');r.manager=String(s.manager??s.OPS_x0020_Manager??'');r.reviewDate=String(s.reviewDate??s.reviewdate??'');return r}
+function normalise(s){const r={...s};r.id=Number(s.id??s.ID);r.name=String(s.name??s.Title??'Unnamed site');r.type=String(s.type??s.Task_x0020_Type??'');r.region=String(s.region??s.Task_x0020_Group??'');r.active=String(s.active??'');r.postcode=String(s.postcode??s.Postcode??'');r.manager=String(s.manager??s.OPS_x0020_Manager??'');r.reviewDate=String(s.reviewDate??s.reviewdate??'');r.latitude=s.latitude??s.Latitude??null;r.longitude=s.longitude??s.Longitude??null;return r}
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,4300)}
 function parseReply(txt){try{return JSON.parse(txt)}catch{return txt}}
 async function post(url,data){if(!url)throw new Error('This API endpoint is not configured.');const response=await fetch(url,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const body=parseReply(await response.text());if(!response.ok)throw new Error(typeof body==='object'?(body?.message||body?.error?.message||`HTTP ${response.status}`):`HTTP ${response.status}`);return body}
@@ -27,7 +27,7 @@ async function onPinChange(e){e.preventDefault();const pin=$('newPin').value;if(
 async function initialise(){const theme=localStorage.getItem('talosEstateTheme')||'dark';setTheme(theme);if(!auth.validate||!auth.getSalt||!auth.login){$('configNotice').textContent='Authentication endpoints are not configured yet.'}const stored=localStorage.getItem(key);if(!stored)return;try{session=JSON.parse(stored);if(!session?.email||!session?.token)throw Error('Incomplete session');const valid=await post(auth.validate,{email:session.email,token:session.token});if(!valid.success)throw Error('Session expired');session.displayName=valid.displayName||session.displayName;saveSession();if(valid.mustChangePassword===true||n(valid.mustChangePassword)==='true'){showPinChange();return}showApp();await Promise.all([loadList(),loadMasters()])}catch(err){logout();$('loginMessage').textContent='Please sign in with your TALOS account.'}}
 function showApp(){$('authGate').hidden=true;$('shell').hidden=false;$('userName').textContent=session.displayName||'Authorised user';$('userEmail').textContent=session.email;$('avatar').textContent=(session.displayName||session.email||'T').slice(0,1).toUpperCase();if(isCmsAgent(session))activateModule('cms')}
 function setTheme(theme){document.body.dataset.theme=theme;localStorage.setItem('talosEstateTheme',theme);$('themeSwitch').textContent=theme==='dark'?'☀ Light mode':'☾ Dark mode';const loginTheme=$('loginThemeSwitch');if(loginTheme)loginTheme.textContent=theme==='dark'?'☀ Light mode':'☾ Dark mode';document.querySelectorAll('#moduleHost iframe').forEach(sendModuleTheme)}
-async function loadList(){if(!api.list){$('connectionBadge').textContent='List API not configured';return}try{busy=true;$('connectionBadge').textContent='Loading estate…';const rows=await post(api.list,{});const arr=Array.isArray(rows)?rows:Array.isArray(rows.value)?rows.value:Array.isArray(rows.body)?rows.body:null;if(!arr)throw Error('Unexpected estate list response');sites=arr.map(normalise).filter(allowed);$('connectionBadge').textContent=`Connected · ${sites.length} sites`;$('connectionBadge').classList.add('good');populateFilters();stats();renderList();const cmsFrame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(cmsFrame)sendCmsContext(cmsFrame);if(selected&&!createMode)await openSite(selected)}catch(err){$('connectionBadge').textContent='Connection error';toast(`Could not load estate: ${err.message}`)}finally{busy=false}}
+async function loadList(){if(!api.list){$('connectionBadge').textContent='List API not configured';return}try{busy=true;$('connectionBadge').textContent='Loading estate…';const rows=await post(api.list,{});const arr=Array.isArray(rows)?rows:Array.isArray(rows.value)?rows.value:Array.isArray(rows.body)?rows.body:null;if(!arr)throw Error('Unexpected estate list response');sites=arr.map(normalise).filter(allowed);$('connectionBadge').textContent=`Connected · ${sites.length} sites`;$('connectionBadge').classList.add('good');populateFilters();stats();renderList();const cmsFrame=document.querySelector('#moduleHost iframe[data-module="cms"]');if(cmsFrame)sendCmsContext(cmsFrame);const geoFrame=document.querySelector('#moduleHost iframe[data-module="geo"]');if(geoFrame)sendGeoSites(geoFrame);if(selected&&!createMode)await openSite(selected)}catch(err){$('connectionBadge').textContent='Connection error';toast(`Could not load estate: ${err.message}`)}finally{busy=false}}
 function populateFilters(){const opts=[...new Set(sites.map(x=>x.region).filter(Boolean))].sort();$('filterRegion').innerHTML='<option value="">All regions</option>'+opts.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}
 function stats(){const guard=sites.filter(s=>active(s.active));$('kTotal').textContent=sites.length;$('kActive').textContent=guard.length;$('kOverdue').textContent=guard.filter(s=>deadline(s)==='overdue').length;$('kMissing').textContent=guard.filter(s=>deadline(s)==='missing').length}
 function getVisible(){let query=n($('search').value).replace(/\bmcl\b/g,'mclaren').replace(/\bfg\b/g,'frasers group');let terms=query.split(/\s+/).filter(Boolean);return sites.filter(s=>{if($('filterType').value&&s.type!==$('filterType').value)return false;if($('filterRegion').value&&s.region!==$('filterRegion').value)return false;if($('filterActive').value&&(active(s.active)?'Yes':'No')!==$('filterActive').value)return false;if(showReviews&&(!active(s.active)||deadline(s)==='ok'))return false;const hay=n([s.name,s.postcode,s.manager,s.projectManager,s.region,s.type].join(' '));return terms.every(t=>hay.includes(t))}).sort((a,b)=>a.name.localeCompare(b.name))}
@@ -56,7 +56,30 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // TALOS unified-module router. Independent same-origin documents preserve r29 logic,
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
-const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html',gps:'modules/gps/index.html'};
+const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html',gps:'modules/gps/index.html',geo:'modules/geo/index.html'};
+window.addEventListener('message',event=>{
+ const geoFrame=$('moduleHost').querySelector('iframe[data-module="geo"]');
+ if(event.origin===location.origin&&session&&geoFrame&&event.source===geoFrame.contentWindow&&event.data?.talosGeoReady===true){sendGeoSites(geoFrame);ensureGeoCheckpointSource();}
+});
+function ensureGeoCheckpointSource(){
+ // Reuse the existing GPS replay module; its own loader and attribution rules remain authoritative.
+ let frame=$('moduleHost').querySelector('iframe[data-module="gps"]');
+ if(!frame){
+  frame=document.createElement('iframe');frame.dataset.module='gps';frame.title='GPS Logs & Checkpoint';frame.className='module-frame';frame.hidden=true;
+  frame.src=moduleRoutes.gps+'?build=2.0.42';
+  frame.addEventListener('load',()=>{sendModuleTheme(frame);frame.contentWindow.postMessage({talosGpsGeoRequest:true},location.origin)});
+  $('moduleHost').appendChild(frame);
+ }else if(frame.dataset.talosLoaded==='yes'){
+  frame.contentWindow.postMessage({talosGpsGeoRequest:true},location.origin);
+ }
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||!session||!Array.isArray(event.data?.talosGpsGeoData))return;
+ const gpsFrame=$('moduleHost').querySelector('iframe[data-module="gps"]');
+ if(!gpsFrame||event.source!==gpsFrame.contentWindow)return;
+ const geoFrame=$('moduleHost').querySelector('iframe[data-module="geo"]');
+ if(geoFrame)geoFrame.contentWindow.postMessage({talosGeoCheckpoints:event.data.talosGpsGeoData},location.origin);
+});
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -66,13 +89,14 @@ function activateModule(name){
  $('connectionBadge').hidden=!isEstate;
  $('wallPresentationStart').hidden=name!=='wallboard';
  if(name!=='wallboard' && document.fullscreenElement===$('moduleHost'))document.exitFullscreen?.();
- for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247','navHandovers','navGpsLogs'])$(id).classList.toggle('selected',id===(name==='gps'?'navGpsLogs':'nav'+name[0].toUpperCase()+name.slice(1)));
- const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting',handovers:'Shift Handovers',gps:'GPS Logs & Checkpoint'};
+ for(const id of ['navEstate','navReviews','navCompliance','navIncidents','navWallboard','navCms','navC247','navHandovers','navGpsLogs','navGeo'])$(id).classList.toggle('selected',id===(name==='gps'?'navGpsLogs':'nav'+name[0].toUpperCase()+name.slice(1)));
+ const titles={estate:'Estate Management',reviews:'Review Centre',compliance:'Master Compliance',incidents:'Incident Management',wallboard:'Compliance Wallboard',cms:'CMS Reporting',c247:'C247 Reporting',handovers:'Shift Handovers',gps:'GPS Logs & Checkpoint',geo:'Geo Intelligence · POC'};
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
+  if(name==='geo')ensureGeoCheckpointSource();
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.29';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.29';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='geo'){sendGeoSites(frame);ensureGeoCheckpointSource();}if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
@@ -83,6 +107,8 @@ $('navCms').addEventListener('click',()=>activateModule('cms'));
 $('navC247').addEventListener('click',()=>activateModule('c247'));
 $('navHandovers').addEventListener('click',()=>activateModule('handovers'));
 $('navGpsLogs').addEventListener('click',()=>activateModule('gps'));
+$('navGeo').addEventListener('click',()=>activateModule('geo'));
+function sendGeoSites(frame){if(!session||frame.dataset.module!=='geo')return;try{frame.contentWindow.postMessage({talosGeoSites:sites.map(s=>({id:s.id,name:s.name,latitude:s.latitude,longitude:s.longitude}))},location.origin)}catch(_){}}
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
