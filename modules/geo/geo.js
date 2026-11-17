@@ -4,7 +4,7 @@
 const $ = id => document.getElementById(id);
 const num = value => value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
 const norm = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const state = {viewer:null,sites:[],estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],aircraft:[],aircraftRequest:0,aircraftLoading:false,feedStatus:{quakes:'Off',eonet:'Off',aircraft:'Off'},lastFeedRefresh:0};
+const state = {viewer:null,sites:[],estateRaw:[],postcodeLookup:new Map(),resolvingPostcodes:false,estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],aircraft:[],aircraftRequest:0,aircraftLoading:false,feedStatus:{quakes:'Off',eonet:'Off',aircraft:'Off'},lastFeedRefresh:0};
 const entities = {sites:[],checkpoints:[],patrols:[],quakes:[],eonet:[],aircraft:[]};
 const ukView = () => Cesium.Cartesian3.fromDegrees(-2.65,54.1,1450000);
 const at = (lat,lon) => Cesium.Cartesian3.fromDegrees(lon,lat);
@@ -13,7 +13,7 @@ function clear(key){for(const entity of entities[key])state.viewer.entities.remo
 function add(key,definition){entities[key].push(state.viewer.entities.add(definition))}
 function status(){
  $('summary').textContent = [
-  state.estateLoaded?state.sites.length+' mapped TALOS estates':'Loading TALOS estate records…',
+  state.estateLoaded?state.sites.length+' mapped / '+state.estateRaw.length+' TALOS estates':'Loading TALOS estate records…',
   state.gpsLoaded?state.gps.length+' attributed historical GPS/checkpoint records':'Loading GPS/checkpoint records…'
  ].join(' · ');
  $('feedStatus').textContent='USGS earthquakes: '+state.feedStatus.quakes+' | NASA EONET: '+state.feedStatus.eonet+' | ADS-B aircraft: '+state.feedStatus.aircraft;
@@ -21,7 +21,7 @@ function status(){
 function renderSites(){
  const host=$('sites');host.replaceChildren();
  if(!state.estateLoaded){host.textContent='Waiting for Estate Manager list…';return}
- if(!state.sites.length){host.textContent='No estates with usable coordinates. Check the Estate Manager Latitude/Longitude fields.';return}
+ if(!state.sites.length){host.textContent='No locations resolved yet. Checking estate coordinates, NEW START scans and postcodes.';return}
  const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];draw();renderSites();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
  for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name;button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
 }
@@ -29,7 +29,7 @@ function draw(){
  if(!state.viewer)return;
  Object.keys(entities).forEach(clear);
  const {sites,gps,selected}=state;
- if($('layerSites').checked)for(const s of sites)add('sites',{name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate record. Coordinates provided by Estate Manager.'});
+ if($('layerSites').checked)for(const s of sites)add('sites',{name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
  const focus=sites.find(s=>s.id===selected);
  const relevant=focus?gps.filter(r=>norm(r.site)===norm(focus.name)):gps;
  if($('layerCheckpoints').checked){
@@ -48,16 +48,107 @@ function draw(){
  status();
 }
 function home(){state.viewer?.camera.flyTo({destination:ukView(),duration:1.2})}
+// Matching uses site names already present in both TALOS feeds; never guess across different names.
+// "NEW START" records are *recorded scan positions*, not fixed surveyed entrance points.
+function startScanSitePositions(){
+ const bySite=new Map();
+ for(const record of state.gps){
+  if(record.type!=='checkpoint'||!norm(record.event).startsWith('newstart'))continue;
+  const key=norm(record.site);
+  if(!key)continue;
+  if(!bySite.has(key))bySite.set(key,[]);
+  bySite.get(key).push(record);
+ }
+ const locations=new Map();
+ for(const [key,rows] of bySite){
+  // Use the densest cluster around an observed scan to prevent GPS outliers skewing the location.
+  let best=[];
+  for(const centre of rows){
+   const nearby=rows.filter(r=>distanceMetres(centre,r)<=125);
+   if(nearby.length>best.length)best=nearby;
+  }
+  if(!best.length)continue;
+  if(rows.length>=4&&best.length/rows.length<0.6)continue; // ambiguous multiple scan clusters
+  locations.set(key,{latitude:best.reduce((sum,r)=>sum+r.lat,0)/best.length,longitude:best.reduce((sum,r)=>sum+r.lon,0)/best.length,samples:best.length,total:rows.length});
+ }
+ return locations;
+}
+function distanceMetres(a,b){
+ const radius=6371000,rad=Math.PI/180;
+ const dLat=(a.lat-b.lat)*rad,dLon=(a.lon-b.lon)*rad;
+ const h=Math.sin(dLat/2)**2+Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dLon/2)**2;
+ return 2*radius*Math.asin(Math.min(1,Math.sqrt(h)));
+}
+function rebuildEstateLocations(){
+ const starts=startScanSitePositions();
+ const mapped=[];
+ for(const record of state.estateRaw){
+  const directLat=num(record.latitude),directLon=num(record.longitude);
+  const direct=directLat!==null&&directLon!==null&&Math.abs(directLat)<=90&&Math.abs(directLon)<=180;
+  const scan=starts.get(norm(record.name));
+  const postcode=state.postcodeLookup.get(record.postcode.replace(/\s+/g,'').toUpperCase());
+  let loc;
+  if(direct)loc={latitude:directLat,longitude:directLon,sourceLabel:'Estate Manager coordinates'};
+  else if(scan)loc={latitude:scan.latitude,longitude:scan.longitude,sourceLabel:'NEW START checkpoint scan average (GPS-derived)',samples:scan.samples};
+  else if(postcode)loc={latitude:postcode.latitude,longitude:postcode.longitude,sourceLabel:'Postcode centroid (approximate)'};
+  if(loc)mapped.push({...record,...loc});
+ }
+ state.sites=mapped;
+ if(state.selected&&!mapped.some(s=>s.id===state.selected))state.selected=null;
+ renderSites();draw();
+}
+async function resolvePostcodes(){
+ // Browser-side postcode resolution only for estates lacking explicit coordinates and NEW START scans.
+ // postcodes.io receives postcode only, not site names, officer names, or patrol records.
+ if(state.resolvingPostcodes)return;
+ state.resolvingPostcodes=true;
+ try{
+  const starts=startScanSitePositions(),seen=new Set();
+  const waiting=state.estateRaw.filter(s=>{
+   const lat=num(s.latitude),lon=num(s.longitude);
+   if(lat!==null&&lon!==null&&Math.abs(lat)<=90&&Math.abs(lon)<=180)return false;
+   if(starts.has(norm(s.name)))return false;
+   const code=s.postcode.replace(/\s+/g,'').toUpperCase();
+   if(!/^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(code))return false;
+   if(state.postcodeLookup.has(code)||seen.has(code))return false;
+   seen.add(code);return true;
+  });
+  // Modest concurrency to avoid hammering the public service.
+  let next=0;
+  async function worker(){
+   while(next<waiting.length){
+    const s=waiting[next++],code=s.postcode.replace(/\s+/g,'').toUpperCase();
+    if(state.postcodeLookup.has(code))continue;
+    try{
+     const response=await fetch('https://api.postcodes.io/postcodes/'+encodeURIComponent(code),{cache:'force-cache'});
+     if(!response.ok)continue;
+     const json=await response.json(),lat=num(json.result?.latitude),lon=num(json.result?.longitude);
+     if(json.status===200&&lat!==null&&lon!==null&&Math.abs(lat)<=90&&Math.abs(lon)<=180){
+      state.postcodeLookup.set(code,{latitude:lat,longitude:lon});
+      rebuildEstateLocations();
+     }
+    }catch(_){/* Unavailable postcodes remain absent, never replaced with invented points. */}
+   }
+  }
+  await Promise.all(Array.from({length:Math.min(3,waiting.length)},worker));
+ }finally{state.resolvingPostcodes=false;rebuildEstateLocations()}
+}
 function receiveEstates(rows){
  state.estateLoaded=true;
- state.sites=(Array.isArray(rows)?rows:[]).map(r=>({id:String(r.id??''),name:String(r.name??'Unnamed').slice(0,110),latitude:num(r.latitude),longitude:num(r.longitude)})).filter(r=>r.id&&r.latitude!==null&&r.longitude!==null&&Math.abs(r.latitude)<=90&&Math.abs(r.longitude)<=180);
- if(state.selected&&!state.sites.some(r=>r.id===state.selected))state.selected=null;
- renderSites();draw();if($('layerAircraft').checked)refreshAircraft();
+ state.estateRaw=(Array.isArray(rows)?rows:[]).map(r=>({
+  id:String(r.id??''),name:String(r.name??'Unnamed').slice(0,110),
+  postcode:String(r.postcode||'').trim().toUpperCase(),
+  latitude:r.latitude,longitude:r.longitude
+ })).filter(r=>r.id);
+ rebuildEstateLocations();
+ resolvePostcodes();
+ if($('layerAircraft').checked)refreshAircraft();
 }
 function receiveGps(rows){
  state.gpsLoaded=true;
  state.gps=(Array.isArray(rows)?rows:[]).map(r=>({site:String(r.site||''),type:r.type==='gps'?'gps':'checkpoint',event:String(r.event||'Checkpoint'),lat:num(r.lat),lon:num(r.lon),ms:num(r.ms),shift:String(r.shift||'')})).filter(r=>r.lat!==null&&r.lon!==null&&r.ms!==null&&Math.abs(r.lat)<=90&&Math.abs(r.lon)<=180);
- draw();
+ rebuildEstateLocations();
+ resolvePostcodes();
 }
 async function refreshEarthquakes(){
  if(!$('layerQuakes').checked)return;
