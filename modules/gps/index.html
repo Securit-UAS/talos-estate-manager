@@ -81,7 +81,17 @@ function dedupeRows(rows){
  return valid.sort((a,b)=>a.ms-b.ms);
 }
 function csvRows(text){let out=[],cur='',line=[],quoted=false;for(let i=0;i<text.length;i++){let c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cur+='"';i++}else quoted=!quoted}else if(c===','&&!quoted){line.push(cur);cur=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;line.push(cur);if(line.some(v=>v!==''))out.push(line);cur='';line=[]}else cur+=c}if(cur||line.length){line.push(cur);out.push(line)}let head=(out.shift()||[]).map(x=>x.replace(/^\ufeff/,'').trim());return out.map(line=>Object.fromEntries(head.map((k,i)=>[k,line[i]||''])))}
-function rebuild(){records=dedupeRows([...INITIAL_DATA,...imported]);rebuildReferences();const sites=[...new Set(records.map(x=>x.site))].sort();let old=$('site').value;$('site').innerHTML=`<option value="${ALL_SITES}">All Sites (${sites.length})</option>`+sites.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');$('site').value=sites.includes(old)?old:ALL_SITES;refreshShiftControls();reDates();$('count').textContent=`${records.length.toLocaleString()} unique attributed events; ${sites.length} sites. ${excludedUnattributed.length.toLocaleString()} unattributed records excluded from all projections. Source snapshots can overlap.`}
+function rebuild(){records=dedupeRows([...INITIAL_DATA,...imported]);rebuildReferences();const sites=[...new Set(records.map(x=>x.site))].sort();let old=$('site').value;$('site').innerHTML=`<option value="${ALL_SITES}">All Sites (${sites.length})</option>`+sites.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');$('site').value=sites.includes(old)?old:ALL_SITES;refreshShiftControls();reDates();sendGeoCheckpointData();$('count').textContent=`${records.length.toLocaleString()} unique attributed events; ${sites.length} sites. ${excludedUnattributed.length.toLocaleString()} unattributed records excluded from all projections. Source snapshots can overlap.`}
+// Read-only geo viewer bridge. Shares already-attributed GPS/checkpoint records with the TALOS shell only.
+function sendGeoCheckpointData(){
+ if(window.parent===window)return;
+ const safe=records.filter(e=>e.lat!==null&&e.lon!==null).slice(-25000).map(e=>({site:e.site,type:e.type,event:e.event,lat:e.lat,lon:e.lon,ms:e.ms,shift:e.shift,officer:e.officer,id:e.id}));
+ window.parent.postMessage({talosGpsGeoData:safe},location.origin);
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==window.parent)return;
+ if(event.data?.talosGpsGeoRequest===true)sendGeoCheckpointData();
+});
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function key(e){return `${e.shift}|${e.officer}`}
 function shiftParts(e){let m=String(e.shift).match(/^(\d{4}-\d{2}-\d{2})\s+(DAY|NIGHT)$/);return m?{day:m[1],type:m[2]}:null}
