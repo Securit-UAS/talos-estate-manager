@@ -96,7 +96,7 @@ function activateModule(name){
  if(!isEstate){
   if(name==='geo'){ensureGeoCheckpointSource();if(!busy)loadList();}
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+(name==='geo'?'?build=geo-1.2.0':'?build=2.0.29');frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='geo'){sendGeoSites(frame);ensureGeoCheckpointSource();}if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+(name==='geo'?'?build=geo-1.3.0':'?build=2.0.29');frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='geo'){sendGeoSites(frame);ensureGeoCheckpointSource();}if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
