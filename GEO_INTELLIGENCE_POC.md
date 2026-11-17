@@ -28,3 +28,11 @@ No demo markers, simulated routes, or invented site locations. Empty layers rema
 - Attribution: [God's Eye View](https://github.com/bilawalsidhu/gods-eye-view), [USGS](https://earthquake.usgs.gov/), [NASA EONET](https://eonet.gsfc.nasa.gov/), OpenStreetMap contributors.
 - TALOS GPS history may contain position anomalies. Geo displays recorded positions for review, not safety-critical use. The module currently has no per-officer route selection or GPS tidy/omit workflow; use GPS Logs & Checkpoint for evidential playback.
 - Public GitHub Pages and browser-side static controls do not provide protection against unauthorised API access. Do not introduce sensitive datasets before replacing the pilot gateway pattern.
+
+## ADS-B aircraft layer (POC 1.2)
+- Reuses [SecurIT Radar](https://github.com/Securit-UAS/Radar) provider contract: the existing Cloudflare Worker `/point?lat=...&lon=...&radiusNm=...` and Airplanes.live-compatible `ac` records.
+- Enabled manually. On each 30-second refresh only when the Geo tab is visible, retrieves aircraft within **100 km** of the selected estate or the original Radar headquarters centre if no estate is selected.
+- Applies Radar's **30,000 ft** altitude ceiling and **30 s** stale-position limit; shows aircraft position, callsign/ICAO, altitude, speed and heading when available.
+- No invented aircraft or demonstration data. Worker failures remain visible in layer status.
+- Unlike original Radar, initial Geo integration does **not** yet include approach prediction, warning rings, persistent trails or full Radar control panel.
+- The original Worker is a pre-existing external dependency and was not modified. Airplanes.live access conditions and authorisation for business use need verification before operational rollout. Aircraft reports are not exhaustive and must never substitute for drone airspace checks or aviation separation.
