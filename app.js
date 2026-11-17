@@ -57,6 +57,29 @@ $('loginForm').addEventListener('submit',onLogin);$('changePinForm').addEventLis
 // per-module state, modal behaviour, CSS, and in-flight network requests.
 let activeModule='estate';
 const moduleRoutes={compliance:'modules/compliance/index.html',incidents:'modules/compliance/incident.html',wallboard:'modules/compliance/wallboard.html',cms:'modules/cms/index.html',c247:'modules/c247/index.html',handovers:'modules/handovers/index.html',gps:'modules/gps/index.html',geo:'modules/geo/index.html'};
+window.addEventListener('message',event=>{
+ const geoFrame=$('moduleHost').querySelector('iframe[data-module="geo"]');
+ if(event.origin===location.origin&&session&&geoFrame&&event.source===geoFrame.contentWindow&&event.data?.talosGeoReady===true){sendGeoSites(geoFrame);ensureGeoCheckpointSource();}
+});
+function ensureGeoCheckpointSource(){
+ // Reuse the existing GPS replay module; its own loader and attribution rules remain authoritative.
+ let frame=$('moduleHost').querySelector('iframe[data-module="gps"]');
+ if(!frame){
+  frame=document.createElement('iframe');frame.dataset.module='gps';frame.title='GPS Logs & Checkpoint';frame.className='module-frame';frame.hidden=true;
+  frame.src=moduleRoutes.gps+'?build=2.0.42';
+  frame.addEventListener('load',()=>{sendModuleTheme(frame);frame.contentWindow.postMessage({talosGpsGeoRequest:true},location.origin)});
+  $('moduleHost').appendChild(frame);
+ }else if(frame.dataset.talosLoaded==='yes'){
+  frame.contentWindow.postMessage({talosGpsGeoRequest:true},location.origin);
+ }
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||!session||!Array.isArray(event.data?.talosGpsGeoData))return;
+ const gpsFrame=$('moduleHost').querySelector('iframe[data-module="gps"]');
+ if(!gpsFrame||event.source!==gpsFrame.contentWindow)return;
+ const geoFrame=$('moduleHost').querySelector('iframe[data-module="geo"]');
+ if(geoFrame)geoFrame.contentWindow.postMessage({talosGeoCheckpoints:event.data.talosGpsGeoData},location.origin);
+});
 function activateModule(name){
  if(!session)return;
  if((name==='estate'||name==='reviews')&&hasChanges()&&name!==activeModule&&!confirm('Discard unsaved estate changes?'))return;
@@ -71,8 +94,9 @@ function activateModule(name){
  $('pageTitle').textContent=titles[name]||'TALOS';
  for(const frame of $('moduleHost').querySelectorAll('iframe[data-module]'))frame.hidden=frame.dataset.module!==name;
  if(!isEstate){
+  if(name==='geo')ensureGeoCheckpointSource();
   let frame=$('moduleHost').querySelector('iframe[data-module="'+name+'"]');
-  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.29';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='geo')sendGeoSites(frame);if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
+  if(!frame){frame=document.createElement('iframe');frame.dataset.module=name;frame.title=titles[name];frame.className='module-frame';frame.src=moduleRoutes[name]+'?build=2.0.29';frame.addEventListener('load',()=>{frame.dataset.talosLoaded='yes';sendModuleTheme(frame);if(name==='cms')sendCmsContext(frame);if(name==='geo'){sendGeoSites(frame);ensureGeoCheckpointSource();}if(name==='compliance'&&requestedComplianceStaffId){frame.contentWindow.postMessage({talosOpenOfficerStaffId:requestedComplianceStaffId},location.origin);requestedComplianceStaffId=null}});$('moduleHost').appendChild(frame)}
  }
  $('refresh').textContent=isEstate?'↻ Refresh':'↻ Refresh module';
 }
