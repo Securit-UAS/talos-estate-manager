@@ -13,7 +13,7 @@ function clear(key){for(const entity of entities[key])state.viewer.entities.remo
 function add(key,definition){entities[key].push(state.viewer.entities.add(definition))}
 function status(){
  $('summary').textContent = [
-  state.estateLoaded?state.sites.length+' mapped / '+state.estateRaw.length+' TALOS estates':'Loading TALOS estate records…',
+  state.estateLoaded?(state.sites.length+' mapped / '+state.estateRaw.length+' TALOS estates ('+state.sites.filter(s=>s.sourceLabel.startsWith('Estate')).length+' exact, '+state.sites.filter(s=>s.sourceLabel.startsWith('NEW START')).length+' from NEW START, '+state.sites.filter(s=>s.sourceLabel.startsWith('Postcode')).length+' postcode)'):'Loading TALOS estate records…',
   state.gpsLoaded?state.gps.length+' attributed historical GPS/checkpoint records':'Loading GPS/checkpoint records…'
  ].join(' · ');
  $('feedStatus').textContent='USGS earthquakes: '+state.feedStatus.quakes+' | NASA EONET: '+state.feedStatus.eonet+' | ADS-B aircraft: '+state.feedStatus.aircraft;
@@ -23,7 +23,7 @@ function renderSites(){
  if(!state.estateLoaded){host.textContent='Waiting for Estate Manager list…';return}
  if(!state.sites.length){host.textContent='No locations resolved yet. Checking estate coordinates, NEW START scans and postcodes.';return}
  const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];draw();renderSites();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
- for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name;button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
+ for(const site of state.sites){const button=document.createElement('button');button.type='button';button.textContent=site.name+' · '+(site.sourceLabel.startsWith('Estate')?'Coordinates':site.sourceLabel.startsWith('NEW START')?'NEW START average':'Postcode approximate');button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
 }
 function draw(){
  if(!state.viewer)return;
@@ -60,7 +60,8 @@ function startScanSitePositions(){
   bySite.get(key).push(record);
  }
  const locations=new Map();
- for(const [key,rows] of bySite){
+ for(const [key,allRows] of bySite){
+  const rows=allRows.sort((a,b)=>b.ms-a.ms).slice(0,500);
   // Use the densest cluster around an observed scan to prevent GPS outliers skewing the location.
   let best=[];
   for(const centre of rows){
@@ -68,7 +69,7 @@ function startScanSitePositions(){
    if(nearby.length>best.length)best=nearby;
   }
   if(!best.length)continue;
-  if(rows.length>=4&&best.length/rows.length<0.6)continue; // ambiguous multiple scan clusters
+  if(rows.length>1&&best.length/rows.length<0.6)continue; // ambiguous multiple scan clusters
   locations.set(key,{latitude:best.reduce((sum,r)=>sum+r.lat,0)/best.length,longitude:best.reduce((sum,r)=>sum+r.lon,0)/best.length,samples:best.length,total:rows.length});
  }
  return locations;
