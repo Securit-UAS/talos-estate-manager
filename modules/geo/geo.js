@@ -4,7 +4,7 @@
 const $ = id => document.getElementById(id);
 const num = value => value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
 const norm = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const state = {viewer:null,sites:[],estateRaw:[],postcodeLookup:new Map(),resolvingPostcodes:false,estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],aircraft:[],aircraftRequest:0,aircraftLoading:false,feedStatus:{quakes:'Off',eonet:'Off',aircraft:'Off'},lastFeedRefresh:0};
+const state = {viewer:null,sites:[],estateRaw:[],postcodeLookup:new Map(),resolvingPostcodes:false,estateLoaded:false,gpsLoaded:false,gps:[],selected:null,quakes:[],eonet:[],aircraft:[],aircraftRequest:0,aircraftLoading:false,feedStatus:{quakes:'Off',eonet:'Off',aircraft:'Off'},lastFeedRefresh:0,incidentRecords:null,incidentLoad:null,incidentError:null,incidentSelection:0};
 const entities = {sites:[],checkpoints:[],patrols:[],quakes:[],eonet:[],aircraft:[]};
 const ukView = () => Cesium.Cartesian3.fromDegrees(-2.65,54.1,1450000);
 const at = (lat,lon) => Cesium.Cartesian3.fromDegrees(lon,lat);
@@ -50,7 +50,7 @@ function refreshFilters(){
  const shown=filteredSites();
  $('geoFilterCount').textContent=shown.length+' shown / '+state.sites.length+' mapped';
  if(state.selected&&!shown.some(s=>s.id===state.selected))state.selected=null;
- renderSites();window.geoCheckpointReplay?.refresh();draw();
+ renderSites();currentSitePanel();window.geoCheckpointReplay?.refresh();draw();
 }
 function status(){
  $('summary').textContent = [
@@ -59,21 +59,84 @@ function status(){
  ].join(' · ');
  $('feedStatus').textContent='USGS earthquakes: '+state.feedStatus.quakes+' | NASA EONET: '+state.feedStatus.eonet+' | ADS-B aircraft: '+state.feedStatus.aircraft;
 }
+
+function currentSitePanel(){
+ const site=state.sites.find(s=>s.id===state.selected);
+ $('geoSiteName').textContent=site?.name||'Select a site marker';
+ $('geoSiteLocation').textContent=site?
+   'Location: '+site.sourceLabel+(site.postcode?' · '+site.postcode:'')+' · '+siteStatus(site.active):
+   'Click a site marker or choose an estate from the list.';
+ if(!site){$('geoSiteIncident').textContent='Select a site to check its incident register.';return}
+ showLatestIncident(site);
+}
+function incidentRows(payload){
+ const body=payload&&typeof payload==='object'&&!Array.isArray(payload)&&payload.body&&!Array.isArray(payload.body)?payload.body:payload;
+ if(Array.isArray(body))return body;
+ if(Array.isArray(body?.incidents))return body.incidents;
+ if(Array.isArray(body?.value))return body.value;
+ if(Array.isArray(body?.body?.value))return body.body.value;
+ return [];
+}
+function incidentTimestamp(row){
+ const value=row.incidentDateTime??row.incidentTime??row.field_7??row.created??row.Created??row.date??row.Date;
+ if(!value)return null;
+ const time=typeof value==='number'?value:Date.parse(String(value));
+ return Number.isFinite(time)?time:null;
+}
+async function getIncidents(){
+ if(state.incidentRecords)return state.incidentRecords;
+ if(state.incidentLoad)return state.incidentLoad;
+ const url=String(window.SECURIT_INCIDENT_API_URL||'').trim();
+ if(!url){state.incidentError='Incident API not configured';return null}
+ state.incidentLoad=(async()=>{
+  try{
+   const response=await fetch(url,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:'{}'});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const json=await response.json();
+   state.incidentRecords=incidentRows(json).map(r=>({
+    site:String(r.site??r.field_6??'').trim(),
+    type:String(r.incidentType??r.field_8??'').trim(),
+    time:incidentTimestamp(r)
+   })).filter(r=>r.site&&r.time!==null).sort((a,b)=>b.time-a.time);
+   state.incidentError=null;return state.incidentRecords;
+  }catch(error){state.incidentError=error.message;return null}
+  finally{state.incidentLoad=null}
+ })();
+ return state.incidentLoad;
+}
+async function showLatestIncident(site){
+ const revision=++state.incidentSelection;
+ $('geoSiteIncident').textContent='Checking incident register…';
+ const incidents=await getIncidents();
+ if(revision!==state.incidentSelection||state.selected!==site.id)return;
+ if(!incidents){$('geoSiteIncident').textContent='Incident register unavailable: '+(state.incidentError||'unknown error');return}
+ const result=incidents.find(r=>norm(r.site)===norm(site.name));
+ $('geoSiteIncident').textContent=result?
+   (result.type||'Incident, type unspecified')+' · '+new Date(result.time).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}):
+   'No incident found matching this exact site name.';
+}
+function chooseSite(site){
+ state.selected=site.id;state.aircraft=[];currentSitePanel();
+ draw();renderSites();window.geoCheckpointReplay?.refresh();
+ state.viewer?.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1});
+ if($('layerAircraft').checked)refreshAircraft();
+}
+
 function renderSites(){
  const host=$('sites');host.replaceChildren();
  const visible=filteredSites();
  if(!state.estateLoaded){host.textContent='Waiting for Estate Manager list…';return}
  if(!state.sites.length){host.textContent='No locations resolved yet. Checking estate coordinates, NEW START scans and postcodes.';return}
  if(!visible.length){host.textContent='No mapped estates match these filters.';return}
- const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];draw();renderSites();window.geoCheckpointReplay?.refresh();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
- for(const site of visible){const button=document.createElement('button');button.type='button';button.textContent=site.name+' · '+(site.sourceLabel.startsWith('Estate')?'Coordinates':site.sourceLabel.startsWith('NEW START')?'NEW START average':'Postcode approximate');button.className=state.selected===site.id?'active':'';button.onclick=()=>{state.selected=site.id;state.aircraft=[];draw();renderSites();window.geoCheckpointReplay?.refresh();state.viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(site.longitude,site.latitude,8000),duration:1.1});if($('layerAircraft').checked)refreshAircraft()};host.appendChild(button)}
+ const all=document.createElement('button');all.type='button';all.textContent='All mapped estates';all.className=!state.selected?'active':'';all.onclick=()=>{state.selected=null;state.aircraft=[];state.incidentSelection++;currentSitePanel();draw();renderSites();window.geoCheckpointReplay?.refresh();home();if($('layerAircraft').checked)refreshAircraft()};host.appendChild(all);
+ for(const site of visible){const button=document.createElement('button');button.type='button';button.textContent=site.name+' · '+(site.sourceLabel.startsWith('Estate')?'Coordinates':site.sourceLabel.startsWith('NEW START')?'NEW START average':'Postcode approximate');button.className=state.selected===site.id?'active':'';button.onclick=()=>chooseSite(site);host.appendChild(button)}
 }
 function draw(){
  if(!state.viewer)return;
  Object.keys(entities).forEach(clear);
  const {gps,selected}=state;
  const sites=filteredSites();
- if($('layerSites').checked)for(const s of sites)add('sites',{name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
+ if($('layerSites').checked)for(const s of sites)add('sites',{talosSiteId:s.id,name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
  const focus=sites.find(s=>s.id===selected);
  const selectedNames=new Set(sites.map(s=>norm(s.name)));
  // Heavy GPS/checkpoint overlays are only generated after selecting an estate.
@@ -115,7 +178,7 @@ function zoomMap(closer){
  const viewer=state.viewer;if(!viewer)return;
  const magnitude=viewer.camera.getMagnitude();
  if(!Number.isFinite(magnitude)||magnitude<=0)return;
- const delta=magnitude*.35;
+ const delta=magnitude*.09;
  if(closer)viewer.camera.zoomIn(delta);
  else viewer.camera.zoomOut(delta);
  viewer.scene.requestRender();
@@ -187,7 +250,7 @@ function rebuildEstateLocations(){
  window.geoCheckpointReplay?.refresh();
  $('geoFilterCount').textContent=filteredSites().length+' shown / '+mapped.length+' mapped';
  if(state.selected&&!mapped.some(s=>s.id===state.selected))state.selected=null;
- renderSites();draw();
+ renderSites();currentSitePanel();draw();
 }
 async function resolvePostcodes(){
  // Browser-side postcode resolution only for estates lacking explicit coordinates and NEW START scans.
@@ -318,8 +381,9 @@ function init(){
  try{
   Cesium.Ion.defaultAccessToken=undefined;
   const imagery= new Cesium.UrlTemplateImageryProvider({url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',credit:'© OpenStreetMap contributors',maximumLevel:18});
-  state.viewer=new Cesium.Viewer('map',{mapMode2D:Cesium.MapMode2D.ROTATE,baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:true,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
+  state.viewer=new Cesium.Viewer('map',{mapMode2D:Cesium.MapMode2D.ROTATE,baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:false,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
   state.viewer.camera.setView({destination:ukView()});
+  state.viewer.selectedEntityChanged.addEventListener(entity=>{const id=entity?.talosSiteId;if(id===undefined)return;const site=state.sites.find(s=>s.id===id);if(site&&site.id!==state.selected)chooseSite(site)});
   $('loading').hidden=true;
   ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
    if((id==='layerCheckpoints'||id==='layerPatrols')&&$(id).checked&&!state.selected){
@@ -341,7 +405,7 @@ function init(){
   $('toggle3D').onclick=toggleMapMode;
   updateModeButton();
   $('refreshFeeds').onclick=()=>{refreshEarthquakes();refreshEonet();refreshAircraft()};
-  renderSites();draw();
+  renderSites();currentSitePanel();draw();
   window.parent.postMessage({talosGeoReady:true},location.origin);
   // Public-source refreshes only while enabled; never fabricate unavailable points.
   setInterval(()=>{if(document.visibilityState==='visible'){if($('layerQuakes').checked)refreshEarthquakes();if($('layerEonet').checked)refreshEonet()}},300000);
