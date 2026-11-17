@@ -136,7 +136,7 @@ function draw(){
  Object.keys(entities).forEach(clear);
  const {gps,selected}=state;
  const sites=filteredSites();
- if($('layerSites').checked)for(const s of sites)add('sites',{talosSiteId:s.id,name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
+ if($('layerSites').checked)for(const s of sites)add('sites',{id:'talos-estate-'+s.id,name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
  const focus=sites.find(s=>s.id===selected);
  const selectedNames=new Set(sites.map(s=>norm(s.name)));
  // Heavy GPS/checkpoint overlays are only generated after selecting an estate.
@@ -383,7 +383,7 @@ function init(){
   const imagery= new Cesium.UrlTemplateImageryProvider({url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',credit:'© OpenStreetMap contributors',maximumLevel:18});
   state.viewer=new Cesium.Viewer('map',{mapMode2D:Cesium.MapMode2D.ROTATE,baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:false,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
   state.viewer.camera.setView({destination:ukView()});
-  state.viewer.selectedEntityChanged.addEventListener(entity=>{const id=entity?.talosSiteId;if(id===undefined)return;const site=state.sites.find(s=>s.id===id);if(site&&site.id!==state.selected)chooseSite(site)});
+  state.viewer.selectedEntityChanged.addEventListener(entity=>{const raw=String(entity?.id||'');if(!raw.startsWith('talos-estate-'))return;const id=raw.slice(13);const site=state.sites.find(s=>s.id===id);if(site&&site.id!==state.selected)chooseSite(site)});
   $('loading').hidden=true;
   ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
    if((id==='layerCheckpoints'||id==='layerPatrols')&&$(id).checked&&!state.selected){
