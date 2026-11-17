@@ -85,7 +85,7 @@ function rebuildEstateLocations(){
  const mapped=[];
  for(const record of state.estateRaw){
   const directLat=num(record.latitude),directLon=num(record.longitude);
-  const direct=directLat!==null&&directLon!==null&&Math.abs(directLat)<=90&&Math.abs(directLon)<=180;
+  const direct=directLat!==null&&directLon!==null&&Math.abs(directLat)<=90&&Math.abs(directLon)<=180&&!(directLat===0&&directLon===0);
   const scan=starts.get(norm(record.name));
   const postcode=state.postcodeLookup.get(record.postcode.replace(/\s+/g,'').toUpperCase());
   let loc;
