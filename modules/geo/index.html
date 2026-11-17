@@ -35,19 +35,20 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 <h2>Public intelligence · God's Eye sources</h2>
 <label class="control"><input type="checkbox" id="layerQuakes"> USGS earthquakes (24 hours)</label>
 <label class="control"><input type="checkbox" id="layerEonet"> NASA EONET natural events</label>
+<label class="control"><input type="checkbox" id="layerAircraft"> ADS-B aircraft · SecurIT Radar</label>
 <div id="feedStatus" class="feedstatus">Public feeds switched off</div>
 <button id="refreshFeeds" type="button">↻ Refresh enabled intelligence feeds</button>
 <h2>Estate selection</h2>
 <div id="sites" class="site-list">Waiting for Estate Manager…</div>
 <div style="height:8px"></div>
 <button id="home" type="button">Return to UK overview</button>
-<div class="legend">● Blue — Estate Manager location<br>● Cyan — latest recorded checkpoint scan<br>— Orange — historical GPS route<br>● Red / amber — USGS earthquake<br>● Magenta — NASA EONET event</div>
-<div class="credit">Intelligence sources: <a href="https://github.com/bilawalsidhu/gods-eye-view" target="_blank" rel="noopener">God's Eye View</a> architecture and source catalogue, USGS and NASA EONET. This is a TALOS adaptation, not the full upstream application. © OpenStreetMap contributors.</div>
+<div class="legend">● Blue — Estate Manager location<br>● Cyan — latest recorded checkpoint scan<br>— Orange — historical GPS route<br>● Red / amber — USGS earthquake<br>● Magenta — NASA EONET event<br>● Green — ADS-B aircraft (reported positions)</div>
+<div class="credit">Intelligence sources: <a href="https://github.com/bilawalsidhu/gods-eye-view" target="_blank" rel="noopener">God's Eye View</a> architecture and source catalogue, USGS, NASA EONET and <a href="https://github.com/Securit-UAS/Radar" target="_blank" rel="noopener">SecurIT Radar</a> (Airplanes.live via existing Worker). Aircraft data is informational and may be incomplete or delayed; not suitable for flight separation. This is a TALOS adaptation, not the full upstream application. © OpenStreetMap contributors.</div>
 </aside>
 <section class="mapwrap" aria-label="3D operational map">
 <div id="map"></div>
 <div id="loading" class="loading">Initialising globe…</div>
 </section></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
-<script src="./geo.js?v=1.1.0"></script>
+<script src="./geo.js?v=1.2.0"></script>
 </body></html>
