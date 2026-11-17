@@ -76,7 +76,9 @@ function draw(){
  if($('layerSites').checked)for(const s of sites)add('sites',{name:s.name,position:at(s.latitude,s.longitude),point:{pixelSize:10,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,showBackground:true,backgroundColor:Cesium.Color.fromCssColorString('#112b40').withAlpha(.85),pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,170000)},description:'TALOS estate: '+safe(s.name)+' · Location method: '+safe(s.sourceLabel)+'. '+(s.samples?'NEW START scans used: '+s.samples+'. ':'')+(s.postcode?'Postcode: '+safe(s.postcode)+'. ':'')+'Approximate markers are not verified site boundaries.'});
  const focus=sites.find(s=>s.id===selected);
  const selectedNames=new Set(sites.map(s=>norm(s.name)));
- const relevant=focus?gps.filter(r=>norm(r.site)===norm(focus.name)):(filtersApplied()?gps.filter(r=>selectedNames.has(norm(r.site))):gps);
+ // Heavy GPS/checkpoint overlays are only generated after selecting an estate.
+ const needHistory=!!focus&&($('layerCheckpoints').checked||$('layerPatrols').checked);
+ const relevant=needHistory?gps.filter(r=>norm(r.site)===norm(focus.name)):[];
  if($('layerCheckpoints').checked){
   const latest=new Map();
   for(const r of relevant.filter(r=>r.type==='checkpoint')){const key=norm(r.site)+'|'+norm(r.event);const prev=latest.get(key);if(!prev||r.ms>prev.ms)latest.set(key,r)}
@@ -316,10 +318,16 @@ function init(){
   state.viewer.camera.setView({destination:ukView()});
   $('loading').hidden=true;
   ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
+   if((id==='layerCheckpoints'||id==='layerPatrols')&&$(id).checked&&!state.selected){
+    $(id).checked=false;
+    $('replayCount').textContent='Select an estate first to display its historical checkpoint or GPS overlays.';
+    return;
+   }
+
    draw();if(id==='layerQuakes'&&$(id).checked)refreshEarthquakes();if(id==='layerEonet'&&$(id).checked)refreshEonet();if(id==='layerAircraft'){if($(id).checked)refreshAircraft();else{state.aircraftRequest++;state.aircraft=[];state.feedStatus.aircraft='Off';draw()}}
   }));
   for(const id of filterIds)$(id).addEventListener(id==='geoSearch'?'input':'change',refreshFilters);
-  $('geoClearFilters').onclick=()=>{for(const id of filterIds)$(id).value='';refreshFilters()};
+  $('geoClearFilters').onclick=()=>{for(const id of filterIds)$(id).value='';$('geoStatus').value='active';refreshFilters()};
   $('home').onclick=home;
   $('resetUK2D').onclick=resetUK2D;
   $('zoomIn').onclick=()=>zoomMap(true);
