@@ -136,7 +136,9 @@ function toggleMapMode(){
 }
 // Matching uses site names already present in both TALOS feeds; never guess across different names.
 // "NEW START" records are *recorded scan positions*, not fixed surveyed entrance points.
+let scanCache=null;
 function startScanSitePositions(){
+ if(scanCache)return scanCache;
  const bySite=new Map();
  for(const record of state.gps){
   if(record.type!=='checkpoint'||!norm(record.event).startsWith('newstart'))continue;
@@ -158,6 +160,7 @@ function startScanSitePositions(){
   if(rows.length>1&&best.length/rows.length<0.6)continue; // ambiguous multiple scan clusters
   locations.set(key,{latitude:best.reduce((sum,r)=>sum+r.lat,0)/best.length,longitude:best.reduce((sum,r)=>sum+r.lon,0)/best.length,samples:best.length,total:rows.length});
  }
+ scanCache=locations;
  return locations;
 }
 function distanceMetres(a,b){
@@ -236,6 +239,7 @@ function receiveEstates(rows){
  if($('layerAircraft').checked)refreshAircraft();
 }
 function receiveGps(rows){
+ scanCache=null;
  state.gpsLoaded=true;
  state.gps=(Array.isArray(rows)?rows:[]).map(r=>({site:String(r.site||''),type:r.type==='gps'?'gps':'checkpoint',event:String(r.event||'Checkpoint'),lat:num(r.lat),lon:num(r.lon),ms:num(r.ms),shift:String(r.shift||'')})).filter(r=>r.lat!==null&&r.lon!==null&&r.ms!==null&&Math.abs(r.lat)<=90&&Math.abs(r.lon)<=180);
  rebuildEstateLocations();
