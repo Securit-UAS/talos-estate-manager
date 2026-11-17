@@ -7,15 +7,15 @@
 </style></head><body>
 <div class="layout"><aside class="sidebar">
 <div class="eyebrow">TALOS / ESTATE MANAGER</div><h1>Geo Intelligence</h1><span class="pill">SANDBOX · PROOF OF CONCEPT</span>
-<div class="notice">All checkpoint positions, patrol tracks and events are simulated. No C247 connection, real-time tracking or operational intelligence feeds are active.</div>
+<div class="notice">Only existing TALOS estate coordinates and historical GPS/checkpoint records are plotted. Missing data stays missing. No independent God's Eye intelligence feeds are connected yet.</div>
 <h2>Layers</h2>
 <label class="control"><input id="layerSites" type="checkbox" checked>Estate sites</label>
-<label class="control"><input id="layerCheckpoints" type="checkbox" checked>Simulated checkpoints</label>
-<label class="control"><input id="layerPatrols" type="checkbox" checked>Simulated patrol route</label>
+<label class="control"><input id="layerCheckpoints" type="checkbox" checked>Recorded checkpoint scans</label>
+<label class="control"><input id="layerPatrols" type="checkbox" checked>Historical GPS traces</label>
 <h2>Focus site</h2><div id="sites" class="site-list"></div><div class="stats" id="summary">Loading map…</div>
 <button id="home">Return to UK overview</button>
 <h2>God's Eye layers</h2><p>Upstream aircraft, satellite, maritime and environmental providers are not yet connected. This module establishes the Cesium geographical foundation for integrating compatible layers later.</p>
-<div class="legend">● Blue: TALOS estate site<br>● Cyan: simulated checkpoint<br>— Orange: simulated patrol movement</div>
-</aside><div class="mapwrap"><div id="map"></div><div class="loading" id="loading">Initialising Cesium globe…</div><div class="status" id="status">Proof of concept · illustrative locations only</div></div></div>
+<div class="legend">● Blue: TALOS estate site<br>● Cyan: recorded checkpoint scan<br>— Orange: recorded historical GPS route</div>
+</aside><div class="mapwrap"><div id="map"></div><div class="loading" id="loading">Initialising Cesium globe…</div><div class="status" id="status">Waiting for existing TALOS estate and GPS data</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
 <script src="./geo.js"></script></body></html>
