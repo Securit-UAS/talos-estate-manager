@@ -48,6 +48,45 @@ function draw(){
  status();
 }
 function home(){state.viewer?.camera.flyTo({destination:ukView(),duration:1.2})}
+const ukBounds=()=>Cesium.Rectangle.fromDegrees(-11.5,49.4,3.4,59.4);
+function updateModeButton(){
+ const mode=state.viewer?.scene.mode;
+ $('toggle3D').textContent=mode===Cesium.SceneMode.SCENE2D?'Switch to 3D':'Switch to 2D';
+}
+function resetUK2D(){
+ const viewer=state.viewer;if(!viewer)return;
+ const move=()=>{
+  viewer.camera.setView({destination:ukBounds(),orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0}});
+  viewer.scene.requestRender();
+  updateModeButton();
+ };
+ if(viewer.scene.mode===Cesium.SceneMode.SCENE2D){move();return}
+ const remove=viewer.scene.morphComplete.addEventListener(()=>{remove();move()});
+ viewer.scene.morphTo2D(0.8);
+}
+function zoomMap(closer){
+ const viewer=state.viewer;if(!viewer)return;
+ const magnitude=viewer.camera.getMagnitude();
+ if(!Number.isFinite(magnitude)||magnitude<=0)return;
+ const delta=magnitude*.35;
+ if(closer)viewer.camera.zoomIn(delta);
+ else viewer.camera.zoomOut(delta);
+ viewer.scene.requestRender();
+}
+function rotateMap(left){
+ const viewer=state.viewer;if(!viewer)return;
+ const angle=Cesium.Math.toRadians(15);
+ if(left)viewer.camera.rotateLeft(angle);
+ else viewer.camera.rotateRight(angle);
+ viewer.scene.requestRender();
+}
+function toggleMapMode(){
+ const viewer=state.viewer;if(!viewer)return;
+ if(viewer.scene.mode===Cesium.SceneMode.SCENE2D){
+  const remove=viewer.scene.morphComplete.addEventListener(()=>{remove();home();updateModeButton()});
+  viewer.scene.morphTo3D(0.8);
+ }else resetUK2D();
+}
 // Matching uses site names already present in both TALOS feeds; never guess across different names.
 // "NEW START" records are *recorded scan positions*, not fixed surveyed entrance points.
 function startScanSitePositions(){
@@ -230,6 +269,13 @@ function init(){
    draw();if(id==='layerQuakes'&&$(id).checked)refreshEarthquakes();if(id==='layerEonet'&&$(id).checked)refreshEonet();if(id==='layerAircraft'){if($(id).checked)refreshAircraft();else{state.aircraftRequest++;state.aircraft=[];state.feedStatus.aircraft='Off';draw()}}
   }));
   $('home').onclick=home;
+  $('resetUK2D').onclick=resetUK2D;
+  $('zoomIn').onclick=()=>zoomMap(true);
+  $('zoomOut').onclick=()=>zoomMap(false);
+  $('rotateLeft').onclick=()=>rotateMap(true);
+  $('rotateRight').onclick=()=>rotateMap(false);
+  $('toggle3D').onclick=toggleMapMode;
+  updateModeButton();
   $('refreshFeeds').onclick=()=>{refreshEarthquakes();refreshEonet();refreshAircraft()};
   renderSites();draw();
   window.parent.postMessage({talosGeoReady:true},location.origin);
