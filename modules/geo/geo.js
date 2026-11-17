@@ -5,7 +5,7 @@ const mockSites=[
 {id:'demo-1',name:'Demo logistics estate · Midlands',latitude:52.7584,longitude:-1.4718,source:'mock'},
 {id:'demo-2',name:'Demo industrial site · Yorkshire',latitude:53.6912,longitude:-1.4203,source:'mock'},
 {id:'demo-3',name:'Demo retail estate · Bristol',latitude:51.4545,longitude:-2.5879,source:'mock'}];
-let sites=mockSites.slice(),viewer=null,focused=null;
+let sites=mockSites.slice(),viewer=null,focused=null,gpsRecords=[],gpsReceived=false;
 const layers={sites:[],checkpoints:[],patrols:[]};
 const numeric=v=>v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v))?Number(v):null;
 function cleanSites(input){
@@ -22,6 +22,21 @@ function draw(){
  const drawSites=$('layerSites').checked,drawPoints=$('layerCheckpoints').checked,drawPatrols=$('layerPatrols').checked;
  if(drawSites)for(const s of sites)put('sites',{name:s.name,position:point(s.latitude,s.longitude),point:{pixelSize:12,color:Cesium.Color.DODGERBLUE,outlineColor:Cesium.Color.WHITE,outlineWidth:2},label:{text:s.name,font:'12px sans-serif',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.BLACK,outlineWidth:3,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-22),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,1500000)},description:'TALOS Estate site ('+s.source+').'});
  const base=sites.find(s=>String(s.id)===String(focused))||sites[0];
+ if(gpsReceived){
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const matched=focused&&base?gpsRecords.filter(r=>norm(r.site)===norm(base.name)):gpsRecords;
+  const recent=matched.filter(r=>Number.isFinite(r.lat)&&Number.isFinite(r.lon)).slice(-4000);
+  const unique=new Map();
+  recent.filter(r=>r.type==='checkpoint').forEach(r=>{const key=norm(r.site)+'|'+norm(r.event);const old=unique.get(key);if(!old||r.ms>old.ms)unique.set(key,r)});
+  if(drawPoints)for(const r of [...unique.values()].slice(0,900))put('checkpoints',{name:r.event+' · '+r.site,position:point(r.lat,r.lon),point:{pixelSize:7,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.BLACK,outlineWidth:1},description:'Latest recorded checkpoint scan position. This is not a surveyed checkpoint location.'});
+  if(drawPatrols){
+   const grouped=new Map();
+   for(const r of recent.filter(r=>r.type==='gps')){const key=r.site+'|'+r.shift;if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(r)}
+   for(const group of [...grouped.values()].slice(-15)){const sorted=group.sort((a,b)=>a.ms-b.ms);if(sorted.length>1)put('patrols',{name:'Historical GPS trace · '+sorted[0].site,polyline:{positions:sorted.slice(-700).map(r=>point(r.lat,r.lon)),width:2,material:Cesium.Color.ORANGE},description:'Historical recorded GPS data, not a live position.'})}
+  }
+  $('summary').textContent=sites.length+' mapped estate sites · '+unique.size+' checkpoint locations (latest recorded scans) · '+recent.length+' GPS/checkpoint records in scope';
+  return;
+ }
  if(base){
   // Synthetic offsets; not surveyed coordinates and never sent to an API.
   const c=[[.0018,-.0021],[-.0012,-.0016],[.0011,.0014],[-.0016,.0018]];
@@ -39,7 +54,7 @@ function updateSiteData(data){
  const valid=cleanSites(data);
  sites=valid.length?valid:mockSites.slice();
  focused=null;renderSites();draw();
- $('status').textContent=valid.length?'Estate coordinates received from TALOS · checkpoints and patrols remain simulated':'Using wholly simulated estate data (no valid TALOS coordinates available)';
+ $('status').textContent=valid.length?'Estate coordinates received from TALOS · checkpoint data loads from existing GPS module':'Using wholly simulated estate data (no valid TALOS coordinates available)';
 }
 function init(){
  if(typeof Cesium==='undefined'){ $('loading').textContent='Cesium script unavailable. Check internet access / CSP settings.';return }
@@ -57,5 +72,11 @@ window.addEventListener('message',event=>{
  const d=event.data||{};
  if(d.talosTheme)document.body.classList.toggle('light',d.talosTheme==='light');
  if(d.talosGeoSites)updateSiteData(d.talosGeoSites);
+ if(Array.isArray(d.talosGeoCheckpoints)){
+  gpsReceived=true;
+  gpsRecords=d.talosGeoCheckpoints.slice(0,25000).map(r=>({site:String(r.site||''),type:r.type==='gps'?'gps':'checkpoint',event:String(r.event||'Checkpoint'),lat:numeric(r.lat),lon:numeric(r.lon),ms:Number(r.ms)||0,shift:String(r.shift||'')})).filter(r=>r.lat!==null&&r.lon!==null&&Math.abs(r.lat)<=90&&Math.abs(r.lon)<=180);
+  $('status').textContent=gpsRecords.length?'Checkpoint data loaded from existing TALOS GPS module · historical, not live':'No checkpoint records available from existing TALOS GPS module';
+  draw();
+ }
 });
 init();
