@@ -36,3 +36,13 @@ No demo markers, simulated routes, or invented site locations. Empty layers rema
 - No invented aircraft or demonstration data. Worker failures remain visible in layer status.
 - Unlike original Radar, initial Geo integration does **not** yet include approach prediction, warning rings, persistent trails or full Radar control panel.
 - The original Worker is a pre-existing external dependency and was not modified. Airplanes.live access conditions and authorisation for business use need verification before operational rollout. Aircraft reports are not exhaustive and must never substitute for drone airspace checks or aviation separation.
+
+## Site location resolution — POC 1.3
+For each TALOS Estate Manager record, the map resolves the site without modifying the record:
+1. Existing valid Latitude/Longitude from the Estate List API (excluding blank and 0,0).
+2. A location calculated from that same site's attributed historical **NEW START** checkpoint scan positions in the GPS module, using the densest cluster within 125 m and rejecting ambiguous multiple clusters. Exact normalised site-name matching is required. Position is an average of the qualifying cluster, not a surveyed entrance.
+3. The geographic coordinate returned for the site's UK postcode by [Postcodes.io](https://postcodes.io/docs/postcode/lookup/), marked as approximate postcode location.
+
+Only if all three fail is the estate left off the map. Estate name and officer/GPS history are not sent to Postcodes.io; the third party receives the postcode string for unresolved sites. The browser caches successful postcode lookups for the current session. Sources are indicated on map-marker detail and estate selection list. The site panel shows counts by coordinate source.
+
+No SharePoint writes, no GPS record edits, no mock locations. Postcode-derived points are approximate and should not be used for precise checkpoint or drone launch positioning.
