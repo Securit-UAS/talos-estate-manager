@@ -53,3 +53,11 @@ No SharePoint writes, no GPS record edits, no mock locations. Postcode-derived p
 - The Geo bridge excludes officer identities, so this playback is a **combined chronological site/shift event projection**, not an individual officer trace. Use the existing GPS Logs & Checkpoint viewer for officer-specific and evidential playback, including its trace selection and tidying.
 - No synthetic records, new APIs, or write operations. Site-name matching applies when Geo estate filters are active. All control code is isolated in `modules/geo/replay.js` so the original GPS viewer is unchanged.
 - Browser testing and production suitability remain unverified.
+
+## Geo 1.7 — Selected site panel and finer zoom
+- Cesium's default on-map info box is disabled to prevent overlap with the top-right navigation buttons.
+- Selecting an Estate Manager site marker or an entry in the list displays the exact site name, location source, site status and latest incident (type and date/time), if found by exact normalised site-name matching.
+- Incident read uses the existing `modules/compliance/config.js` endpoint and its response shape. The register is read once per Geo page session, with only site, type and incident timestamp retained in the module. No additional database, storage, or writes.
+- Missing or inaccessible incident data is explicitly labelled; never substitute another site's incident.
+- Zoom buttons now change distance by 9% per click rather than 35%.
+- Incident information is an operational overview only, not a replacement for the Incident Dashboard.
