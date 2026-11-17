@@ -26,7 +26,7 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 <aside class="panel">
 <div class="eyebrow">TALOS / Operational Assurance</div>
 <h1>Geo Intelligence</h1><span class="pill">PROOF OF CONCEPT · READ ONLY</span>
-<div class="notice">Displays existing TALOS estate and checkpoint history only. Missing records are never replaced with sample positions. Public intelligence layers are independent data sources.</div>
+<div class="notice">Estate markers use existing coordinates, a clustered NEW START checkpoint average, or a postcode centre (in that order). Postcode-derived locations are approximate. No synthetic markers or writes to SharePoint.</div>
 <h2>TALOS data layers</h2>
 <label class="control"><input type="checkbox" id="layerSites" checked> Estate locations</label>
 <label class="control"><input type="checkbox" id="layerCheckpoints" checked> Checkpoint scan locations</label>
@@ -50,5 +50,5 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 <div id="loading" class="loading">Initialising globe…</div>
 </section></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
-<script src="./geo.js?v=1.2.0"></script>
+<script src="./geo.js?v=1.3.0"></script>
 </body></html>
