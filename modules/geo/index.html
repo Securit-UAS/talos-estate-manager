@@ -27,12 +27,23 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 @media(max-width:760px){.map-controls{top:10px;right:10px;width:134px}.map-controls button{padding:8px 5px;font-size:11px}}
 .cesium-viewer-bottom{z-index:4}
 @media(max-width:760px){.layout{height:auto;display:flex;flex-direction:column}.panel{height:auto;max-height:46vh;border-right:0;border-bottom:1px solid var(--edge)}.mapwrap{height:60vh;min-height:380px}.site-list{max-height:95px}}
+.filters{display:grid;gap:7px;margin-top:8px}.filters label{display:grid;gap:3px;font-size:11px;color:var(--muted)}.filters input,.filters select{font:inherit;background:var(--button);color:var(--text);border:1px solid var(--edge);border-radius:6px;padding:8px;width:100%;min-width:0}.filters input:focus,.filters select:focus{outline:2px solid var(--cyan);outline-offset:1px}.filter-actions{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px}.filter-actions button{font-size:11px;text-align:center}.filter-count{font-size:11px;color:var(--muted)}.filters .hint{font-size:10px;color:var(--muted)}
 </style></head><body>
 <div class="layout">
 <aside class="panel">
 <div class="eyebrow">TALOS / Operational Assurance</div>
 <h1>Geo Intelligence</h1><span class="pill">PROOF OF CONCEPT · READ ONLY</span>
 <div class="notice">Estate markers use existing coordinates, a clustered NEW START checkpoint average, or a postcode centre (in that order). Postcode-derived locations are approximate. No synthetic markers or writes to SharePoint.</div>
+<h2>Estate filters</h2>
+<div class="filters" role="group" aria-label="Estate location filters">
+<label for="geoSearch">Find site or client<input id="geoSearch" type="search" placeholder="Site, client, postcode…"></label>
+<label for="geoStatus">Status<select id="geoStatus"><option value="">Active and inactive</option><option value="active">Active only</option><option value="inactive">Inactive only</option><option value="unknown">Status not specified</option></select></label>
+<label for="geoClient">Client<select id="geoClient"><option value="">All clients</option></select></label>
+<label for="geoType">Site type<select id="geoType"><option value="">All types</option></select></label>
+<label for="geoRegion">Region<select id="geoRegion"><option value="">All regions</option></select></label>
+<div class="filter-actions"><span id="geoFilterCount" class="filter-count">Waiting for estate records…</span><button id="geoClearFilters" type="button">Clear filters</button></div>
+<div class="hint" id="geoClientHint">Client options use the existing Estate Manager API where provided; search also matches site names.</div>
+</div>
 <h2>TALOS data layers</h2>
 <label class="control"><input type="checkbox" id="layerSites" checked> Estate locations</label>
 <label class="control"><input type="checkbox" id="layerCheckpoints" checked> Checkpoint scan locations</label>
@@ -68,5 +79,5 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 <div id="loading" class="loading">Initialising globe…</div>
 </section></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
-<script src="./geo.js?v=1.4.0"></script>
+<script src="./geo.js?v=1.5.0"></script>
 </body></html>
