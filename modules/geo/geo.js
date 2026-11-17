@@ -262,7 +262,7 @@ function init(){
  try{
   Cesium.Ion.defaultAccessToken=undefined;
   const imagery= new Cesium.UrlTemplateImageryProvider({url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',credit:'© OpenStreetMap contributors',maximumLevel:18});
-  state.viewer=new Cesium.Viewer('map',{baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:true,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
+  state.viewer=new Cesium.Viewer('map',{mapMode2D:Cesium.MapMode2D.ROTATE,baseLayer:new Cesium.ImageryLayer(imagery),terrainProvider:new Cesium.EllipsoidTerrainProvider(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false,infoBox:true,selectionIndicator:true,requestRenderMode:true,maximumRenderTimeChange:Infinity});
   state.viewer.camera.setView({destination:ukView()});
   $('loading').hidden=true;
   ['layerSites','layerCheckpoints','layerPatrols','layerQuakes','layerEonet','layerAircraft'].forEach(id=>$(id).addEventListener('change',()=>{
