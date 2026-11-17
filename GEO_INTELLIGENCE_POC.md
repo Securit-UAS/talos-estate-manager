@@ -1,27 +1,30 @@
-# Geo Intelligence proof of concept
+# TALOS Geo Intelligence — POC 1.1
 
-This release adds **Geo Intelligence (POC)** to TALOS Estate Manager's Operational Assurance navigation without changing existing Estate Manager workflows.
+## Purpose
+Read-only comparison of existing TALOS Estate Manager locations and GPS/Checkpoint records against independent public geospatial intelligence.
 
-## Included
-- 3D CesiumJS globe with OpenStreetMap imagery.
-- Uses Latitude/Longitude already returned by the existing Estate List API; shows no site markers if valid coordinates are unavailable.
-- Reuses checkpoint and historical GPS rows from the existing GPS Logs & Checkpoint module using same-origin read-only messages. The existing module remains responsible for fetching, deduplicating and excluding unattributed data.
-- Checkpoint markers represent the latest recorded scan per site/checkpoint name, not surveyed fixed checkpoint coordinates.
-- GPS line overlays are historical, not live positions. No C247 writes or new SharePoint fields.
-- No demo or generated geographical records. If no data exists, the corresponding map layer remains empty.
+## Data sources
+- **Estate sites:** existing Estate List API, already loaded by the Estate Manager. Geo requests an estate list refresh if no records are loaded when opened. Only records with valid latitude/longitude appear; no fallback coordinates.
+- **Checkpoint scans / historical GPS:** existing GPS & Checkpoint module, with its current archive input and attribution/deduplication logic. A local same-origin message bridge shares only necessary event fields (site, type, label, coordinates, timestamp, shift) with Geo.
+- **USGS earthquakes:** same public feed URL used by God's Eye View source module (USGS 24h GeoJSON).
+- **NASA EONET:** browser-direct open natural events source catalogued by God's Eye View. Point events are plotted; lines/polygons are omitted in this first pass.
 
-## Testing
-1. Open current TALOS site and authenticate normally.
-2. Select **Geo Intelligence** in Operational Assurance.
-3. Toggle Site, Checkpoint and Patrol layers; open the site list.
-4. Verify the map loads recorded events after the GPS module completes loading.
-5. Test all other modules remain operational, particularly GPS Logs & Checkpoint.
-6. Test both dark/light themes and desktop/mobile browser sizes.
+No demo markers, simulated routes, or invented site locations. Empty layers remain empty. Checkpoint marker positions represent latest recorded scans, not independently surveyed fixed checkpoint coordinates.
 
-## Boundaries
-This is a proof of concept, not an operationally validated tracking or safety tool. Original God's Eye View intelligence services (aircraft, satellites, maritime, environmental) are not yet imported. The initial globe uses the open-source CesiumJS engine rather than bundling the whole upstream God's Eye app.
+## Operation
+1. Sign in to TALOS Estate Manager and select **Geo Intelligence**.
+2. Check the counts for mapped estates and attributed historical GPS/checkpoint records.
+3. Toggle the TALOS layers independently.
+4. Enable USGS earthquakes or NASA EONET and inspect the data status below the switches.
+5. Select an estate to focus and narrow recorded GPS/checkpoint history where the estate and GPS source names match.
+6. Return to UK overview at any time.
 
-CesiumJS is currently loaded from a public CDN and map tiles from OpenStreetMap; deployments with strict CSP policies may need adjustments. Data rendered from TALOS must remain under existing authorised access. This frontend authentication model is not a replacement for backend controls.
-
-## Data comparison limitation
-The current map visualises TALOS records on Cesium/OSM mapping. Upstream God's Eye View aircraft, maritime, satellite and environmental feeds are not integrated, so their information cannot yet be compared side-by-side. Checkpoint positions reflect scans, not verified fixed locations. GPS route lines use a capped subset for map performance and are not a complete evidential replay.
+## Technical notes
+- The shell retains its original module router and existing estate records/forms; Geo is a same-origin standalone module.
+- No SharePoint writes, new flows, new columns, or direct C247 calls.
+- Cesium is loaded from jsDelivr. Basemap uses OpenStreetMap tiles. Network/CSP failures display a message.
+- Public source feeds have browser CORS/service availability limitations. Any unavailable feed is shown as unavailable; no data is fabricated.
+- Original God's Eye View is a full Vue/Vite app with proxy-backed feeds. This integration includes initial public source layers; aircraft, vessel, satellite, CCTV, and full upstream UI are **not yet integrated**.
+- Attribution: [God's Eye View](https://github.com/bilawalsidhu/gods-eye-view), [USGS](https://earthquake.usgs.gov/), [NASA EONET](https://eonet.gsfc.nasa.gov/), OpenStreetMap contributors.
+- TALOS GPS history may contain position anomalies. Geo displays recorded positions for review, not safety-critical use. The module currently has no per-officer route selection or GPS tidy/omit workflow; use GPS Logs & Checkpoint for evidential playback.
+- Public GitHub Pages and browser-side static controls do not provide protection against unauthorised API access. Do not introduce sensitive datasets before replacing the pilot gateway pattern.
