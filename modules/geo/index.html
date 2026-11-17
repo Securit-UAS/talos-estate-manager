@@ -1,21 +1,53 @@
 <!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TALOS · Geo Intelligence (POC)</title>
+<title>TALOS · Geo Intelligence</title>
 <link href="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 <style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#081525;color:#e8f3fc}body.light{background:#ecf2f7;color:#172a3a}.layout{display:grid;grid-template-columns:300px minmax(0,1fr);height:calc(100vh - 12px);min-height:520px}.sidebar{background:#0e2337;border-right:1px solid #30485f;padding:20px;overflow:auto}.light .sidebar{background:#fff;border-color:#c4d2df}h1{font-size:20px;margin:0 0 8px}h2{font-size:14px;margin:22px 0 9px}p{font-size:12px;line-height:1.55;color:#abc1d2}.light p{color:#4f6171}.eyebrow{font-size:10px;color:#69d6ea;font-weight:700;letter-spacing:.12em}.notice{padding:9px;border:1px solid #836f37;background:#332b14;color:#ffe1a0;border-radius:8px;font-size:11px;line-height:1.5;margin:14px 0}select,input,button{font:inherit}select,button{width:100%;background:#17344d;color:#e5f6ff;border:1px solid #3a5970;padding:10px;border-radius:7px;text-align:left}.light select,.light button{background:#e8f0f8;color:#172a3a;border-color:#b5cadb}button{cursor:pointer}button:hover{border-color:#66cee0}.control{display:flex;align-items:center;gap:9px;padding:9px 0;font-size:13px}.control input{accent-color:#32c7db}#map{height:100%;width:100%;position:relative}.mapwrap{position:relative;min-width:0}.pill{display:inline-block;padding:4px 8px;border-radius:4px;background:#173c4b;color:#7ce4e7;font-size:11px}.stats{font-size:12px;color:#bcd0e3;margin:9px 0}.empty{color:#eabd66}.legend{margin-top:18px;font-size:11px;line-height:1.9;color:#9db4c6}.light .legend{color:#536a79}.site-list{max-height:180px;overflow:auto}.site-list button{margin-bottom:4px;font-size:12px;padding:8px}.site-list button.active{border-color:#60d4e5;background:#164356}.loading{position:absolute;z-index:5;left:20px;top:20px;background:#092133e8;padding:10px 14px;border-radius:8px;font-size:12px}.status{position:absolute;z-index:5;bottom:12px;left:12px;background:#092133e8;padding:8px 12px;border-radius:6px;font-size:11px;max-width:75%}@media(max-width:720px){.layout{grid-template-columns:1fr;grid-template-rows:auto minmax(400px,1fr);height:auto}.sidebar{padding:12px}.site-list{max-height:95px}}
+*{box-sizing:border-box}body{--bg:#0b1829;--panel:#11263d;--edge:#2c4b64;--text:#e8f1fb;--muted:#9fb7cb;--button:#183854;--cyan:#55d4e5;margin:0;background:var(--bg);color:var(--text);font:13px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+body.light{--bg:#eaf0f6;--panel:#fff;--edge:#cedae5;--text:#182c42;--muted:#526a80;--button:#e9f1f8;--cyan:#146d88}
+.layout{display:grid;grid-template-columns:285px minmax(0,1fr);height:min(82vh,850px);min-height:550px;border:1px solid var(--edge);border-radius:12px;overflow:hidden}
+.panel{background:var(--panel);border-right:1px solid var(--edge);padding:18px 16px;overflow:auto;min-width:0}
+.eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.11em;font-weight:700;font-size:10px}
+h1{font-size:20px;margin:2px 0 8px;line-height:1.3}h2{font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin:18px 0 9px;color:var(--muted)}
+.pill{display:inline-block;font-size:10px;color:var(--cyan);border:1px solid var(--edge);padding:3px 8px;border-radius:5px;font-weight:700}
+.notice{font-size:11px;line-height:1.55;border:1px solid var(--edge);padding:9px;margin-top:12px;border-radius:7px;color:var(--muted)}
+.control{display:flex;align-items:center;gap:9px;padding:7px 0;cursor:pointer;font-size:12px}.control input{accent-color:var(--cyan);width:15px;height:15px}
+button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var(--edge);color:var(--text);padding:9px 10px;border-radius:7px;width:100%;text-align:left}button:hover,button.active{border-color:var(--cyan)}button.active{font-weight:700}
+.site-list{max-height:210px;overflow:auto;display:grid;gap:5px;color:var(--muted);font-size:12px}
+.stats,.feedstatus{color:var(--muted);font-size:11px;line-height:1.6;margin:10px 0}
+.legend{font-size:11px;color:var(--muted);line-height:1.9;margin-top:20px}
+.mapwrap{min-width:0;position:relative;background:#0d2030}#map{position:absolute;inset:0}
+.loading{position:absolute;top:12px;left:12px;z-index:2;background:#10253bdd;padding:10px;border-radius:7px;font-size:12px}
+.credit{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.credit a{color:var(--cyan)}
+.cesium-viewer-bottom{z-index:4}
+@media(max-width:760px){.layout{height:auto;display:flex;flex-direction:column}.panel{height:auto;max-height:46vh;border-right:0;border-bottom:1px solid var(--edge)}.mapwrap{height:60vh;min-height:380px}.site-list{max-height:95px}}
 </style></head><body>
-<div class="layout"><aside class="sidebar">
-<div class="eyebrow">TALOS / ESTATE MANAGER</div><h1>Geo Intelligence</h1><span class="pill">SANDBOX · PROOF OF CONCEPT</span>
-<div class="notice">Only existing TALOS estate coordinates and historical GPS/checkpoint records are plotted. Missing data stays missing. No independent God's Eye intelligence feeds are connected yet.</div>
-<h2>Layers</h2>
-<label class="control"><input id="layerSites" type="checkbox" checked>Estate sites</label>
-<label class="control"><input id="layerCheckpoints" type="checkbox" checked>Recorded checkpoint scans</label>
-<label class="control"><input id="layerPatrols" type="checkbox" checked>Historical GPS traces</label>
-<h2>Focus site</h2><div id="sites" class="site-list"></div><div class="stats" id="summary">Loading map…</div>
-<button id="home">Return to UK overview</button>
-<h2>God's Eye layers</h2><p>Upstream aircraft, satellite, maritime and environmental providers are not yet connected. This module establishes the Cesium geographical foundation for integrating compatible layers later.</p>
-<div class="legend">● Blue: TALOS estate site<br>● Cyan: recorded checkpoint scan<br>— Orange: recorded historical GPS route</div>
-</aside><div class="mapwrap"><div id="map"></div><div class="loading" id="loading">Initialising Cesium globe…</div><div class="status" id="status">Waiting for existing TALOS estate and GPS data</div></div></div>
+<div class="layout">
+<aside class="panel">
+<div class="eyebrow">TALOS / Operational Assurance</div>
+<h1>Geo Intelligence</h1><span class="pill">PROOF OF CONCEPT · READ ONLY</span>
+<div class="notice">Displays existing TALOS estate and checkpoint history only. Missing records are never replaced with sample positions. Public intelligence layers are independent data sources.</div>
+<h2>TALOS data layers</h2>
+<label class="control"><input type="checkbox" id="layerSites" checked> Estate locations</label>
+<label class="control"><input type="checkbox" id="layerCheckpoints" checked> Checkpoint scan locations</label>
+<label class="control"><input type="checkbox" id="layerPatrols" checked> Historical GPS routes</label>
+<div class="stats" id="summary">Waiting for TALOS data…</div>
+<h2>Public intelligence · God's Eye sources</h2>
+<label class="control"><input type="checkbox" id="layerQuakes"> USGS earthquakes (24 hours)</label>
+<label class="control"><input type="checkbox" id="layerEonet"> NASA EONET natural events</label>
+<div id="feedStatus" class="feedstatus">Public feeds switched off</div>
+<button id="refreshFeeds" type="button">↻ Refresh enabled intelligence feeds</button>
+<h2>Estate selection</h2>
+<div id="sites" class="site-list">Waiting for Estate Manager…</div>
+<div style="height:8px"></div>
+<button id="home" type="button">Return to UK overview</button>
+<div class="legend">● Blue — Estate Manager location<br>● Cyan — latest recorded checkpoint scan<br>— Orange — historical GPS route<br>● Red / amber — USGS earthquake<br>● Magenta — NASA EONET event</div>
+<div class="credit">Intelligence sources: <a href="https://github.com/bilawalsidhu/gods-eye-view" target="_blank" rel="noopener">God's Eye View</a> architecture and source catalogue, USGS and NASA EONET. This is a TALOS adaptation, not the full upstream application. © OpenStreetMap contributors.</div>
+</aside>
+<section class="mapwrap" aria-label="3D operational map">
+<div id="map"></div>
+<div id="loading" class="loading">Initialising globe…</div>
+</section></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
-<script src="./geo.js"></script></body></html>
+<script src="./geo.js?v=1.1.0"></script>
+</body></html>
