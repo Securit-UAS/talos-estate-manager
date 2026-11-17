@@ -38,7 +38,7 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 <h2>Estate filters</h2>
 <div class="filters" role="group" aria-label="Estate location filters">
 <label for="geoSearch">Find site or client<input id="geoSearch" type="search" placeholder="Site, client, postcode…"></label>
-<label for="geoStatus">Status<select id="geoStatus"><option value="">Active and inactive</option><option value="active">Active only</option><option value="inactive">Inactive only</option><option value="unknown">Status not specified</option></select></label>
+<label for="geoStatus">Status<select id="geoStatus"><option value="">Active and inactive</option><option value="active" selected>Active only</option><option value="inactive">Inactive only</option><option value="unknown">Status not specified</option></select></label>
 <label for="geoClient">Client<select id="geoClient"><option value="">All clients</option></select></label>
 <label for="geoType">Site type<select id="geoType"><option value="">All types</option></select></label>
 <label for="geoRegion">Region<select id="geoRegion"><option value="">All regions</option></select></label>
@@ -47,8 +47,8 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 </div>
 <h2>TALOS data layers</h2>
 <label class="control"><input type="checkbox" id="layerSites" checked> Estate locations</label>
-<label class="control"><input type="checkbox" id="layerCheckpoints" checked> Checkpoint scan locations</label>
-<label class="control"><input type="checkbox" id="layerPatrols" checked> Historical GPS routes</label>
+<label class="control"><input type="checkbox" id="layerCheckpoints"> Checkpoint scan locations (selected site)</label>
+<label class="control"><input type="checkbox" id="layerPatrols"> Historical GPS routes (selected site)</label>
 <div class="stats" id="summary">Waiting for TALOS data…</div>
 <h2>Public intelligence · God's Eye sources</h2>
 <label class="control"><input type="checkbox" id="layerQuakes"> USGS earthquakes (24 hours)</label>
@@ -93,6 +93,6 @@ button{font:inherit;cursor:pointer;background:var(--button);border:1px solid var
 </div></details>
 </section></div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
-<script src="./geo.js?v=1.6.0"></script>
+<script src="./geo.js?v=1.6.1"></script>
 <script src="./replay.js?v=1.6.0"></script>
 </body></html>
