@@ -108,7 +108,7 @@ $('navC247').addEventListener('click',()=>activateModule('c247'));
 $('navHandovers').addEventListener('click',()=>activateModule('handovers'));
 $('navGpsLogs').addEventListener('click',()=>activateModule('gps'));
 $('navGeo').addEventListener('click',()=>activateModule('geo'));
-function sendGeoSites(frame){if(!session||frame.dataset.module!=='geo')return;try{frame.contentWindow.postMessage({talosGeoSites:sites.map(s=>({id:s.id,name:s.name,latitude:s.latitude,longitude:s.longitude}))},location.origin)}catch(_){}}
+function sendGeoSites(frame){if(!session||frame.dataset.module!=='geo')return;try{frame.contentWindow.postMessage({talosGeoSites:sites.map(s=>({id:s.id,name:s.name,postcode:s.postcode,latitude:s.latitude,longitude:s.longitude}))},location.origin)}catch(_){}}
 window.addEventListener('message',event=>{
  if(event.origin!==window.location.origin||!Object.values(moduleRoutes).length)return;
  if(!Object.values([...$('moduleHost').querySelectorAll('iframe')]).some(frame=>frame.contentWindow===event.source))return;
