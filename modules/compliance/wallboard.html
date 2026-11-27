@@ -46,7 +46,7 @@ html[data-talos-theme="light"] .nav button.active{background:#dce7ff;color:#2039
 html[data-talos-theme="light"] #error{background:rgba(245,247,250,.97);color:#213047}
 
 </style>
-</head>
+<link rel="stylesheet" href="../../talos-brand.css?v=1"></head>
 <body>
 <div class="wall">
 <header class="topbar">
@@ -113,8 +113,8 @@ $("pauseBtn").addEventListener("click",()=>{paused=!paused;if(!paused){$("scopeS
 (async()=>{if(await validate()){await load();document.getElementById("wallboardLoading").hidden=true;startTimers()}})();
 
 /* Shared shell theme: keep independently loaded modules in sync. */
-window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme=event.data.talosTheme});
-document.documentElement.dataset.talosTheme=localStorage.getItem('talosEstateTheme')||'dark';
+window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme='dark'});
+document.documentElement.dataset.talosTheme='dark';
 </script>
 </body>
 </html>
