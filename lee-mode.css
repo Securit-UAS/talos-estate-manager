@@ -1,0 +1,20 @@
+
+/* Lee Mode: deliberately retro, readable, and entirely optional. */
+html.lee-mode{color-scheme:dark}
+html.lee-mode body,html.lee-mode body[data-theme="dark"],html.lee-mode[data-talos-theme="dark"]{
+--bg:#280b39!important;--side:#390e59!important;--panel:#38154e!important;--panel2:#57204e!important;--field:#211039!important;--line:#ff57c7!important;--text:#fff8ff!important;--txt:#fff8ff!important;--muted:#ffe1f8!important;--accent:#baff38!important;--accentfg:#162200!important;
+}
+html.lee-mode body{background:repeating-linear-gradient(135deg,#280b39 0 18px,#310c46 18px 36px)!important;color:#fff8ff!important}
+html.lee-mode :is(.sidebar,.topbar,.top,.hero,.panelhead){background:linear-gradient(120deg,#4d126b,#8b145e,#184b70)!important;color:#fff!important}
+html.lee-mode :is(.panel,.card,.kpi,.module,.access-card){background:#38154e!important;border-color:#ff57c7!important;color:#fff8ff!important}
+html.lee-mode :is(h1,h2,h3,.eyebrow,.sidesection){color:#fff!important;text-shadow:1px 1px #a80079,0 0 7px #ff57c7}
+html.lee-mode :is(button,.sideitem,a.btn,a.action,.aerial-links a):not(:disabled){background:linear-gradient(#eaff9c,#a7e32b 48%,#77b900 52%,#c5f850)!important;color:#182800!important;border:1px solid #ffdf00!important;text-shadow:none;border-radius:10px;box-shadow:inset 0 1px 2px #fff9}
+html.lee-mode :is(button,.sideitem,a.btn,a.action,.aerial-links a):not(:disabled):hover{background:linear-gradient(#fffca3,#ffca00)!important;color:#311000!important;box-shadow:0 0 12px #ff48b7,0 0 20px #ff48b7!important}
+html.lee-mode :is(.sideitem.selected,button[aria-pressed="true"]){background:linear-gradient(#ff94de,#d51b91)!important;color:#220019!important}
+html.lee-mode :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){background:#211039!important;color:#fff8ff!important;border-color:#ff57c7!important}
+html.lee-mode .nav-icon{background:#412264!important;color:#fff!important}
+html.lee-mode .nav-soon{color:inherit}
+html.lee-mode :is(.subtle,.hint,.muted,.identity small){color:#ffe1f8!important}
+html.lee-mode .appraisal-overview{background:#38154e!important;color:#fff8ff!important}
+html.lee-mode .appraisal-overview :is(summary,p){color:#fff8ff!important}
+#leeMode[hidden]{display:none!important}
