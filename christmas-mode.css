@@ -1,0 +1,22 @@
+
+#christmasMode[hidden],#christmasSound[hidden],#christmasSnow[hidden]{display:none!important}
+#christmasMode:not([hidden]){border:1px solid #b49a55;color:#ffe8a6;background:#20372e;box-shadow:0 0 8px #e6bc5233}
+html.christmas-mode{color-scheme:dark}
+html.christmas-mode body,html.christmas-mode body[data-theme="dark"],html.christmas-mode[data-talos-theme="dark"]{--bg:#10261e!important;--side:#163b2b!important;--panel:#19372b!important;--panel2:#244b39!important;--field:#10271e!important;--line:#9b8151!important;--text:#fff9e9!important;--txt:#fff9e9!important;--muted:#e2d6bb!important;--accent:#f4d477!important;--accentfg:#302408!important}
+html.christmas-mode body{background:#10261e!important;color:#fff9e9!important}
+html.christmas-mode :is(.sidebar,.topbar,.top,.hero,.panelhead){background:linear-gradient(115deg,#173e2c,#70232b,#254e38,#173e2c)!important;background-size:300% 300%!important;animation:christmas-drift 22s ease infinite;color:#fff9e9!important}
+html.christmas-mode :is(.panel,.card,.kpi,.module,.access-card){background:#19372b!important;border-color:#9b8151!important;color:#fff9e9!important}
+html.christmas-mode :is(button,.sideitem,a.btn,a.action,.aerial-links a):not(:disabled){background:linear-gradient(#a83e46,#731f2c)!important;color:#fff9e9!important;border:1px solid #d5b86b!important}
+html.christmas-mode :is(.sideitem.selected,button[aria-pressed="true"]){background:#f4d477!important;color:#302408!important}
+html.christmas-mode :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){background:#10271e!important;color:#fff9e9!important;border-color:#9b8151!important}
+html.christmas-mode :is(h1,h2,h3,.eyebrow,.sidesection){color:#fff5d5!important}
+html.christmas-mode :is(.subtle,.hint,.muted,.identity small){color:#e2d6bb!important}
+html.christmas-mode .appraisal-overview{background:#19372b!important;color:#fff9e9!important}
+html.christmas-mode .appraisal-overview :is(summary,p){color:#fff9e9!important}
+html.christmas-mode .christmas-announcement{background:#19372b;border:2px solid #f4d477;color:#fff9e9;box-shadow:0 0 24px #f4d47766}
+.christmas-star{font-size:44px;color:#f4d477;text-shadow:0 0 12px #eabf69;margin-bottom:12px}
+#christmasSnow{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:10000}
+#christmasSnow span{position:absolute;top:-30px;left:var(--x);font-size:var(--size);color:#fff;opacity:.35;animation:christmas-fall var(--duration) linear var(--delay) infinite}
+@keyframes christmas-fall{to{transform:translate(35px,110vh)}}
+@keyframes christmas-drift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@media(prefers-reduced-motion:reduce){#christmasSnow{display:none!important}html.christmas-mode :is(.sidebar,.topbar,.top,.hero,.panelhead){animation:none!important}}
