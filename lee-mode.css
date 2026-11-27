@@ -34,3 +34,12 @@ html.lee-mode .lee-announcement{background:linear-gradient(145deg,#38154e,#72145
 .lee-announcement-star{font-size:42px;color:#baff38;text-shadow:0 0 13px #baff38;margin-bottom:8px}
 html.lee-mode .lee-announcement h2{font-size:clamp(25px,6vw,36px);margin:0 0 22px;color:#fff;text-shadow:2px 2px #a80079,0 0 12px #ff57c7}
 @media(prefers-reduced-motion:reduce){html:not(.lee-mode) #leeMode::after{animation:none;display:none}}
+
+/* Slow MySpace colour drift, keeping text and status indicators stable. */
+#leeSound[hidden]{display:none!important}
+html.lee-mode :is(.sidebar,.topbar,.top,.hero,.panelhead){background:linear-gradient(115deg,#531169,#8b145e,#154d72,#531169)!important;background-size:300% 300%!important;animation:lee-gradient-drift 19s ease-in-out infinite}
+html.lee-mode .lee-announcement{background:linear-gradient(130deg,#38154e,#8b145e,#17496c,#38154e)!important;background-size:300% 300%!important;animation:lee-gradient-drift 10s ease-in-out infinite}
+html.lee-mode :is(.panel,.card,.kpi,.module,.access-card){animation:lee-border-drift 12s ease-in-out infinite}
+@keyframes lee-gradient-drift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes lee-border-drift{0%,100%{border-color:#ff57c7;box-shadow:0 0 7px #ff57c744}50%{border-color:#77f4ff;box-shadow:0 0 9px #77f4ff44}}
+@media(prefers-reduced-motion:reduce){html.lee-mode :is(.sidebar,.topbar,.top,.hero,.panelhead,.lee-announcement,.panel,.card,.kpi,.module,.access-card){animation:none!important}}
