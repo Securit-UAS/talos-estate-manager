@@ -147,7 +147,7 @@ html[data-talos-theme="light"] .loading-percent{color:#284e91}
 html[data-talos-theme="light"]{--bg:#e7ecf2;--panel:#f7f9fc;--panel2:#ecf1f7;--line:#cbd5e1;--muted:#53657d}
 html[data-talos-theme="dark"]{--muted:#b9cae0}
 </style>
-</head>
+<link rel="stylesheet" href="../../talos-brand.css?v=1"></head>
 <body>
 <div class="auth-gate" id="authGate">
   <section class="auth-card" id="loginPanel"><img src="securit-logo.png" alt="Securit" class="auth-logo"><span class="eyebrow">Secure access</span><h2>Incident Dashboard Login</h2><p>Enter your authorised email address and PIN to access the live Securit incident dashboard.</p><form id="loginForm"><div class="auth-field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="username" required></div><div class="auth-field"><label for="loginPin">PIN</label><input id="loginPin" type="password" inputmode="numeric" autocomplete="current-password" required></div><div class="auth-actions"><button class="btn primary" id="loginBtn" type="submit">Sign in</button></div><p class="auth-message" id="loginMessage"></p></form></section>
@@ -540,8 +540,8 @@ validateStoredSession();
 
 /* Shared shell theme: keep independently loaded modules in sync. */
 document.getElementById('talosIncidentSync')?.appendChild(document.querySelector('.legacy-header .sync'));
-window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme=event.data.talosTheme});
-document.documentElement.dataset.talosTheme=localStorage.getItem('talosEstateTheme')||'dark';
+window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme='dark'});
+document.documentElement.dataset.talosTheme='dark';
 </script>
 </body>
 </html>
