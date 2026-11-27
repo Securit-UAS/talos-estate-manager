@@ -98,3 +98,6 @@ body[data-theme="dark"] .subtle,body[data-theme="dark"] .hint,body[data-theme="d
 .talos-restricted-dialog p{color:var(--muted);line-height:1.6;margin:0 0 24px}
 .talos-restricted-dialog button{min-width:145px}
 @media(max-width:800px){.talos-navigation .sideitem{padding:10px 8px;font-size:12px}.nav-soon{font-size:8px}.nav-group .sidesection{font-size:9px;letter-spacing:1px}}
+
+/* TALOS Survey palette */
+body,body[data-theme="dark"]{--bg:#0b1018;--side:#0e1621;--panel:#102331;--panel2:#192e3b;--field:#111b27;--line:#354b5c;--text:#edf3f8;--muted:#b8c9df;--accent:#44b6d8;--accentfg:#07151e}
