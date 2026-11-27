@@ -415,7 +415,7 @@ function init(){
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==window.parent)return;
  const data=event.data||{};
- if(data.talosTheme)document.body.classList.toggle('light',data.talosTheme==='light');
+ if(data.talosTheme)document.body.classList.remove('light');
  if(Array.isArray(data.talosGeoSites))receiveEstates(data.talosGeoSites);
  if(Array.isArray(data.talosGeoCheckpoints))receiveGps(data.talosGeoCheckpoints);
 });
