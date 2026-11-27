@@ -101,3 +101,20 @@ body[data-theme="dark"] .subtle,body[data-theme="dark"] .hint,body[data-theme="d
 
 /* TALOS Survey palette */
 body,body[data-theme="dark"]{--bg:#0b1018;--side:#0e1621;--panel:#102331;--panel2:#192e3b;--field:#111b27;--line:#354b5c;--text:#edf3f8;--muted:#b8c9df;--accent:#44b6d8;--accentfg:#07151e}
+
+/* TALOS Aerial Intelligence expandable survey directory */
+.talos-navigation .aerial-disclosure{margin:3px 0}
+.talos-navigation .aerial-disclosure summary{list-style:none;cursor:pointer;border-style:solid}
+.talos-navigation .aerial-disclosure summary::-webkit-details-marker{display:none}
+.talos-navigation .aerial-disclosure summary::marker{content:""}
+.talos-navigation .aerial-chevron{flex:none;color:var(--muted);font-size:15px;transition:transform .18s}
+.talos-navigation .aerial-disclosure[open] .aerial-chevron{transform:rotate(90deg)}
+.talos-navigation .aerial-disclosure[open] summary{border-color:var(--accent)}
+.talos-navigation .aerial-links{display:grid;gap:5px;margin:6px 0 10px 13px;padding-left:9px;border-left:1px solid var(--line)}
+.talos-navigation .aerial-links a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);text-decoration:none;font-size:12px;line-height:1.35;white-space:normal}
+.talos-navigation .aerial-links a .external-mark{flex:none;color:var(--accent)}
+.talos-navigation .aerial-disclosure summary:hover,.talos-navigation .aerial-links a:hover{border-color:#ff4c5b!important;box-shadow:0 0 0 1px #ff4c5b55,0 0 13px #ff263f88,0 0 26px #ff263f44!important;background:var(--panel2)}
+.talos-navigation .aerial-disclosure summary:focus-visible,.talos-navigation .aerial-links a:focus-visible{outline:2px solid #ff6571!important;outline-offset:3px}
+.talos-navigation .aerial-disclosure:not([open]) .aerial-links{display:none}
+.talos-navigation .aerial-disclosure summary>span,.talos-navigation .aerial-links a>span{display:inline}
+@media(prefers-reduced-motion:reduce){.talos-navigation .aerial-chevron{transition:none}}
