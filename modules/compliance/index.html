@@ -128,8 +128,14 @@ html.talos-officer-embedded body{background:transparent!important}
 html.talos-officer-embedded .shell,html.talos-officer-embedded #certificate{display:none!important}
 html.talos-officer-embedded #officerDialog{max-height:calc(100dvh - 60px)}
 
+
+/* TALOS AI overview contrast */
+html[data-talos-theme="dark"] .appraisal-overview{background:#102331!important;border-color:#476273!important;color:#edf3f8!important}
+html[data-talos-theme="dark"] .appraisal-overview summary{color:#edf3f8!important;font-weight:850}
+html[data-talos-theme="dark"] .appraisal-overview p{color:#d5e3ee!important;line-height:1.6}
+html[data-talos-theme="dark"] .appraisal-overview summary:hover{color:#fff!important;text-shadow:0 0 10px #ff4c5b88}
 </style>
-</head>
+<link rel="stylesheet" href="../../talos-brand.css?v=1"></head>
 <body data-build="r7-20261009">
 <div class="auth-gate" id="authGate">
   <section class="auth-card card" id="loginPanel"><div class="auth-brand"><img src="securit-logo.png" alt="Securit"><div><h2>Master Compliance Login</h2><p>Secure TALOS compliance access</p></div></div><form id="loginForm"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPin">PIN</label><input id="loginPin" type="password" autocomplete="current-password" required><button class="btn primary" id="loginBtn" type="submit">Sign in</button><div class="auth-message" id="loginMessage"></div></form></section>
@@ -529,8 +535,8 @@ function openPendingOfficer(){if(pendingOfficerId)openOfficerByStaffId(pendingOf
 el('historyExceptions').addEventListener('change',renderOfficerHistory);
 el('reloadHistory').addEventListener('click',()=>{if(selectedOfficer?.staffId)loadOfficerHistory(selectedOfficer.staffId)});
 window.addEventListener('message',event=>{if(event.origin!==location.origin)return;const id=event.data?.talosOpenOfficerStaffId;if(id!=null)openOfficerByStaffId(id)});
-window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme=event.data.talosTheme});
-document.documentElement.dataset.talosTheme=localStorage.getItem('talosEstateTheme')||'dark';
+window.addEventListener('message',event=>{if(event.origin!==window.location.origin)return;if(event.data?.talosTheme==='dark'||event.data?.talosTheme==='light')document.documentElement.dataset.talosTheme='dark'});
+document.documentElement.dataset.talosTheme='dark';
 </script>
 </body>
 </html>
