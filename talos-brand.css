@@ -1,0 +1,7 @@
+
+/* TALOS shared brand interaction — dark-only */
+:root{color-scheme:dark}
+:is(button,input[type="button"],input[type="submit"],input[type="reset"],[role="button"],a.btn,a.button,a.action,a.primary,a.quiet,a.wa-btn,a.sp-gate-button,label.file-picker-label){transition:box-shadow .18s ease,border-color .18s ease,background-color .18s ease}
+:is(button,input[type="button"],input[type="submit"],input[type="reset"],[role="button"],a.btn,a.button,a.action,a.primary,a.quiet,a.wa-btn,a.sp-gate-button,label.file-picker-label):not(:disabled):not([aria-disabled="true"]):hover{border-color:#ff4c5b!important;box-shadow:0 0 0 1px #ff4c5b55,0 0 13px #ff263f88,0 0 26px #ff263f44!important}
+:is(button,input[type="button"],input[type="submit"],input[type="reset"],[role="button"],a.btn,a.button,a.action,a.primary,a.quiet,a.wa-btn,a.sp-gate-button,label.file-picker-label):focus-visible{outline:2px solid #ff6571!important;outline-offset:3px;box-shadow:0 0 15px #ff263f77!important}
+@media(prefers-reduced-motion:reduce){:is(button,input[type="button"],input[type="submit"],[role="button"],a.btn,a.button,a.action){transition:none}}
